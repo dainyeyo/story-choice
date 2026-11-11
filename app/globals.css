@@ -213,7 +213,7 @@ body {
 }
 
 .pet-sprite-frame {
-  background-image: url("/pet-sprites.png");
+  background-image: url("/pet-sprites-centered.png");
   background-repeat: no-repeat;
   background-size: 500% 200%;
   animation: pet-breathe 2.4s ease-in-out infinite alternate;
@@ -221,7 +221,12 @@ body {
 
 .pet-sprite-blink {
   opacity: 0;
-  animation: pet-blink 3.8s steps(1, end) infinite;
+  animation: pet-blink 1s steps(1, end) infinite;
+}
+
+.pet-sprite-wave {
+  opacity: 0;
+  animation: pet-wave 2.6s steps(1, end) infinite;
 }
 
 @keyframes pet-breathe {
@@ -230,8 +235,13 @@ body {
 }
 
 @keyframes pet-blink {
-  0%, 93%, 100% { opacity: 0; }
-  94%, 97% { opacity: 1; }
+  0%, 79%, 100% { opacity: 0; }
+  80%, 94% { opacity: 1; }
+}
+
+@keyframes pet-wave {
+  0%, 22%, 100% { opacity: 0; }
+  12%, 20% { opacity: 1; }
 }
 
 @media (prefers-reduced-motion: reduce) {
