@@ -66,7 +66,7 @@ export default function ReadPage() {
   if (s.step !== "story") return null;
 
   return (
-    <main className="page-turn mx-auto w-full max-w-md space-y-6 px-4 py-6 md:max-w-7xl md:px-8 md:py-4">
+    <main className="reader-main page-turn mx-auto w-full max-w-md space-y-6 px-4 py-6 md:max-w-none md:px-8 md:py-4">
       <div className="reader-stage space-y-6">
       {s.error && (
         <p role="alert" className={errorCls}>

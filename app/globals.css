@@ -38,10 +38,21 @@
   }
 }
 
-/* 큰 글씨도 화면 안에서 쪽을 넘겨 읽는다. 낮은 창과 휴대폰은 세로 흐름을 유지한다. */
-@media (min-width: 768px) and (min-height: 600px) {
+/* 데스크톱에서는 헤더 아래 남은 화면에 약 2:1 읽기 프레임을 고정한다.
+   브라우저 확대 시 본문 칸이 낮아지면 ResizeObserver가 쪽 수를 늘린다. */
+@media (min-width: 768px) {
+  .reader-main {
+    box-sizing: border-box;
+    height: calc(100dvh - 80px);
+    max-width: none;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+  }
   .reader-stage {
-    height: calc(100dvh - 81px - 2rem);
+    width: min(100%, calc(200dvh - 160px));
+    height: 100%;
+    min-width: 0;
     display: flex;
     flex-direction: column;
     gap: 1rem;
