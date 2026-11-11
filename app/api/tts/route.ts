@@ -1,7 +1,5 @@
 import { isTtsVoice, TTS_VOICES } from "@/lib/tts";
 
-export const runtime = "nodejs";
-
 const MAX_TEXT_LENGTH = 12_000;
 const RATE_VALUES = [0.7, 0.9, 1.1] as const;
 
