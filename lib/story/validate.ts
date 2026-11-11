@@ -60,6 +60,8 @@ export function parseStoryRequest(raw: unknown): StoryRequest | string {
   return {
     ...common,
     durationMin,
+    characterBible: str(b.characterBible, 4000) || undefined,
+    hasUserDrawing: b.hasUserDrawing === true,
     previousMemo: str(b.previousMemo, 200) || undefined,
     recentContext: str(b.recentContext, 600) || undefined,
   };

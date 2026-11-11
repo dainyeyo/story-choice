@@ -16,6 +16,8 @@ npm install
 
 ```
 GEMINI_API_KEY=발급받은_키
+CLOUDFLARE_ACCOUNT_ID=Cloudflare_계정_ID
+CLOUDFLARE_API_TOKEN=Workers_AI_권한_토큰
 ```
 
 3. 개발 서버 실행 후 http://localhost:3000 접속
@@ -25,6 +27,8 @@ npm run dev
 ```
 
 배포(Vercel)에는 `.env.local`이 올라가지 않는다. Vercel 프로젝트의 Settings → Environment Variables에 `GEMINI_API_KEY`를 따로 넣어야 한다.
+
+삽화 생성에는 Cloudflare Workers AI 계정 ID와 API 토큰이 필요하다. 배포 환경에도 위 두 값을 설정한다. 직접 그리거나 PNG/JPG 그림을 올리면 원본 그림을 장면 배경에 합성한다.
 
 선택 환경변수: `GEMINI_MODEL` (기본 `gemini-3.5-flash-lite`). 기획안의 `gemini-2.5-flash`는 신규 사용자에게 막혀 있다. `gemini-3.8-flash`는 품질이 낫지만 수요가 몰리면 수십 초 걸린다.
 
