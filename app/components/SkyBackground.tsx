@@ -60,7 +60,7 @@ export default function SkyBackground() {
       </svg>
 
       {/* 해와 달: 화면 아래 가운데를 중심으로 도는 궤도 위에 서로 반대편에 있다 */}
-      <div className="sky-orbit absolute left-1/2 top-[88%] h-0 w-0">
+      <div className="sky-orbit absolute left-1/2 top-[76%] h-0 w-0">
         <div className="sky-body sky-moon absolute">
           <svg width="96" height="96" viewBox="-48 -48 96 96">
             <circle r="46" fill="#ffe9a8" opacity=".14" />
