@@ -161,56 +161,56 @@ export default function ReadPage() {
                 <Icon name="right" />
               </button>
             </div>
+
+            {atLast && atSceneEnd && s.choice && !s.isEnding && (
+              <section className="space-y-2.5" aria-label="이야기 선택">
+                <p className="story text-center text-base text-ink md:text-lg">{s.choice.prompt}</p>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {s.choice.options.map((o) => (
+                    <button
+                      key={o.id}
+                      onClick={() => {
+                        n.stop();
+                        setPage(s.scenes.length); // 새 장면의 첫 쪽으로
+                        void s.pick(o);
+                      }}
+                      className="calm flex min-h-12 items-center justify-between gap-2 rounded-xl border border-line bg-surface px-3 py-2 text-left text-[15px] leading-6 text-ink hover:border-accent hover:bg-sunk active:translate-y-px"
+                    >
+                      {o.text}
+                      <Icon name="right" size={16} className="text-ink-3" />
+                    </button>
+                  ))}
+                </div>
+                <form
+                  className="flex gap-2"
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    const text = custom.trim();
+                    if (!text) return;
+                    n.stop();
+                    setPage(s.scenes.length);
+                    setCustom("");
+                    void s.pick({ text, copingType: CUSTOM_COPING });
+                  }}
+                >
+                  <input
+                    value={custom}
+                    onChange={(e) => setCustom(e.target.value)}
+                    maxLength={60}
+                    aria-label="직접 입력"
+                    placeholder="내가 생각한 방법을 직접 써 볼래요"
+                    className={`${inputCls} min-w-0 flex-1 py-2`}
+                  />
+                  <button type="submit" disabled={!custom.trim()} className={`${btnSecondary} h-11 shrink-0 px-3 text-sm disabled:opacity-40`}>
+                    이렇게 할래요
+                  </button>
+                </form>
+              </section>
+            )}
           </div>
         </div>
       </article>
       </div>
-
-      {atLast && atSceneEnd && s.choice && !s.isEnding && (
-        <section className="mx-auto w-full max-w-3xl space-y-4">
-          <p className="story text-center text-xl text-sky-ink md:text-2xl">{s.choice.prompt}</p>
-          <div className="grid gap-3 md:grid-cols-2">
-            {s.choice.options.map((o) => (
-              <button
-                key={o.id}
-                onClick={() => {
-                  n.stop();
-                  setPage(s.scenes.length); // 새 장면의 첫 쪽으로
-                  void s.pick(o);
-                }}
-                className="calm flex min-h-16 items-center justify-between gap-3 rounded-xl border border-line bg-surface p-4 text-left text-lg text-ink hover:border-accent hover:bg-sunk active:translate-y-px"
-              >
-                {o.text}
-                <Icon name="right" className="text-ink-3" />
-              </button>
-            ))}
-          </div>
-          <form
-            className="flex gap-2"
-            onSubmit={(e) => {
-              e.preventDefault();
-              const text = custom.trim();
-              if (!text) return;
-              n.stop();
-              setPage(s.scenes.length);
-              setCustom("");
-              void s.pick({ text, copingType: CUSTOM_COPING });
-            }}
-          >
-            <input
-              value={custom}
-              onChange={(e) => setCustom(e.target.value)}
-              maxLength={60}
-              aria-label="직접 입력"
-              placeholder="내가 생각한 방법을 직접 써 볼래요"
-              className={`${inputCls} min-w-0 flex-1`}
-            />
-            <button type="submit" disabled={!custom.trim()} className={`${btnSecondary} shrink-0 disabled:opacity-40`}>
-              이렇게 할래요
-            </button>
-          </form>
-        </section>
-      )}
 
       {atLast && atSceneEnd && s.isEnding && (
         <section className="page-turn book-page mx-auto w-full max-w-xl rounded-2xl border px-6 py-10 text-center">
