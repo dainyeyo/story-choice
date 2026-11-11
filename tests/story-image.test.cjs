@@ -166,7 +166,8 @@ test('generated illustrations never compete with an original drawing', () => {
   assert.deepEqual(sceneReferences(null, null, null), []);
   const prompt = drawingScenePrompt('waves beside a tree', 'a blue bird', 'The protagonist waves.');
   assert.match(prompt, /input image 0/);
-  assert.match(prompt, /original drawing style/);
+  assert.match(prompt, /EXACTLY ONE MAIN CHARACTER/);
+  assert.match(prompt, /pose, body and facial expression/);
   assert.match(prompt, /waves beside a tree/);
 });
 
@@ -192,7 +193,8 @@ test('drawing route requires the original and forwards it as input_image_0', asy
     assert.equal(missing.status, 400);
     assert.equal((await missing.json()).errorCode, 'DRAWING_REFERENCE_REQUIRED');
     assert.equal(forwarded, undefined);
-    form.set('image_0', new File(['original-drawing'], 'drawing.png', { type: 'image/png' }));
+    const drawingBytes = await require('sharp')(Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64"><rect width="64" height="64" fill="white"/><circle cx="32" cy="32" r="18" fill="none" stroke="#405a42" stroke-width="4"/></svg>')).png().toBuffer();
+    form.set('image_0', new File([drawingBytes], 'drawing.png', { type: 'image/png' }));
     form.set('image_1', new File(['wrong-page'], 'page.png', { type: 'image/png' }));
     assert.equal((await (await invoke(form)).json()).errorCode, 'DRAWING_REFERENCE_CONFLICT');
     assert.equal(forwarded, undefined);
@@ -203,8 +205,13 @@ test('drawing route requires the original and forwards it as input_image_0', asy
     assert.ok(upstreamUrl.endsWith('/flux-2-klein-4b'));
     assert.equal(success.headers.get('x-image-model'), '@cf/black-forest-labs/flux-2-klein-4b');
     assert.equal(success.headers.get('x-reference-count'), '1');
-    assert.equal(success.headers.get('x-reference-sha256'), require('node:crypto').createHash('sha256').update('original-drawing').digest('hex'));
-    assert.equal(await forwarded.get('input_image_0').text(), 'original-drawing');
+    assert.equal(success.headers.get('x-reference-sha256'), require('node:crypto').createHash('sha256').update(drawingBytes).digest('hex'));
+    assert.equal(success.headers.get('x-reference-role'), 'model');
+    // The model gets the cleaned cutout on white paper, not the raw upload.
+    const sent = await require('sharp')(Buffer.from(await forwarded.get('input_image_0').arrayBuffer())).raw().toBuffer({ resolveWithObject: true });
+    assert.equal(sent.info.width, 512);
+    assert.deepEqual([...sent.data.slice(0, 3)], [255, 255, 255]);
+    assert.match(forwarded.get('prompt'), /test scene/);
     assert.equal(forwarded.has('input_image_1'), false);
     forwarded = undefined;
     form.set('model', 'untrusted/model');
@@ -277,3 +284,27 @@ test('only 4B is selectable, even with a stale model environment override', asyn
 });
 
 module.exports = { loadTs };
+
+test('photo of grey, unevenly lit paper: paper and table edge removed, interior white', () => {
+  const width = 200, height = 160;
+  const pixels = new Uint8ClampedArray(width * height * 4);
+  for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) {
+    const shade = 150 + Math.round(60 * x / width); // paper photographed with a shadow gradient
+    pixels.set([shade, shade - 6, shade - 18, 255], (y * width + x) * 4);
+    if (x < 8) pixels.set([60, 40, 30, 255], (y * width + x) * 4); // table showing at the left edge
+  }
+  for (let y = 40; y <= 120; y++) for (let x = 60; x <= 140; x++) {
+    const d = Math.hypot(x - 100, y - 80);
+    if (d >= 34 && d <= 38) pixels.set([20, 20, 20, 255], (y * width + x) * 4);
+  }
+  pixels.set([90, 80, 70, 255], (10 * width + 180) * 4); // speck of dust
+  const output = removeExteriorPaper(pixels, width, height);
+  const at = (x, y) => [...output.slice((y * width + x) * 4, (y * width + x) * 4 + 4)];
+  assert.equal(at(30, 20)[3], 0, 'grey paper outside becomes transparent');
+  assert.equal(at(190, 150)[3], 0, 'bright paper outside becomes transparent');
+  assert.equal(at(3, 80)[3], 0, 'table at the picture edge is dropped');
+  assert.equal(at(180, 10)[3], 0, 'dust speck is dropped');
+  assert.deepEqual(at(100, 80), [255, 255, 255, 255], 'inside of the character is white');
+  assert.equal(at(100, 44)[3], 255, 'outline is kept');
+  assert.ok(at(100, 44)[0] < 80, 'outline stays dark');
+});

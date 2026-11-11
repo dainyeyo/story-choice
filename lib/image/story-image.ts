@@ -20,14 +20,15 @@ export function drawingBounds(data: Uint8ClampedArray, width: number, height: nu
 
 export function drawingScenePrompt(visualPrompt: string, _supportingCharacters: string, narration: string) {
   return [
-    "Edit the attached drawing (input image 0) into a storybook scene. The drawn figure itself is the main protagonist, not an example of a style or a prop.",
-    "Preserve its original drawing style: copy its exact silhouette, stacked shapes, face placement, proportions, line color, and distinctive marks. Keep the figure's visible design, including its simple outline and unfilled areas. Adapt placement and expression gently while keeping that design recognizable.",
-    "The protagonist's appearance comes only from the attached drawing. Story names and animal words in the scene are labels, not instructions to redesign it. Supporting characters are separate figures beside it.",
-    `Scene: ${visualPrompt}`,
-    `Story context (actions and setting only; the image defines the protagonist's appearance): ${narration}`,
+    "Turn input image 0 into one storybook page. The character drawn in input image 0 IS the main character of this story, the hero of the scene.",
+    "THERE IS EXACTLY ONE MAIN CHARACTER: the drawn character from input image 0, appearing once. Do not invent, add or substitute any other hero, child, kid, girl, boy, animal or creature as the main character, and do not draw a second copy of it.",
+    "Keep the drawn character's look: same silhouette, shapes, face, colours, line style and marks, drawn like the child's original. Story names and animal words refer to this drawn character; never redraw it as a different animal or person.",
+    "Act out the moment: change the drawn character's pose, body and facial expression to match exactly what it is doing and feeling right now, and let it physically interact with the props (for example, under a blanket pulled up to its eyes and trembling, hugging a toy, hiding behind a door, running, crying, smiling). The situation must be obvious at a glance, not the character just standing next to things.",
+    `This moment: ${visualPrompt}`,
+    `Story text of this page (the protagonist here is the drawn character): ${narration}`,
     // A free-form characterBible can contain a conflicting protagonist even when
     // labelled 'supporting only'. Never feed that unvalidated identity back here.
-    "Use a soft watercolor background around the original-style protagonist. One scene, no text or speech bubbles.",
+    "Other people or animals only if the moment names them, drawn smaller and clearly secondary. Soft watercolor storybook background, one scene, no text or speech bubbles.",
   ].join("\n");
 }
 
