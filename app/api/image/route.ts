@@ -4,6 +4,7 @@ import { fetchCloudflareImage, ImageUpstreamError } from "@/lib/image/image-upst
 import { DEFAULT_IMAGE_MODEL, isImageModel } from "@/lib/image/image-models";
 import { composeDrawing, drawingReference, prepareDrawing } from "@/lib/image/compose-drawing";
 import { fallbackBackground } from "@/lib/image/fallback-background";
+import { checkProtagonist, type ProtagonistCheck } from "@/lib/image/verify-protagonist";
 import sharp from "sharp";
 
 export const maxDuration = 120;
@@ -57,6 +58,7 @@ export async function POST(request: Request) {
     }
 
     let preparedDrawing: Buffer | undefined;
+    let referencePng: Buffer | undefined;
     if (composite || drawingScene) {
       try { preparedDrawing = await prepareDrawing(references[0]); }
       catch (error) {
@@ -66,28 +68,67 @@ export async function POST(request: Request) {
       }
       // The model sees only the cleaned character on plain white paper, so it
       // never confuses photo paper/table edges with the scene or the character.
-      if (drawingScene) form.set("input_image_0", new File([new Uint8Array(await drawingReference(preparedDrawing))], "protagonist.png", { type: "image/png" }));
+      if (drawingScene) {
+        referencePng = await drawingReference(preparedDrawing);
+        form.set("input_image_0", new File([new Uint8Array(referencePng)], "protagonist.png", { type: "image/png" }));
+        // A previous, verified page of the same book keeps style and supporting cast consistent.
+        // It is a secondary reference only; the identity always comes from input_image_0.
+        const sceneRef = incoming.get("scene_ref");
+        if (sceneRef instanceof File && sceneRef.size > 0) {
+          if (!["image/png", "image/jpeg"].includes(sceneRef.type) || sceneRef.size > 10 * 1024 * 1024)
+            return NextResponse.json({ error: "이전 장면 참고 이미지 형식이 올바르지 않아요.", errorCode: "IMAGE_FILE_INVALID" }, { status: 400 });
+          form.set("input_image_1", sceneRef, "previous-page.png");
+        }
+      }
     }
+    const endpoint = `https://api.cloudflare.com/client/v4/accounts/${encodeURIComponent(accountId!)}/ai/run/${encodeURI(selectedModel)}`;
+    const generate = (body: FormData) => fetchCloudflareImage(endpoint, apiToken!, body, request.signal);
     let result: { bytes: Buffer; mime: string; attempts: number; rayId?: string };
     let backgroundSource = "generated";
     let fallbackReason = "";
+    let protagonistCheck: ProtagonistCheck | "composite" | "n/a" = drawingScene ? "unchecked" : "n/a";
+    let pasteDrawing = false;
     try {
-      result = await fetchCloudflareImage(
-          `https://api.cloudflare.com/client/v4/accounts/${encodeURIComponent(accountId!)}/ai/run/${encodeURI(selectedModel)}`,
-          apiToken!, form, request.signal,
-        );
+      result = await generate(form);
+      if (drawingScene) {
+        // Image models sometimes ignore the drawing and invent a new hero. Verify, retry once,
+        // and if it still fails, paint a background plate and paste the child's own drawing.
+        protagonistCheck = await checkProtagonist(referencePng!, result.bytes, result.mime, request.signal);
+        if (protagonistCheck === "fail") {
+          const retryPrompt = String(incoming.get("retryPrompt") || "").trim();
+          if (retryPrompt) form.set("prompt", retryPrompt);
+          result = await generate(form);
+          protagonistCheck = await checkProtagonist(referencePng!, result.bytes, result.mime, request.signal);
+        }
+        if (protagonistCheck === "fail") {
+          const backgroundPrompt = String(incoming.get("backgroundPrompt") || "").trim();
+          pasteDrawing = true;
+          protagonistCheck = "composite";
+          if (backgroundPrompt) {
+            const plate = new FormData();
+            plate.set("prompt", backgroundPrompt);
+            plate.set("width", String(form.get("width"))); plate.set("height", String(form.get("height")));
+            result = await generate(plate);
+            backgroundSource = "plate";
+          } else {
+            result = { ...result, bytes: await fallbackBackground(prompt), mime: "image/png" };
+            backgroundSource = "local-fallback";
+          }
+        }
+      }
     } catch (error) {
       const recoverable = ["IMAGE_QUOTA_EXCEEDED", "IMAGE_SERVICE_UNAVAILABLE", "IMAGE_SERVICE_BUSY",
         "IMAGE_UPSTREAM_TIMEOUT", "IMAGE_REQUEST_TIMEOUT", "IMAGE_NETWORK_ERROR"];
       if (!(composite || drawingScene) || !(error instanceof ImageUpstreamError) || !recoverable.includes(error.errorCode)) throw error;
       backgroundSource = "local-fallback";
       fallbackReason = error.errorCode;
+      if (drawingScene) protagonistCheck = "composite";
       console.warn("image_background_fallback", { requestId, upstreamCode: error.upstreamCode,
         upstreamStatus: error.upstreamStatus, errorCode: error.errorCode, rayId: error.rayId });
       result = { bytes: await fallbackBackground(prompt), mime: "image/png", attempts: error.attempts, rayId: error.rayId };
     }
-    // When the model could not draw the scene, paste the original character instead.
-    const pasted = composite || (drawingScene && backgroundSource === "local-fallback");
+    // When the model could not draw the drawn hero, paste the original character instead.
+    const pasted = composite || (drawingScene && (backgroundSource === "local-fallback" || pasteDrawing));
     const scale = Number(incoming.get("drawingScale") || 1);
     // 참고 이미지 입력은 PNG/JPG이므로 WebP 출력도 다음 장면에서 참조할 수 있게 정규화한다.
     const imageBytes = pasted ? await composeDrawing(result.bytes, preparedDrawing!, scale)
@@ -96,7 +137,7 @@ export async function POST(request: Request) {
     console.info("image_request", { requestId, model: selectedModel, mode, referenceCount, referenceHash,
       promptHash: createHash("sha256").update(prompt).digest("hex"), attempts: result.attempts,
       referenceRole: pasted ? "composite" : "model", upstreamReferenceCount: pasted ? 0 : referenceCount, backgroundSource,
-      rayId: result.rayId, durationMs: Math.round(performance.now() - startedAt), success: true });
+      protagonistCheck, rayId: result.rayId, durationMs: Math.round(performance.now() - startedAt), success: true });
 
     const serverDurationMs = performance.now() - startedAt;
     const payload = new Uint8Array(imageBytes.byteLength);
@@ -112,6 +153,7 @@ export async function POST(request: Request) {
       "x-upstream-reference-count": String(pasted ? 0 : referenceCount),
       "x-background-source": backgroundSource,
       "x-background-fallback-reason": fallbackReason,
+      "x-protagonist-check": protagonistCheck,
       "x-reference-count": String(referenceCount),
       "x-reference-sha256": referenceHash,
       "x-server-duration-ms": serverDurationMs.toFixed(1),

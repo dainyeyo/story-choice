@@ -18,22 +18,38 @@ export function drawingBounds(data: Uint8ClampedArray, width: number, height: nu
   return { left, top, width: right - left + 1, height: bottom - top + 1 };
 }
 
-export function drawingScenePrompt(visualPrompt: string, _supportingCharacters: string, narration: string) {
+// Prompt for a page drawn around the child's drawing (input image 0).
+// Only positive wording: listing "girl, boy, child" as things to avoid makes small
+// image models draw exactly those instead of the drawn character.
+// supportingCast is the story model's fixed list of NON-protagonist characters.
+export function drawingScenePrompt(visualPrompt: string, supportingCast: string, _narration: string, hasPreviousPage = false, retry = false) {
   return [
-    "Turn input image 0 into one storybook page. The character drawn in input image 0 IS the main character of this story, the hero of the scene.",
-    "THERE IS EXACTLY ONE MAIN CHARACTER: the drawn character from input image 0, appearing once. Do not invent, add or substitute any other hero, child, kid, girl, boy, animal or creature as the main character, and do not draw a second copy of it.",
-    "Keep the drawn character's look: same silhouette, shapes, face, colours, line style and marks, drawn like the child's original. Story names and animal words refer to this drawn character; never redraw it as a different animal or person.",
-    "Act out the moment: change the drawn character's pose, body and facial expression to match exactly what it is doing and feeling right now, and let it physically interact with the props (for example, under a blanket pulled up to its eyes and trembling, hugging a toy, hiding behind a door, running, crying, smiling). The situation must be obvious at a glance, not the character just standing next to things.",
+    retry ? "IMPORTANT: the previous attempt forgot the drawn character. The drawn character from input image 0 must be the large, central hero of this picture." : "",
+    "One storybook page. The main character is the exact character drawn in input image 0 (a child's drawing): same silhouette, body shape, face, colours, marks and line style. It appears once, large and in the foreground, as the hero of the scene.",
+    "Every mention of \"the main character\" means this drawn character.",
+    "Act out the moment: change the drawn character's pose, body and facial expression to match exactly what it is doing and feeling right now, and let it physically interact with the props. The situation must be obvious at a glance.",
     `This moment: ${visualPrompt}`,
-    `Story text of this page (the protagonist here is the drawn character): ${narration}`,
-    // A free-form characterBible can contain a conflicting protagonist even when
-    // labelled 'supporting only'. Never feed that unvalidated identity back here.
-    "Other people or animals only if the moment names them, drawn smaller and clearly secondary. Soft watercolor storybook background, one scene, no text or speech bubbles.",
-  ].join("\n");
+    supportingCast ? `Supporting characters keep exactly this fixed design on every page (same gender, age, hair, colours and clothes); draw one only if this moment includes them, smaller than the main character: ${supportingCast}` : "",
+    hasPreviousPage ? "Input image 1 is the previous page of the same book: match its art style, palette and the look of any supporting characters that appear in it. The main character still comes from input image 0." : "",
+    "Soft watercolor storybook background, one scene, no text or speech bubbles.",
+  ].filter(Boolean).join("\n");
+}
+
+// Prompt for books without a drawing: the first generated page becomes the reference.
+export function textScenePrompt(visualPrompt: string, narration: string, characterBible: string, supportingCast: string, hasReference: boolean) {
+  return [
+    "One soft watercolor storybook illustration, no text or speech bubbles.",
+    `Fixed main character appearance: ${characterBible}`,
+    supportingCast ? `Supporting characters keep exactly this fixed design on every page (same gender, age, hair, colours and clothes); draw one only if this moment includes them: ${supportingCast}` : "",
+    `Depict exactly this moment: ${visualPrompt}`,
+    `Narration: ${narration}`,
+    hasReference ? "Input image 0 is an earlier page of the same book: keep the same main character design, the same supporting character designs and the same art style." : "",
+  ].filter(Boolean).join("\n");
 }
 
 export function sceneReferences<T>(drawing: T | null, previous: T | null, fallback: T | null): T[] {
-  // A generated page is never an identity reference when an original drawing exists.
+  // A generated page is never the identity reference when an original drawing exists
+  // (it may only be passed separately as a style/cast reference after verification).
   return drawing ? [drawing] : previous ? [previous] : fallback ? [fallback] : [];
 }
 

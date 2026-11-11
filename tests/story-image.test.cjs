@@ -166,9 +166,57 @@ test('generated illustrations never compete with an original drawing', () => {
   assert.deepEqual(sceneReferences(null, null, null), []);
   const prompt = drawingScenePrompt('waves beside a tree', 'a blue bird', 'The protagonist waves.');
   assert.match(prompt, /input image 0/);
-  assert.match(prompt, /EXACTLY ONE MAIN CHARACTER/);
+  assert.match(prompt, /appears once/);
+  assert.doesNotMatch(prompt, /\b(girl|boy|kid)\b/i, 'never prime the model with substitute heroes');
+  assert.match(prompt, /a blue bird/, 'fixed supporting cast is included');
   assert.match(prompt, /pose, body and facial expression/);
   assert.match(prompt, /waves beside a tree/);
+});
+
+test('a page that drops the drawn hero is retried, then the original drawing is pasted onto a background plate', async () => {
+  const sharp = require('sharp');
+  const originalFetch = global.fetch;
+  const saved = { a: process.env.CLOUDFLARE_ACCOUNT_ID, t: process.env.CLOUDFLARE_API_TOKEN, g: process.env.GEMINI_API_KEY };
+  process.env.CLOUDFLARE_ACCOUNT_ID = 'test-account'; process.env.CLOUDFLARE_API_TOKEN = 'test-token'; process.env.GEMINI_API_KEY = 'test-key';
+  const page = await sharp({ create: { width: 512, height: 512, channels: 3, background: '#c0ddee' } }).png().toBuffer();
+  const prompts = []; const refs = []; let checks = 0; let verdict = false;
+  global.fetch = async (url, options) => {
+    if (String(url).includes('generativelanguage')) {
+      checks++;
+      return Response.json({ candidates: [{ content: { role: 'model', parts: [{ text: JSON.stringify({ present: verdict }) }] } }] });
+    }
+    prompts.push(options.body.get('prompt'));
+    refs.push([options.body.has('input_image_0'), options.body.has('input_image_1')]);
+    return new Response(page, { headers: { 'content-type': 'image/png' } });
+  };
+  try {
+    const { POST } = loadTs('app/api/image/route.ts');
+    const drawing = await sharp(Buffer.from('<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64"><rect width="64" height="64" fill="white"/><circle cx="32" cy="32" r="18" fill="#f06" /></svg>')).png().toBuffer();
+    const form = () => {
+      const f = new FormData();
+      f.set('mode', 'drawing-scene'); f.set('prompt', 'first try'); f.set('retryPrompt', 'second try'); f.set('backgroundPrompt', 'plate only');
+      f.set('image_0', new File([drawing], 'drawing.png', { type: 'image/png' }));
+      f.set('scene_ref', new File([page], 'previous.png', { type: 'image/png' }));
+      return f;
+    };
+    const failed = await POST(new Request('http://localhost/api/image', { method: 'POST', body: form() }));
+    assert.equal(failed.status, 200);
+    assert.deepEqual(prompts, ['first try', 'second try', 'plate only']);
+    assert.deepEqual(refs, [[true, true], [true, true], [false, false]], 'previous page is a secondary reference; plate has none');
+    assert.equal(checks, 2);
+    assert.equal(failed.headers.get('x-protagonist-check'), 'composite');
+    assert.equal(failed.headers.get('x-reference-role'), 'composite');
+
+    prompts.length = 0; checks = 0; verdict = true;
+    const passed = await POST(new Request('http://localhost/api/image', { method: 'POST', body: form() }));
+    assert.deepEqual(prompts, ['first try']);
+    assert.equal(passed.headers.get('x-protagonist-check'), 'pass');
+    assert.equal(passed.headers.get('x-reference-role'), 'model');
+  } finally {
+    global.fetch = originalFetch;
+    for (const [k, v] of [['CLOUDFLARE_ACCOUNT_ID', saved.a], ['CLOUDFLARE_API_TOKEN', saved.t], ['GEMINI_API_KEY', saved.g]])
+      if (v === undefined) delete process.env[k]; else process.env[k] = v;
+  }
 });
 
 test('drawing route requires the original and forwards it as input_image_0', async () => {

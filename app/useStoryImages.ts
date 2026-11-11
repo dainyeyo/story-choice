@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { StorySegment } from "@/lib/story/schema";
-import { drawingScenePrompt } from "@/lib/image/story-image";
+import { backgroundScenePrompt, drawingScenePrompt, textScenePrompt } from "@/lib/image/story-image";
 
 export interface SceneImage {
   url?: string;
@@ -59,16 +59,21 @@ export function useStoryImages() {
         };
         try {
           const form = new FormData();
+          const cast = segment.supportingCast || "";
           form.set("mode", original ? "drawing-scene" : reference.current ? "scene" : "text");
-          form.set("prompt", original ? drawingScenePrompt(scene.imagePrompt, "", scene.text) : [
-            "One soft watercolor storybook illustration, no text or speech bubbles.",
-            `Fixed character appearance: ${segment.characterBible || protagonist || "a small friendly storybook animal"}`,
-            `Depict exactly this moment: ${scene.imagePrompt}`,
-            `Narration: ${scene.text}`,
-            "Keep the same character design as the reference image if supplied.",
-          ].join("\n"));
-          if (original) form.set("image_0", original);
-          else if (reference.current) form.set("image_0", reference.current);
+          if (original) {
+            const previous = reference.current;
+            form.set("prompt", drawingScenePrompt(scene.imagePrompt, cast, scene.text, !!previous));
+            // 서버가 주인공 누락을 감지하면 쓰는 재시도용·배경용 프롬프트
+            form.set("retryPrompt", drawingScenePrompt(scene.imagePrompt, cast, scene.text, !!previous, true));
+            form.set("backgroundPrompt", backgroundScenePrompt(scene.imagePrompt, scene.text));
+            form.set("image_0", original);
+            if (previous) form.set("scene_ref", previous);
+          } else {
+            form.set("prompt", textScenePrompt(scene.imagePrompt, scene.text,
+              segment.characterBible || protagonist || "a small friendly storybook animal", cast, !!reference.current));
+            if (reference.current) form.set("image_0", reference.current);
+          }
           const response = await fetch("/api/image", { method: "POST", body: form, signal });
           if (!response.ok) {
             const error = await response.json().catch(() => ({}));
@@ -77,7 +82,13 @@ export function useStoryImages() {
           const blob = await response.blob();
           if (signal.aborted || version !== epoch.current) return;
           if (!blob.type.startsWith("image/")) throw new Error("삽화 응답 형식이 올바르지 않아요.");
-          if (!original && !reference.current) reference.current = new File([blob], "character-reference.png", { type: blob.type });
+          if (original) {
+            // 그림 주인공이 확인된 모델 생성 장면만 다음 장면의 화풍·조연 참고로 쓴다.
+            // 합성 장면은 배경만 모델이 그렸으므로 참고에서 뺀다.
+            const check = response.headers.get("x-protagonist-check");
+            if (check === "pass" && ["image/png", "image/jpeg"].includes(blob.type))
+              reference.current = new File([blob], "previous-page.png", { type: blob.type });
+          } else if (!reference.current) reference.current = new File([blob], "character-reference.png", { type: blob.type });
           const url = URL.createObjectURL(blob);
           urls.current.push(url);
           update({ url, loading: false, backgroundSource: response.headers.get("x-background-source") || "generated" });
