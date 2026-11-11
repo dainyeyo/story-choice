@@ -6,6 +6,31 @@ export class ImageUpstreamError extends Error {
     public rayId?: string, public attempts = 1) { super(message); }
 }
 
+// Local inference can take longer than the hosted API and returns the image
+// bytes directly rather than Cloudflare's JSON envelope.
+export async function fetchLocalImage(url: string, form: FormData, signal: AbortSignal) {
+  let response: Response;
+  try {
+    response = await fetch(`${url.replace(/\/$/, "")}/generate`, {
+      method: "POST", body: form, cache: "no-store",
+      signal: AbortSignal.any([signal, AbortSignal.timeout(180_000)]),
+    });
+  } catch (error) {
+    const timeout = error instanceof Error && /Timeout|Abort/.test(error.name);
+    throw new ImageUpstreamError(timeout ? "로컬 이미지 생성 시간이 초과됐어요." : "로컬 이미지 서버에 연결하지 못했어요.",
+      timeout ? "IMAGE_REQUEST_TIMEOUT" : "IMAGE_NETWORK_ERROR", timeout ? 504 : 503);
+  }
+  if (!response.ok) {
+    const message = await response.text().catch(() => "");
+    throw new ImageUpstreamError(message || "로컬 이미지 서버가 요청을 처리하지 못했어요.", "LOCAL_IMAGE_FAILED", response.status);
+  }
+  const mime = response.headers.get("content-type") || "image/png";
+  if (!mime.startsWith("image/")) throw new ImageUpstreamError("로컬 이미지 서버의 응답 형식이 올바르지 않아요.", "IMAGE_RESPONSE_INVALID", 502);
+  const bytes = Buffer.from(await response.arrayBuffer());
+  if (!bytes.length) throw new ImageUpstreamError("로컬 이미지 서버가 빈 결과를 반환했어요.", "IMAGE_RESPONSE_INVALID", 502);
+  return { bytes, mime, attempts: 1 };
+}
+
 export function classifyImageFailure(body: CloudflareBody, status: number, rayId?: string) {
   const code = body.errors?.[0]?.code;
   const message = body.errors?.map((error) => error.message || "").join(" ") || "";
