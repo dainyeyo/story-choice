@@ -38,14 +38,16 @@ export default function Shell({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-dvh flex-col">
       <header className="sticky top-0 z-20 border-b border-line bg-paper/95 backdrop-blur">
-        <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4 md:h-16 md:px-8">
+        {/* 왼쪽 빈칸 · 가운데 로고 · 오른쪽 끝 메뉴 */}
+        <div className="grid h-14 grid-cols-[1fr_auto_1fr] items-center px-4 md:h-16 md:px-8">
+          <div aria-hidden />
           <Link href="/" className="flex items-center gap-2 text-ink">
             <Icon name="moon" size={20} className="text-accent-text" />
             <span className="story text-lg">우리 아이 동화</span>
           </Link>
 
           {user ? (
-            <nav className="hidden items-center gap-1 md:flex" aria-label="주 메뉴">
+            <nav className="hidden items-center justify-end gap-1 md:flex" aria-label="주 메뉴">
               {MENU.map((m) => (
                 <Link
                   key={m.href}
@@ -60,11 +62,13 @@ export default function Shell({ children }: { children: ReactNode }) {
               ))}
             </nav>
           ) : (
-            ready && (
-              <Link href="/login" className="calm text-[15px] text-ink-2 hover:text-ink">
-                로그인
-              </Link>
-            )
+            <div className="flex justify-end">
+              {ready && (
+                <Link href="/login" className="calm text-[15px] text-ink-2 hover:text-ink">
+                  로그인
+                </Link>
+              )}
+            </div>
           )}
         </div>
       </header>
