@@ -1,189 +1,51 @@
 "use client";
 
 // 화면 골격: 입력 → 동화 뷰어(선택) → 부모 카드 → 메모 → 다음 동화
-// 일부러 꾸미지 않았다. 동작과 상태 흐름만 있다. 스타일은 프론트 담당이 입힌다.
-// 서버는 상태를 저장하지 않으므로 이 컴포넌트가 장면·선택을 들고 있다가 매 요청에 같이 보낸다.
+// 일부러 꾸미지 않았다. 로직은 전부 useStory 훅(app/useStory.ts)에 있고, 이 파일은 훅의 값을 그리기만 한다.
+// 새 화면(목업)으로 갈아끼울 때는 이 파일을 통째로 바꾸고 useStory만 연결하면 된다.
 
-import { useState, useSyncExternalStore } from "react";
-import type {
-  ChosenChoice,
-  ParentCard,
-  StoryChoice,
-  StoryChoiceOption,
-  StoryRequest,
-  StorySegment,
-} from "@/lib/story/schema";
+import { useState } from "react";
+import { PRESETS } from "@/lib/story/presets";
+import { useStory } from "./useStory";
 
-const PRESETS = ["치과가 무서워", "어린이집 가기 싫어", "동생이 생겼어", "병원 주사가 무서워"];
-const MEMO_KEY = "story-choice:lastMemo";
-
-type Step = "form" | "loading" | "story" | "card";
-
-async function api<T>(path: string, body: unknown): Promise<T> {
-  const res = await fetch(`/api/story${path}`, {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify(body),
-  });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error ?? "요청에 실패했어요.");
-  return data as T;
-}
-
-const MEMO_EVENT = "story-choice:memo";
-
-function subscribeMemo(cb: () => void) {
-  window.addEventListener(MEMO_EVENT, cb);
-  window.addEventListener("storage", cb);
-  return () => {
-    window.removeEventListener(MEMO_EVENT, cb);
-    window.removeEventListener("storage", cb);
-  };
-}
-
-function loadMemo(): string {
-  try {
-    return localStorage.getItem(MEMO_KEY) ?? "";
-  } catch {
-    return "";
-  }
-}
 
 export default function StoryApp() {
-  const [step, setStep] = useState<Step>("form");
-  const [error, setError] = useState("");
+  const s = useStory();
 
-  // 입력
+  // 입력 폼 값 (화면에만 필요한 상태)
   const [age, setAge] = useState(5);
   const [situation, setSituation] = useState("");
   const [durationMin, setDurationMin] = useState<3 | 5>(5);
   const [protagonist, setProtagonist] = useState("");
 
-  // 동화 진행 상태
-  const [req, setReq] = useState<StoryRequest | null>(null);
-  const [title, setTitle] = useState("");
-  const [scenes, setScenes] = useState<string[]>([]);
-  const [choice, setChoice] = useState<StoryChoice | null>(null);
-  const [chosen, setChosen] = useState<ChosenChoice[]>([]);
-  const [isEnding, setIsEnding] = useState(false);
-
-  // 부모 카드 · 메모
-  const [card, setCard] = useState<ParentCard | null>(null);
+  // 메모 입력 (화면에만 필요한 상태)
   const [memo, setMemo] = useState("");
   const [memoSaved, setMemoSaved] = useState(false);
-  const savedMemo = useSyncExternalStore(subscribeMemo, loadMemo, () => ""); // 지난 동화에서 저장한 메모
-
-  async function run<T>(fn: () => Promise<T>, backTo: Step): Promise<T | undefined> {
-    setError("");
-    setStep("loading");
-    try {
-      return await fn();
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "문제가 생겼어요.");
-      setStep(backTo);
-    }
-  }
-
-  function applyStart(seg: StorySegment) {
-    setTitle(seg.title);
-    setScenes(seg.scenes.map((s) => s.text));
-    setChoice(seg.choice);
-    setIsEnding(seg.isEnding);
-    setChosen([]);
-    setCard(null);
-    setMemo("");
-    setMemoSaved(false);
-    setStep("story");
-  }
-
-  async function start(previousMemo?: string) {
-    if (!situation.trim()) {
-      setError("고민 상황을 입력하거나 골라주세요.");
-      return;
-    }
-    const next: StoryRequest = {
-      age,
-      situation: situation.trim(),
-      durationMin,
-      protagonist: protagonist.trim() || undefined,
-      previousMemo: previousMemo?.trim() || undefined,
-    };
-    setReq(next);
-    const seg = await run(() => api<StorySegment>("", next), "form");
-    if (seg) applyStart(seg);
-  }
-
-  async function pick(option: StoryChoiceOption) {
-    if (!req || !choice) return;
-    const nextChosen = [...chosen, { prompt: choice.prompt, text: option.text, copingType: option.copingType }];
-    const seg = await run(
-      () => api<StorySegment>("/continue", { ...req, title, scenesSoFar: scenes, choices: nextChosen }),
-      "story",
-    );
-    if (!seg) return;
-    setChosen(nextChosen);
-    setScenes((prev) => [...prev, ...seg.scenes.map((s) => s.text)]);
-    setChoice(seg.choice);
-    setIsEnding(seg.isEnding);
-    setStep("story");
-  }
-
-  async function showCard() {
-    if (!req) return;
-    const c = await run(
-      () =>
-        api<ParentCard>("/parent-card", {
-          age: req.age,
-          situation: req.situation,
-          protagonist: req.protagonist,
-          title,
-          choices: chosen,
-        }),
-      "story",
-    );
-    if (c) {
-      setCard(c);
-      setStep("card");
-    }
-  }
-
-  function saveMemo() {
-    try {
-      localStorage.setItem(MEMO_KEY, memo.trim());
-      window.dispatchEvent(new Event(MEMO_EVENT));
-    } catch {
-      /* 저장 실패해도 진행은 가능 */
-    }
-    setMemoSaved(true);
-  }
-
-  async function nextStory() {
-    await start(memo || savedMemo);
-  }
-
-  function reset() {
-    setStep("form");
-    setError("");
-  }
 
   return (
     <main className="mx-auto max-w-md space-y-6 p-4 text-base">
       <h1 className="text-xl font-bold">AI 정서 동화</h1>
 
-      {error && (
+      {s.error && (
         <p role="alert" className="rounded border border-red-400 bg-red-50 p-3 text-red-700">
-          {error}
+          {s.error}
         </p>
       )}
 
-      {step === "loading" && <p aria-live="polite">동화를 만들고 있어요…</p>}
+      {s.usedFallback && (
+        <p className="rounded bg-gray-100 p-2 text-sm text-gray-600">
+          AI가 바빠서 미리 준비한 이야기를 들려드리고 있어요.
+        </p>
+      )}
 
-      {step === "form" && (
+      {s.step === "loading" && <p aria-live="polite">동화를 만들고 있어요…</p>}
+
+      {s.step === "form" && (
         <form
           className="space-y-4"
           onSubmit={(e) => {
             e.preventDefault();
-            void start(savedMemo || undefined);
+            void s.start({ age, situation, durationMin, protagonist });
           }}
         >
           <fieldset className="space-y-2">
@@ -243,8 +105,10 @@ export default function StoryApp() {
             <span className="text-sm text-gray-500">그림 업로드와 캐릭터 변환은 이미지 담당이 이 자리에 붙입니다.</span>
           </label>
 
-          {savedMemo && (
-            <p className="rounded bg-yellow-50 p-2 text-sm">지난 동화의 메모가 있어요: “{savedMemo}” — 이번 동화에 이어져요.</p>
+          {s.savedMemo && (
+            <p className="rounded bg-yellow-50 p-2 text-sm">
+              지난 동화의 메모가 있어요: “{s.savedMemo}” — 이번 동화에 이어져요.
+            </p>
           )}
 
           <button type="submit" className="w-full rounded bg-black p-3 text-white">
@@ -253,47 +117,47 @@ export default function StoryApp() {
         </form>
       )}
 
-      {step === "story" && (
+      {s.step === "story" && (
         <section className="space-y-4">
-          <h2 className="text-lg font-semibold">{title}</h2>
-          {scenes.map((text, i) => (
+          <h2 className="text-lg font-semibold">{s.title}</h2>
+          {s.scenes.map((text, i) => (
             <p key={i} className="leading-relaxed">
               {text}
             </p>
           ))}
 
-          {choice && !isEnding && (
+          {s.choice && !s.isEnding && (
             <div className="space-y-2">
-              <p className="font-semibold">{choice.prompt}</p>
-              {choice.options.map((o) => (
-                <button key={o.id} onClick={() => void pick(o)} className="block w-full rounded border p-3 text-left">
+              <p className="font-semibold">{s.choice.prompt}</p>
+              {s.choice.options.map((o) => (
+                <button key={o.id} onClick={() => void s.pick(o)} className="block w-full rounded border p-3 text-left">
                   {o.text}
                 </button>
               ))}
             </div>
           )}
 
-          {isEnding && (
-            <button onClick={() => void showCard()} className="w-full rounded bg-black p-3 text-white">
+          {s.isEnding && (
+            <button onClick={() => void s.showCard()} className="w-full rounded bg-black p-3 text-white">
               부모 카드 보기
             </button>
           )}
         </section>
       )}
 
-      {step === "card" && card && (
+      {s.step === "card" && s.card && (
         <section className="space-y-4">
           <h2 className="text-lg font-semibold">부모 카드</h2>
-          <p>{card.summary}</p>
+          <p>{s.card.summary}</p>
           <ol className="space-y-3">
-            {card.questions.map((q, i) => (
+            {s.card.questions.map((q, i) => (
               <li key={i} className="rounded border p-3">
                 <p className="font-semibold">“{q.text}”</p>
                 <p className="text-sm text-gray-600">→ {q.hint}</p>
               </li>
             ))}
           </ol>
-          <p className="text-sm">💡 {card.answerTip}</p>
+          <p className="text-sm">💡 {s.card.answerTip}</p>
 
           <div className="space-y-2 border-t pt-4">
             <label className="block">
@@ -310,12 +174,22 @@ export default function StoryApp() {
               />
             </label>
             <div className="flex gap-2">
-              <button onClick={saveMemo} className="rounded border px-3 py-2">
+              <button
+                onClick={() => {
+                  s.saveMemo(memo);
+                  setMemoSaved(true);
+                }}
+                className="rounded border px-3 py-2"
+              >
                 메모 저장
               </button>
               <button
-                onClick={() => void nextStory()}
-                disabled={!memo.trim() && !savedMemo}
+                onClick={() => {
+                  setMemo("");
+                  setMemoSaved(false);
+                  void s.nextStory(memo || s.savedMemo);
+                }}
+                disabled={!memo.trim() && !s.savedMemo}
                 className="flex-1 rounded bg-black px-3 py-2 text-white disabled:opacity-40"
               >
                 다음 동화 만들기
@@ -324,7 +198,7 @@ export default function StoryApp() {
             {memoSaved && <p className="text-sm text-green-700">저장했어요.</p>}
           </div>
 
-          <button onClick={reset} className="text-sm underline">
+          <button onClick={s.reset} className="text-sm underline">
             처음으로
           </button>
         </section>

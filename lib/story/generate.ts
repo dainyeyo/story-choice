@@ -39,6 +39,8 @@ async function generateJson<T>(opts: {
           temperature: opts.temperature ?? 0.9,
           // 깊은 추론이 필요 없다. 속도를 위해 생각 시간을 줄인다. (MINIMAL은 일부 모델에서 400)
           thinkingConfig: { thinkingLevel: ThinkingLevel.LOW },
+          // 한 번에 12초 넘게 걸리면 포기한다. 시연 중에 멈춰 있지 않고 폴백(미리 만든 동화)으로 넘어가기 위해서다.
+          httpOptions: { timeout: 12000 },
         },
       });
       const parsed: unknown = JSON.parse(res.text ?? "");

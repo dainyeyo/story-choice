@@ -25,6 +25,7 @@ export interface StorySegment {
   scenes: StoryScene[]; // 이번 구간의 장면들
   choice: StoryChoice | null; // 다음에 고를 선택. 결말이면 null
   isEnding: boolean; // 결말이면 true
+  fallback?: boolean; // 서버가 AI 대신 미리 만든 동화를 줬으면 true
 }
 
 export interface StoryRequest {
@@ -122,6 +123,7 @@ export interface ParentCard {
   summary: string; // "치과 장면에서 '엄마 뒤에 숨기'(회피)를 골랐어요." 형태
   questions: ParentCardQuestion[]; // 항상 3개
   answerTip: string; // 아이 답을 받는 방법 한 줄
+  fallback?: boolean; // AI 대신 템플릿으로 만든 카드면 true
 }
 
 // POST /api/story/parent-card 요청

@@ -31,7 +31,8 @@ npm run dev
 ```
 app/
   page.tsx                  → StoryApp을 렌더링할 뿐
-  StoryApp.tsx              → 화면 전체 (입력 → 동화 → 선택 → 부모 카드 → 메모). 스타일 없음
+  useStory.ts               → 동화 진행 로직 전부 (상태, API 호출, 메모 저장). 화면 없음  ← 새 화면은 이것만 연결
+  StoryApp.tsx              → 훅의 값을 그리기만 하는 임시 화면 (입력 → 동화 → 선택 → 부모 카드 → 메모). 스타일 없음
   api/story/
     route.ts                → POST /api/story           이야기 시작
     continue/route.ts       → POST /api/story/continue  선택 반영 이어쓰기
@@ -41,6 +42,11 @@ lib/story/
   prompts.ts                → 프롬프트 3종 (시작·이어쓰기·부모 카드). 문구만 고치면 품질이 바뀐다
   generate.ts               → Gemini 호출 (JSON 형식이 깨지면 1회 재시도)
   validate.ts               → 요청 본문 검증
+  fallback.ts               → AI 실패 시 안전망 (미리 만든 동화 + 부모 카드 템플릿)
+  fallback-data.json        → 프리셋 4개의 미리 만든 분기 동화 (자동 생성)
+  presets.ts                → 화면의 고민 상황 프리셋 4개
+scripts/
+  gen-fallback.mjs          → fallback-data.json 다시 만들기
 ```
 
 ## 동화 한 편의 흐름
@@ -83,8 +89,15 @@ lib/story/
 ## 담당별로 알아둘 것
 
 **프론트**
-- 화면은 `StoryApp.tsx` 한 파일이고 일부러 꾸미지 않았다. 스타일은 통째로 바꿔도 된다.
-- 상태 흐름은 `step`(`form` / `loading` / `story` / `card`)으로 돈다. 바뀌면 안 되는 건 API에 보내는 값(`scenesSoFar`, `choices`)뿐이다.
+- **새 화면(목업)은 `useStory` 훅만 연결하면 된다.** API 호출, 장면·선택 상태, 메모 저장은 전부 [app/useStory.ts](app/useStory.ts)가 한다. 파일 맨 위 주석에 돌려주는 값과 함수 목록이 있다.
+  ```tsx
+  const s = useStory();
+  s.step; s.error; s.title; s.scenes; s.choice; s.isEnding; s.card; s.savedMemo; s.usedFallback
+  s.start({ age, situation, durationMin, protagonist }); s.pick(option); s.showCard(); s.saveMemo(text); s.nextStory(memo); s.reset();
+  ```
+- `StoryApp.tsx`는 훅을 쓴 임시 화면이라 통째로 갈아끼워도 된다. 스타일도 마음대로 바꾼다.
+- 화면 단계는 `step`(`form` / `loading` / `story` / `card`)으로 돈다.
+- `s.usedFallback`이 `true`면 AI 대신 미리 만든 동화가 쓰인 것이다. 임시 화면처럼 작은 안내 문구를 보여주면 된다.
 - 선택을 누르면 1~4초 동안 `loading` 화면이 되어 기존 장면이 사라진다. 장면을 유지한 채 로딩을 표시하면 더 좋다.
 - 메모는 브라우저 `localStorage`(`story-choice:lastMemo`)에 저장한다.
 - 아직 없는 것: 삽화 표시, 낭독(TTS), 그림 업로드.
@@ -97,6 +110,24 @@ lib/story/
 **프롬프트**
 - 문구는 `lib/story/prompts.ts`에 모여 있다. 지켜야 할 규칙: 어떤 선택도 틀린 선택으로 다루지 않는다(회피 포함), 훈계·진단·심리 분석 표현을 쓰지 않는다, 아이 이름을 받지 않는다.
 - 수정 후에는 같은 입력으로 여러 번 돌려서 JSON 형식이 안 깨지는지 확인한다.
+
+## AI가 실패할 때 (폴백)
+
+시연 중에 Gemini가 느리거나 막혀도 멈추지 않도록 안전망이 있다. Gemini 호출은 한 번에 12초를 넘기면 포기하고(1회 재시도), 그래도 실패하면 아래로 넘어간다.
+
+| 호출 | 실패하면 | 응답에 붙는 표시 |
+|---|---|---|
+| `/api/story` (시작) | 프리셋 4개(또는 "치과", "어린이집", "동생", "주사", "병원"이 들어간 직접 입력)는 미리 만든 동화를 준다. 그 외 입력은 500 에러 | `fallback: true` |
+| `/api/story/continue` | 미리 만든 동화로 시작한 이야기는 계속 이어진다. AI가 만든 시작 뒤에 실패하면 500 에러 | `fallback: true` |
+| `/api/story/parent-card` | 아이가 고른 선택을 끼워 넣은 템플릿 카드. 어떤 입력에도 항상 동작 | `fallback: true` |
+
+- 미리 만든 동화는 프리셋마다 7구간(시작 1 + 선택별 중간 2 + 결말 4)이라 선택에 따라 갈라진다. 주인공은 AI가 고른 동물이라 입력한 주인공 이름은 반영되지 않는다.
+- 프리셋 문구나 프롬프트를 바꿨다면 폴백 동화도 다시 만든다. `npm run dev`를 켠 상태에서 (약 3분):
+  ```bash
+  node scripts/gen-fallback.mjs
+  ```
+  결과는 `lib/story/fallback-data.json`에 저장된다. 읽어 보고 어색한 문장은 JSON을 직접 고쳐도 된다.
+- 실패를 흉내 내 보려면 잘못된 키로 서버를 켠다: `GEMINI_API_KEY=x npm run dev` (PowerShell은 `$env:GEMINI_API_KEY="x"; npm run dev`).
 
 ## 개발 명령
 

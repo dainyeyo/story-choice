@@ -1,0 +1,726 @@
+{
+  "치과가 무서워": {
+    "start": {
+      "title": "치과에 간 꼬마 동물",
+      "scenes": [
+        {
+          "text": "따스한 햇살이 방 안으로 스며드는 아침이야. 꼬마 동물은 알록달록한 블록을 쌓으며 놀고 있어. 딩동댕, 시계가 아홉 시를 알리는 소리가 들려. 엄마가 부엌에서 다정하게 이야기를 건네. \"오늘 우리 치과에 가기로 약속했지?\" 꼬마 동물은 블록을 툭 내려놓아. 콩닥콩닥, 괜찮아 괜찮아. 마음속으로 작은 후렴을 외쳐 봐.",
+          "imagePrompt": "The main character playing with colorful blocks in a cozy sunny bedroom."
+        },
+        {
+          "text": "치과 문을 열고 안으로 조심조심 걸어 들어간다. 하얀 가운을 입은 선생님이 미소를 지으며 맞아 주셔. 소독약 냄새가 코끝을 스치며 킁킁거리게 만들어. 의자에 앉으니 윙윙 거리는 소리가 멀리서 들려온다. 꼬마 동물은 침을 꿀꺽 삼키며 손을 꽉 쥐어. 콩닥콩닥, 괜찮아 괜찮아. 두근거리는 마음을 가라앉히려고 노력해.",
+          "imagePrompt": "The main character walking into a bright and clean dental clinic with a friendly doctor."
+        },
+        {
+          "text": "커다란 의자가 스르륵 뒤로 젖혀지기 시작했어. 입을 크게 벌려야 할 시간이 다가온 거야. 눈부신 조명이 켜지고 커다란 기계가 반짝거려. 꼬마 동물은 무서운 생각이 모락모락 피어올라. 콩닥콩닥, 괜찮아 괜찮아. 어떻게 하면 이 마음을 조금 진정시킬 수 있을까?",
+          "imagePrompt": "The main character sitting on a big dental chair with a bright light overhead."
+        }
+      ],
+      "choice": {
+        "prompt": "무서운 마음을 달래려면 어떻게 할까요?",
+        "options": [
+          {
+            "id": "a",
+            "text": "간호사 선생님 손을 꼭 잡기",
+            "copingType": "도움요청"
+          },
+          {
+            "id": "b",
+            "text": "천장에 붙은 동물 그림 찾기",
+            "copingType": "스스로진정"
+          }
+        ]
+      },
+      "isEnding": false
+    },
+    "mid": {
+      "a": {
+        "title": "치과에 간 꼬마 동물",
+        "scenes": [
+          {
+            "text": "꼬마 동물은 곁에 있던 간호사 선생님의 손을 따뜻하게 꼬옥 잡았어. 부드러운 손길이 전해지며 차가운 긴장이 살짝 녹아내려. 선생님은 걱정 말라는 듯 다정하게 미소를 지어 주셨지. 콩닥콩닥, 괜찮아 괜찮아. 마음속으로 후렴을 부르며 조금씩 안정을 찾아가. 하지만 눈앞에 다가온 커다란 기계를 보니 다시 가슴이 쿵쾅거려. 입을 크게 벌리고 치아를 보여줄 시간이 다가온 거야.",
+            "imagePrompt": "The main character holding the nurse's hand tightly in a bright dental clinic."
+          },
+          {
+            "text": "치과의사 선생님이 반짝이는 거울과 작은 치과 도구를 들고 다가오셨어. 윙윙 소리를 내는 기계가 조금 무섭게 느껴지기도 해. 꼬마 동물은 이 순간을 피하고 싶지 않고 용기를 내어 보기로 했어. 콩닥콩닥, 괜찮아 괜찮아. 과연 이 무서운 도구를 어떻게 마주하면 좋을까?",
+            "imagePrompt": "The main character looking bravely at the dental tools in the clinic."
+          },
+          {
+            "text": "치과 의자에 편안하게 기대어 천장에 그려진 그림을 바라보았어. 알록달록한 동물 그림을 보며 천천히 숨을 깊게 들이쉬어. 코로 숨을 들이마시고 입으로 후 내쉬기를 반복해 본다. 콩닥콩닥, 괜찮아 괜찮아. 마음속으로 숫자를 세며 스스로 마음을 차분히 가라앉혀. 이제 씩씩하게 입을 크게 벌릴 준비가 되었어.",
+            "imagePrompt": "The main character taking a deep breath while looking at the ceiling in the dental chair."
+          }
+        ],
+        "choice": {
+          "prompt": "치아를 치료하기 위해 어떻게 하면 좋을까요?",
+          "options": [
+            {
+              "id": "a",
+              "text": "반짝이는 치과 도구 구경하기",
+              "copingType": "직면"
+            },
+            {
+              "id": "b",
+              "text": "천장 그림 보며 숨 크게 쉬기",
+              "copingType": "스스로진정"
+            }
+          ]
+        },
+        "isEnding": false
+      },
+      "b": {
+        "title": "치과에 간 꼬마 동물",
+        "scenes": [
+          {
+            "text": "꼬마 동물은 눈을 크게 뜨고 천장을 올려다보았어. 알록달록 귀여운 동물 그림들이 줄지어 걸려 있어. 하마 그림도 보이고 펭귄 그림도 반짝거려. 그림 하나하나를 세어 보며 마음을 가라앉힌다. 하나, 둘, 셋, 넷, 동물 친구들을 따라 미소를 지어. 콩닥콩닥, 괜찮아 괜찮아. 조금 전보다 두근거림이 사르르 녹아내려.",
+            "imagePrompt": "The main character looking up at cute animal pictures on the ceiling in a dentist office."
+          },
+          {
+            "text": "선생님이 부드러운 목소리로 다정하게 말을 건네주셔. 반짝이는 도구들이 작은 트레이 위에 나란히 놓여 있어. 윙윙 소리가 가까워지자 꼬마 동물은 다시 침을 꿀꺽 삼킨다. 그래도 천장의 동물 그림을 떠올리며 용기를 내어 본다. 콩닥콩닥, 괜찮아 괜찮아. 이제 진짜로 입을 크게 벌려야 할 차이야.",
+            "imagePrompt": "The main character looking at dental tools with a dentist smiling gently nearby."
+          },
+          {
+            "text": "하얀 가운을 입은 선생님이 조심스럽게 다가오신다. 반짝이는 거울을 들고 입안을 쏙 들여다볼 준비를 하셔. 꼬마 동물은 이 순간을 어떻게 맞이해야 할까? 콩닥콩닥, 괜찮아 괜찮아. 마음속으로 후렴을 부르며 다음 행동을 고민해 본다.",
+            "imagePrompt": "The dentist holding a small mirror approaching the main character sitting on the chair."
+          }
+        ],
+        "choice": {
+          "prompt": "의사 선생님의 거울을 보면 어떻게 할까요?",
+          "options": [
+            {
+              "id": "a",
+              "text": "거울에 비친 내 입 들여다보기",
+              "copingType": "직면"
+            },
+            {
+              "id": "b",
+              "text": "두 눈을 꼭 감고 버티기",
+              "copingType": "회피"
+            }
+          ]
+        },
+        "isEnding": false
+      }
+    },
+    "end": {
+      "aa": {
+        "title": "치과에 간 꼬마 동물",
+        "scenes": [
+          {
+            "text": "치과의사 선생님이 들고 온 반짝이는 도구를 조심스럽게 바라보았다. 윙윙 소리가 나지만 어떤 모양인지 자세히 살펴보기로 한 거야. 작은 거울로 내 이빨을 요리조리 비춰 보니 신기한 모양이네. 콩닥콩닥, 괜찮아 괜찮아. 무서운 도구가 아니라 반짝이는 보물처럼 느껴지기 시작해.",
+            "imagePrompt": "The main character looking at a small dental mirror in a bright dentist office."
+          },
+          {
+            "text": "선생님의 친절한 안내에 따라 아~ 하고 입을 크게 벌렸다. 간호사 선생님의 따뜻한 손을 잡고 있으니 용기가 솟아나는 것 같아. 반짝이는 도구가 쏙 들어와 이빨을 쓱쓱 깨끗하게 닦아 준다. 콩닥콩닥, 괜찮아 괜찮아. 생각보다 아프지 않고 간지러운 느낌마저 드는걸.",
+            "imagePrompt": "The main character opening their mouth wide while holding a nurse's hand in a dentist chair."
+          },
+          {
+            "text": "어느새 치과 치료가 톡톡 끝나고 의사 선생님이 칭찬 스티커를 붙여 주셨다. 치과 문을 나서며 엄마의 손을 잡고 집으로 돌아가는 길이야. 맑은 하늘 아래 살랑살랑 기분 좋은 바람이 불어온다. 콩닥콩닥, 괜찮아 괜찮아. 오늘 하루도 용기 있게 해낸 내가 참 자랑스러워.",
+            "imagePrompt": "The main character walking happily outside the dental clinic holding a parent's hand under the sun."
+          }
+        ],
+        "choice": null,
+        "isEnding": true
+      },
+      "ab": {
+        "title": "치과에 간 꼬마 동물",
+        "scenes": [
+          {
+            "text": "치과의사 선생님이 조심스럽게 반짝이는 도구를 입가로 가져가신다. 윙윙 소리가 들리지만 곁에는 손을 잡아준 선생님이 계시지. 꼬마 동물은 따스한 손길을 느끼며 용기를 내어 본다. 콩닥콩닥, 괜찮아 괜찮아. 아까 천장에서 보았던 알록달록한 그림을 떠올려. 입을 크게 아 벌리고 치료를 무사히 마쳤어.",
+            "imagePrompt": "The main character opening its mouth wide in a dentist chair while holding a nurse's hand."
+          },
+          {
+            "text": "치료가 끝난 자리에는 맑은 물로 입을 헹구는 시원함이 남는다. 의사 선생님이 씩씩하게 잘했다고 칭찬스티커를 건네주신다. 꼬마 동물은 반짝이는 스티커를 받으며 환하게 미소를 지어. 콩닥콩닥, 괜찮아 괜찮아. 무서운 순간을 멋지게 이겨낸 자신이 조금 자랑스러워. 발걸음도 가볍게 치과 문을 나서며 집으로 향한다.",
+            "imagePrompt": "The main character smiling and receiving a sticker from the dentist."
+          },
+          {
+            "text": "어느덧 해가 뉘엿뉘엿 지고 포근한 밤이 찾아왔어. 방 안에는 부드러운 달빛이 창문을 통해 스며들어. 꼬마 동물은 오늘 치과에서 있었던 일을 떠올리며 이불 속으로 쏙 들어간다. 콩닥콩닥, 괜찮아 괜찮아. 마음속으로 후렴을 부르며 스르륵 잠에 빠져들어.",
+            "imagePrompt": "The main character sleeping peacefully in a cozy bed under moonlight."
+          }
+        ],
+        "choice": null,
+        "isEnding": true
+      },
+      "ba": {
+        "title": "치과에 간 꼬마 동물",
+        "scenes": [
+          {
+            "text": "선생님의 반짝이는 거울이 입안으로 쏙 들어왔어. 꼬마 동물은 거울 속에 비친 내 코를 빤히 쳐다보았지. 앗, 찡그린 코끝이 움직이는 모습이 정말 우스꽝스러워. 킥킥 웃음이 터져 나올 것 같아 입을 다물 수가 없어. 콩닥콩닥, 괜찮아 괜찮아. 무서운 생각은 어느새 꼬리 고누처럼 도망가 버렸지.",
+            "imagePrompt": "The main character looking at a reflection in a dental mirror with a curious expression in a bright dentist's office."
+          },
+          {
+            "text": "선생님은 튼튼한 치아가 되었다며 환하게 웃어주셨어. 윙윙 소리도 잠시뿐이었고 아프지 않게 쓱쓱 닦아주셨지. 천장에 매달린 동물 그림과 거울 속 코를 본 기억이 반짝반짝 빛나. 꼬마 동물은 씩씩하게 의자에서 사르르 내려왔어. 콩닥콩닥, 괜찮아 괜찮아. 스스로 해냈다는 뿌듯함이 가슴 가득 차올라.",
+            "imagePrompt": "The main character smiling happily while stepping down from the dental chair next to a friendly dentist."
+          },
+          {
+            "text": "집으로 돌아오는 길, 노을이 포근하게 골목길을 감싸 안아. 엄마의 손을 꼭 잡고 걸으며 오늘 일을 도란도란 이야기해. 침대에 누우니 스르르 기분 좋은 잠이 눈꺼풀을 간지럽혀. 콩닥콩닥, 괜찮아 괜찮아. 달콤한 꿈을 꾸며 평화로운 밤이 깊어간다.",
+            "imagePrompt": "The main character sleeping peacefully in a cozy bed under a warm blanket."
+          }
+        ],
+        "choice": null,
+        "isEnding": true
+      },
+      "bb": {
+        "title": "치과에 간 꼬마 동물",
+        "scenes": [
+          {
+            "text": "꼬마 동물은 두 눈을 꼭 꼭 감고 의자에 기대었다. 무서운 생각이 들 때 잠시 눈을 감는 것도 좋은 방법이야. 선생님이 다정한 손길로 어깨를 토닥여 주신다. 반짝이는 거울이 입안으로 쏙 들어왔지만 아프지 않아. 콩닥콩닥, 괜찮아 괜찮아. 마음속으로 후렴을 부르며 조용히 버텨낸다.",
+            "imagePrompt": "The main character closing eyes tightly on the dentist chair with a gentle dentist nearby."
+          },
+          {
+            "text": "어느새 반짝거리는 이빨 검사가 톡톡 끝났다. 의자에서 스르륵 내려오자 안도의 한숨이 폭 나온다. 선생님이 용기 있게 잘해냈다고 과자 스티커를 건네주신다. 꼬마 동물은 알록달록한 스티커를 손에 꼭 쥐고 환하게 웃는다. 콩닥콩닥, 괜찮아 괜찮아. 무서운 치과 놀이가 참 재미있어졌어.",
+            "imagePrompt": "The main character receiving a cute sticker from the dentist with a happy smile."
+          },
+          {
+            "text": "집으로 돌아오는 길, 따스한 노을이 포근하게 감싸 안아 준다. 푹신한 침대에 누우니 오늘 있었던 일들이 살며시 떠오른다. 천장에 붙어 있던 동물 그림과 반짝이던 거울이 눈앞에 아른거린다. 꼬마 동물은 기분 좋은 꿈을 꾸며 스르륵 잠에 빠져든다. 콩닥콩닥, 참 잘했어요. 오늘도 참 잘 해냈어.",
+            "imagePrompt": "The main character sleeping peacefully in a cozy bed under warm sunset light."
+          }
+        ],
+        "choice": null,
+        "isEnding": true
+      }
+    }
+  },
+  "어린이집 가기 싫어": {
+    "start": {
+      "title": "오늘도 반짝반짝 어린이집",
+      "scenes": [
+        {
+          "text": "아침 햇살이 창문으로 살며시 들어와 방안을 간지럽혀요. 따뜻한 이불 속에서 작은 동물이 눈을 깜빡이며 일어납니다. 살랑살랑 꼬리를 흔들며 아침 인사를 건네보지요. 콩닥콩닥, 괜찮아 괜찮아. 오늘 하루도 즐거운 일이 기다릴 거예요. 부엌에서는 고소한 빵 굽는 냄새가 솔솔 풍겨옵니다.",
+          "imagePrompt": "The main character waking up in a cozy bedroom with morning sunlight."
+        },
+        {
+          "text": "식탁에 앉아 맛있는 딸기잼 토스트를 냠냠 맛있게 먹어요. 노란 알람시계가 째깍째깍 울리며 시간이라고 알려줍니다. 이제 곧 가방을 메고 어린이집에 갈 시간이에요. 하지만 주인공은 문득 발걸음이 뚝 멈춰버렸습니다. 콩닥콩닥, 괜찮아 괜찮아. 현관 앞에 놓인 노란 가방을 바라봅니다.",
+          "imagePrompt": "The main character eating breakfast at a table with a yellow alarm clock."
+        },
+        {
+          "text": "현관 문을 열자 시원한 아침 바람이 얼굴을 간지럽히고 지나갑니다. 길 너머에서 친구들의 웃음소리가 재잘재잘 들려오기도 해요. 엄마가 손을 내밀며 함께 걸어가자고 다정하게 불러봅니다. 콩닥콩닥, 괜찮아 괜찮아. 하지만 어린이집 문을 생각하면 자꾸만 마음이 작아져요.",
+          "imagePrompt": "The main character standing at the front door holding a yellow bag."
+        }
+      ],
+      "choice": {
+        "prompt": "어린이집에 가기 전, 마음을 어떻게 정해볼까요?",
+        "options": [
+          {
+            "id": "a",
+            "text": "현관 앞 노란 가방을 직접 메어보기",
+            "copingType": "직면"
+          },
+          {
+            "id": "b",
+            "text": "문앞에서 친구들 노래를 흥얼거리기",
+            "copingType": "스스로진정"
+          }
+        ]
+      },
+      "isEnding": false
+    },
+    "mid": {
+      "a": {
+        "title": "오늘도 반짝반짝 어린이집",
+        "scenes": [
+          {
+            "text": "주인공은 앙증맞은 노란 가방을 두 손으로 꼬꼭 잡았어요. 조금 떨리지만, 엄마의 눈을 보며 스스로 가방을 어깨에 척 메어보았지요. 콩닥콩닥, 괜찮아 괜찮아. 가방을 메자 신기하게도 용기가 몽글몽글 피어올랐어요. 발걸음을 똑바로 옮겨 현관문을 나섭니다.",
+            "imagePrompt": "The main character wearing a small yellow backpack and standing at the front door."
+          },
+          {
+            "text": "알록달록 예쁜 꽃길을 지나 마침내 어린이집 마당에 도착했어요. 문 앞에서는 친절한 선생님이 반갑게 손을 흔들어 주고 계셨지요. 콩닥콩닥, 괜찮아 괜찮아. 하지만 친구들이 와르르 모여 있는 교실 안을 보니 다시 심장이 쿵쾅거려요.",
+            "imagePrompt": "The main character looking at a colorful kindergarten building with a teacher waving."
+          },
+          {
+            "text": "시끌벅적한 교실 안으로 바로 들어가려니 가슴이 자꾸만 콩알만해집니다. 선생님이 다정하게 이쪽으로 오라고 손짓을 하며 불렀어요. 콩닥콩닥, 괜찮아 괜찮아. 북적이는 교실 앞에서 주인공은 어떻게 해야 할까요?",
+            "imagePrompt": "The main character standing hesitatingly at the entrance of a busy classroom."
+          }
+        ],
+        "choice": {
+          "prompt": "시끄러운 교실 앞에서, 마음을 어떻게 정해볼까요?",
+          "options": [
+            {
+              "id": "a",
+              "text": "시끄러운 교실 문앞에서 잠시 다른 곳 보기",
+              "copingType": "회피"
+            },
+            {
+              "id": "b",
+              "text": "주머니 속 작은 도토리 인형 쥐어보기",
+              "copingType": "스스로진정"
+            }
+          ]
+        },
+        "isEnding": false
+      },
+      "b": {
+        "title": "오늘도 반짝반짝 어린이집",
+        "scenes": [
+          {
+            "text": "노란 가방을 메고 길을 나서는 길이에요. 문앞에서 친구들 노래를 흥얼거리며 발걸음을 옮겨봅니다. 흥얼흥얼 콧노래를 부르자 마법처럼 마음이 조금 가벼워져요. 콩닥콩닥, 괜찮아 괜찮아. 바람을 타고 날아온 노래 소리가 발걸음을 톡톡 두드립니다. 엄마와 손을 잡고 모퉁이를 돌자 어린이집 건물이 살짝 보여요.",
+            "imagePrompt": "The main character humming a song while walking on a sunny path near a kindergarten."
+          },
+          {
+            "text": "알록달록 알림판이 붙은 마당을 지나 건물 안으로 들어섭니다. 복도 끝에서 선생님이 따스한 미소를 지으며 반겨주어요. 쿵쾅거리던 가슴이 콩닥콩닥, 괜찮아 괜찮아 소리와 함께 차분해집니다. 친구들이 모여 있는 교실 문 앞에 마침내 도착했어요. 안에서는 블록을 쌓는 소리가 와글와글 들려옵니다.",
+            "imagePrompt": "The main character standing in front of a colorful kindergarten classroom door."
+          },
+          {
+            "text": "열린 문틈으로 친구들의 웃음소리가 반갑게 들려오고 있어요. 교실 안으로 바로 들어갈지 잠시 고민이 생깁니다. 콩닥콩닥, 괜찮아 괜찮아. 문가에 서서 어떻게 할지 마음을 골라보지요. 새로운 장난감이 있는 교실 안을 깊이 바라봅니다.",
+            "imagePrompt": "The main character peeking into the cozy classroom through a slightly open door."
+          }
+        ],
+        "choice": {
+          "prompt": "교실 문 앞에서 어떻게 해볼까요?",
+          "options": [
+            {
+              "id": "a",
+              "text": "복도 창가로 가서 꽃구경하기",
+              "copingType": "회피"
+            },
+            {
+              "id": "b",
+              "text": "선생님 손을 잡고 교실 들어가기",
+              "copingType": "직면"
+            }
+          ]
+        },
+        "isEnding": false
+      }
+    },
+    "end": {
+      "aa": {
+        "title": "오늘도 반짝반짝 어린이집",
+        "scenes": [
+          {
+            "text": "시끌벅적한 교실 문앞에서 잠시 다른 곳으로 고개를 돌려보았어요. 창밖 하늘 위로 하얀 구름이 둥실둥실 흘러가고 있었지요. 콩닥콩닥, 괜찮아 괜찮아. 잠시 숨을 고르자 쿵쾅거리던 마음이 조금씩 가라앉았어요. 살랑바람이 불어와 뺨을 부드럽게 스치고 지나갑니다.",
+            "imagePrompt": "The main character looking out the window at fluffy clouds from the hallway."
+          },
+          {
+            "text": "교실 안에서는 친구들이 장난감을 가지고 즐겁게 놀고 있는 소리가 들려왔어요. 용기를 내어 한 걸음씩 교실 안으로 살금살금 걸어 들어가 보았지요. 콩닥콩닥, 괜찮아 괜찮아. 다정한 선생님이 따뜻한 손을 내밀며 다가와 맞아주셨어요. 알록달록 블록 놀이를 시작하자 웃음꽃이 활짝 피어납니다.",
+            "imagePrompt": "The main character entering the bright classroom and smiling with the teacher."
+          },
+          {
+            "text": "어느새 반짝반짝 신 나는 하루가 지나고 편안한 저녁이 찾아왔어요. 몽실몽실 포근한 이불 속에 누워 오늘 있었던 일을 떠올려 봅니다. 콩닥콩닥, 괜찮아 괜찮아. 스스로 해낸 모든 순간들이 가슴속에서 별처럼 빛나요. 부드러운 눈을 감으며 기분 좋은 꿈나라로 스르륵 잠들어요.",
+            "imagePrompt": "The main character sleeping peacefully in a cozy bed at night."
+          }
+        ],
+        "choice": null,
+        "isEnding": true
+      },
+      "ab": {
+        "title": "오늘도 반짝반짝 어린이집",
+        "scenes": [
+          {
+            "text": "주머니 속에 쏘옥 들어 있는 작은 도토리 인형을 손에 쥐었어요. 동글동글 단단한 도토리 인형을 만지작거리니 마음이 조금씩 차분해집니다. 콩닥콩닥, 괜찮아 괜찮아. 주머니 속에서 따뜻한 온기가 사르르 퍼져나가는 기분이 들었지요. 옆에 계시던 선생님이 다정하게 미소를 지으며 손을 잡아주셨어요. 도토리 인형 덕분에 떨리던 마음이 스르르 녹아내리기 시작했답니다.",
+            "imagePrompt": "The main character holding a small acorn toy in pocket standing in front of a colorful kindergarten classroom."
+          },
+          {
+            "text": "선생님과 함께 교실 안으로 살짝 걸어 들어가 블록 놀이 상자에 다가갔어요. 노란색 알록달록 블록을 하나 집어 들고 차곡차곡 높이 쌓아 올립니다. 콩닥콩닥, 괜찮아 괜찮아. 친구들도 다가와 함께 블록을 쌓으며 신나게 웃음을 터뜨렸지요. 아침에 느꼈던 걱정은 어느새 반짝반짝 빛나는 즐거움으로 바뀌었어요.",
+            "imagePrompt": "The main character happily playing with colorful building blocks with friends inside a warm kindergarten classroom."
+          },
+          {
+            "text": "어느덧 해가 뉘엿뉘엿 지고 즐거웠던 어린이집 하루가 포근하게 마무리되었습니다. 엄마 손을 잡고 집으로 돌아와 푹신한 침대에 누워 편안하게 눈을 감아요. 콩닥콩닥, 괜찮아 괜찮아. 내일도 또 어떤 재미난 일이 기다릴지 설레는 마음으로 잠에 빠져듭니다.",
+            "imagePrompt": "The main character sleeping peacefully in a cozy bed at night with a warm glowing light."
+          }
+        ],
+        "choice": null,
+        "isEnding": true
+      },
+      "ba": {
+        "title": "오늘도 반짝반짝 어린이집",
+        "scenes": [
+          {
+            "text": "복도 창가로 다가가 햇살을 받는 예쁜 꽃을 바라봅니다. 알록달록 고운 색을 띤 꽃잎이 살랑살랑 바람에 흔들려요. 창밖 풍경을 조용히 바라보자 두근거리던 마음이 조금씩 가라앉습니다. 콩닥콩닥, 괜찮아 괜찮아. 창가에 맺힌 아침 이슬이 반짝이며 인사를 건네는 것 같아요. 깊게 숨을 내쉬며 마음속에 평온한 바람을 가득 채웁니다.",
+            "imagePrompt": "The main character looking at colorful flowers by a sunny hallway window."
+          },
+          {
+            "text": "마음이 편안해진 주인공은 살며시 발걸음을 옮겨 교실 안으로 들어섭니다. 선생님이 따뜻한 눈빛으로 다가와 부드럽게 안아주며 반겨주어요. 친구가 다가와 새로 만든 블록 탑을 구경하라고 손짓을 합니다. 콩닥콩닥, 괜찮아 괜찮아. 알록달록한 블록 조각을 손에 쥐자 웃음꽃이 피어납니다. 어느새 걱정은 싹 사라지고 신나는 놀이가 시작되었어요.",
+            "imagePrompt": "The main character entering the bright classroom and smiling with friends."
+          },
+          {
+            "text": "어린이집에서의 즐거운 하루가 지나고 노란 가방을 메고 집으로 돌아옵니다. 포근한 저녁 노을이 방 안을 따스한 오렌지 빛으로 곱게 물들여요. 편안한 잠옷으로 갈아입고 폭신한 침대에 누워 하루를 되돌아봅니다. 콩닥콩닥, 괜찮아 괜찮아. 스르륵 눈을 감으면 행복한 꿈이 눈앞에 살며시 찾아와요. 오늘도 반짝반짝 멋진 하루를 보낸 작은 동물의 깊은 밤입니다.",
+            "imagePrompt": "The main character sleeping peacefully in a cozy bed at night."
+          }
+        ],
+        "choice": null,
+        "isEnding": true
+      },
+      "bb": {
+        "title": "오늘도 반짝반짝 어린이집",
+        "scenes": [
+          {
+            "text": "선생님의 따뜻한 손을 꼭 잡고 교실 안으로 살짝 발을 내디뎌 봅니다. 콩닥콩닥, 괜찮아 괜찮아. 알록달록한 블록들이 우리를 반기며 반짝거려요. 친구들이 다가와 안녕하며 환한 웃음을 건네줍니다. 용기를 내어 들어온 교실은 생각보다 훨씬 더 아늑하고 포근해요.",
+            "imagePrompt": "The main character holding hands with a teacher while stepping into a cozy, colorful classroom."
+          },
+          {
+            "text": "알록달록 블록을 높이 쌓으며 친구들과 함께 신나게 놀이를 시작합니다. 와글와글 웃음소리가 교실 가득 즐겁게 퍼져나가요. 콩닥콩닥, 괜찮아 괜찮아. 걱정하던 마음은 어느새 반짝이는 미소로 환하게 바뀝니다. 재미있는 하루가 선물처럼 우리에게 다가와 안겨요.",
+            "imagePrompt": "The main character playing happily with colorful blocks alongside other friendly characters."
+          },
+          {
+            "text": "어느덧 해가 뉘엿뉘엿 지고 포근한 저녁이 찾아와요. 따뜻한 이불 속에 쏙 들어가 하루를 조용히 마무리합니다. 콩닥콩닥, 괜찮아 괜찮아. 스르륵 눈을 감으면 행복했던 오늘이 부드럽게 꿈속으로 이어져요.",
+            "imagePrompt": "The main character sleeping peacefully in a cozy bed under a warm blanket at night."
+          }
+        ],
+        "choice": null,
+        "isEnding": true
+      }
+    }
+  },
+  "동생이 생겼어": {
+    "start": {
+      "title": "우리 집 작은 손님",
+      "scenes": [
+        {
+          "text": "햇살이 포근하게 비치는 아침, 방 안에서 장난감을 가지고 놀아요. 엄마는 아기 침대 곁에서 작은 누나를 따뜻하게 안아주고 있어요. 주인공은 콧노래를 부르며 평화로운 시간을 보내고 있답니다. 콩닥콩닥, 괜찮아 괜찮아. 우리 집은 언제나 즐거운 놀이터니까요. 하지만 오늘따라 엄마의 목소리가 조금 다르게 들려와요.",
+          "imagePrompt": "The main character playing with toys in a sunny and cozy room."
+        },
+        {
+          "text": "갑자기 방 문이 스르륵 열리며 엄마가 아기를 품에 안고 다가와요. 아기는 세상에 태어난 지 얼마 안 된 아주 작은 동생이에요. 으애앵, 아기가 눈을 꼭 감고 큰 소리로 울기 시작해요. 콩닥콩닥, 괜찮아 괜찮아. 주인공은 깜짝 놀라서 가지고 놀던 장난감을 멈춰요. 아기의 목소리가 방 안 가득 울려 퍼지고 있어요.",
+          "imagePrompt": "The main character looking surprised as a mother holding a baby enters the room."
+        },
+        {
+          "text": "아기는 그칠 줄 모르고 계속해서 서럽게 울음을 터뜨려요. 엄마는 동생을 달래느라 정신이 하나도 없어 보여요. 주인공은 침대 옆에 멍하니 서서 어쩔 줄을 몰라 해요. 콩닥콩닥, 괜찮아 괜찮아. 시끄러운 소리에 마음이 콩닥거리기 시작했어요. 이 커다란 울음소리를 어떻게 하면 좋을까요?",
+          "imagePrompt": "The main character standing near the bed looking worried while a baby cries."
+        }
+      ],
+      "choice": {
+        "prompt": "시끄러운 소리에 마음이 콩닥거릴 때, 어떤 행동을 해볼까요?",
+        "options": [
+          {
+            "id": "a",
+            "text": "내 귀를 막고 내 노래를 불러요",
+            "copingType": "스스로진정"
+          },
+          {
+            "id": "b",
+            "text": "알록달록한 블록 방으로 가요",
+            "copingType": "회피"
+          }
+        ]
+      },
+      "isEnding": false
+    },
+    "mid": {
+      "a": {
+        "title": "우리 집 작은 손님",
+        "scenes": [
+          {
+            "text": "시끄러운 소리에 주인공은 두 손으로 귀를 꽉 막았어요. 그리고 내가 제일 좋아하는 노래를 조용히 불러보았지요. 랄라라, 예쁜 노래 소리가 귓가를 따뜻하게 채워주었어요. 콩닥콩닥, 괜찮아 괜찮아. 아기의 울음소리가 조금 멀어지는 기분이 들었어요. 마음속에 차분한 바람이 솔솔 불어오는 것 같았답니다.",
+            "imagePrompt": "The main character covering ears with hands and singing softly in a cozy room."
+          },
+          {
+            "text": "노래를 부르며 마음을 가라앉힌 사이 아기가 울음을 뚝 그쳤어요. 엄마는 이제 안심한 표정으로 주인공을 다정하게 바라보았지요. 엄마가 품에 안은 아기가 살짝 눈을 뜨고 주인공을 쳐다보았어요. 콩닥콩닥, 괜찮아 괜찮아. 작고 동그란 아기의 눈망울과 마주치자 가슴이 또다시 콩닥거렸어요. 아기가 내 손가락을 꼬물꼬물 잡으려고 다가오고 있어요.",
+            "imagePrompt": "The main character looking closely at a baby being held by the mother in a warm room."
+          },
+          {
+            "text": "조그마한 손을 내미는 아기를 보니 살짝 긴장되기도 했어요. 하지만 아기는 생각보다 무섭지 않고 아주 작고 부드러워 보였지요. 콩닥콩닥, 괜찮아 괜찮아. 주인공은 아기를 향해 어떻게 다가가야 할지 고민에 빠졌어요. 이 작은 동생과 친해지려면 지금 어떤 행동을 해야 할까요?",
+            "imagePrompt": "The main character standing hesitatingly near the baby and the mother."
+          }
+        ],
+        "choice": {
+          "prompt": "작은 동생과 친해지기 위해 어떤 행동을 해볼까요?",
+          "options": [
+            {
+              "id": "a",
+              "text": "아기 눈을 보며 살짝 손가락 내밀기",
+              "copingType": "직면"
+            },
+            {
+              "id": "b",
+              "text": "엄마에게 아기 안아봐도 되냐고 묻기",
+              "copingType": "도움요청"
+            }
+          ]
+        },
+        "isEnding": false
+      },
+      "b": {
+        "title": "우리 집 작은 손님",
+        "scenes": [
+          {
+            "text": "시끄러운 소리를 피해 블록 방으로 살짝 걸어와요. 알록달록한 블록 상자를 열어 바닥에 쏟아부어요. 우르르쾅쾅, 블록이 무너지며 재미있는 소리가 나요. 콩닥콩닥, 괜찮아 괜찮아. 내 방은 조용하고 안전한 놀이터니까요. 하지만 거실에서 들려오는 울음소리는 여전히 귓가에 맴돌아요.",
+            "imagePrompt": "The main character playing with colorful blocks on the floor in a cozy room."
+          },
+          {
+            "text": "블록을 높이 쌓아 올리며 마음을 차분하게 가라앉혀요. 영차영차, 멋진 성을 만들자 울음소리가 조금 멀게 느껴져요. 콩닥콩닥, 괜찮아 괜찮아. 이제 혼자서도 재미있게 놀 수 있어요. 그런데 방 문틈 사이로 엄마의 지친 한숨 소리가 들려와요.",
+            "imagePrompt": "The main character building a tall block tower with a calm expression."
+          },
+          {
+            "text": "방 밖으로 빼꼼 고개를 내밀어 거실 쪽을 바라봐요. 엄마는 동생을 안고 의자에 지친 표정으로 앉아 있어요. 콩닥콩닥, 괜찮아 괜찮아. 엄마도 많이 힘들고 지쳐 보이는 모습이에요. 내가 어떻게 하면 엄마를 도와줄 수 있을까요?",
+            "imagePrompt": "The main character peeking through a doorway and looking towards the living room."
+          }
+        ],
+        "choice": {
+          "prompt": "지쳐 있는 엄마를 도와주려면 어떻게 해야 할까요?",
+          "options": [
+            {
+              "id": "a",
+              "text": "엄마에게 물을 가져다주기",
+              "copingType": "도움요청"
+            },
+            {
+              "id": "b",
+              "text": "동생에게 다가가 얼굴 보기",
+              "copingType": "직면"
+            }
+          ]
+        },
+        "isEnding": false
+      }
+    },
+    "end": {
+      "aa": {
+        "title": "우리 집 작은 손님",
+        "scenes": [
+          {
+            "text": "주인공은 아기 눈을 가만히 바라보며 조그마한 손가락을 살짝 내밀어 보았어요. 콩닥콩닥, 괜찮아 괜찮아. 아기는 보드라운 손을 뻗어 주인공의 손가락을 꼬물꼬물 잡았답니다. 생각보다 참 따뜻하고 부드러운 손바닥이었어요. 아기는 이제 울음을 그치고 기분 좋은 표정을 지어 보였어요. 방 안에는 평화롭고 따스한 햇살이 다시 가득 채워졌지요.",
+            "imagePrompt": "The main character gently holding a tiny baby's hand in a warm sunny room."
+          },
+          {
+            "text": "엄마는 미소를 지으며 두 아이를 다정하게 꼭 안아주었어요. 콩닥콩닥, 괜찮아 괜찮아. 내 노래를 부르며 마음을 진정시킨 것도, 용기 내어 손을 내민 것도 참 잘한 일이었지요. 주인공은 조그마한 동생의 머리를 살살 쓰다듬어 주었어요. 아기는 기분 좋은 소리를 내며 스르륵 눈을 감고 잠에 빠져들었답니다.",
+            "imagePrompt": "The main character sitting next to the baby sleeping peacefully with a smiling mother nearby."
+          },
+          {
+            "text": "포근한 밤이 찾아오고 아늑한 침대에 누워 스르륵 눈을 감았어요. 콩닥콩닥, 괜찮아 괜찮아. 우리 집에 온 작은 손님과 함께 잠드는 밤은 참 행복했어요. 내일은 동생과 어떤 놀이를 할까 상상하며 기분 좋게 꿈나라로 떠났답니다.",
+            "imagePrompt": "The main character sleeping cozily in a warm bed at night."
+          }
+        ],
+        "choice": null,
+        "isEnding": true
+      },
+      "ab": {
+        "title": "우리 집 작은 손님",
+        "scenes": [
+          {
+            "text": "엄마를 향해 다가가 조심스럽게 아기를 안아봐도 되냐고 물어보았어요. 엄마는 빙그레 웃으며 조용히 고개를 끄덕여 주었답니다. 콩닥콩닥, 괜찮아 괜찮아. 따뜻한 품에 안긴 엄마의 눈빛이 포근하게 감싸주었어요. 내 마음속의 긴장도 스르륵 녹아내리는 기분이었지요. 이제 조그마한 동생을 더 가까이서 만날 차례예요.",
+            "imagePrompt": "The main character asking the mother to hold the baby in a cozy room."
+          },
+          {
+            "text": "엄마의 도움을 받아 조심스럽게 두 손을 내밀어 아기를 바라보았어요. 아기는 내 손가락을 살며시 쥐며 작은 미소를 지어 보였답니다. 콩닥콩닥, 괜찮아 괜찮아. 아기의 부드러운 손길이 마음에 살포시 내려앉았어요. 시끄럽게 울던 동생이 이제는 세상에서 가장 귀여운 친구로 보였지요. 우리 둘은 따뜻한 햇살 아래서 나란히 눈을 맞추었어요.",
+            "imagePrompt": "The main character holding out a finger to touch the baby's tiny hand."
+          },
+          {
+            "text": "어느덧 포근한 밤이 찾아와 방 안의 불빛이 은은하게 반짝였어요. 아기는 엄마 품에서 색색거리며 기분 좋게 잠을 자고 있었답니다. 콩닥콩닥, 괜찮아 괜찮아. 주인공도 따뜻한 이불속으로 쏙 들어가 평화로운 꿈을 꾸었어요. 우리 집의 새로운 작은 손님과 함께하는 밤은 참 행복했어요. 콩닥콩닥, 언제나 함께니까 괜찮아.",
+            "imagePrompt": "The main character sleeping peacefully in a cozy bed at night."
+          }
+        ],
+        "choice": null,
+        "isEnding": true
+      },
+      "ba": {
+        "title": "우리 집 작은 손님",
+        "scenes": [
+          {
+            "text": "시원한 물이 담긴 컵을 두 손으로 조심스럽게 감싸 쥐어요. 찰랑찰랑, 물이 넘치지 않게 천천히 거실로 걸어가요. 콩닥콩닥, 괜찮아 괜찮아. 엄마에게 컵을 건네주려고 한 걸음씩 다가가요. 엄마는 깜짝 놀라며 고마운 눈빛으로 나를 바라봐요.",
+            "imagePrompt": "The main character carefully holding a cup of water and walking towards the living room."
+          },
+          {
+            "text": "엄마는 시원한 물을 마시며 부드럽게 미소를 지어 보여요. 꿀꺽꿀꺽, 목을 축인 엄마의 얼굴에 피로가 조금씩 사라져요. 콩닥콩닥, 괜찮아 괜찮아. 아기도 언제 울었냐는 듯이 엄마 품에서 얌전해져요. 우리는 나란히 앉아 서로의 온기를 느껴요.",
+            "imagePrompt": "The main character smiling next to a tired mother resting in the living room."
+          },
+          {
+            "text": "어두컴컴한 밤이 찾아오고 포근한 이불 속으로 쏙 들어가요. 스르륵, 눈을 감으니 평화로운 기분이 가득 밀려와요. 콩닥콩닥, 괜찮아 괜찮아. 우리 집은 언제나 따뜻하고 행복한 보물섬이니까요. 내일은 동생과 함께 어떤 놀이를 할까 상상하며 단잠에 빠져들어요.",
+            "imagePrompt": "The main character sleeping peacefully under a cozy blanket in a warm bedroom."
+          }
+        ],
+        "choice": null,
+        "isEnding": true
+      },
+      "bb": {
+        "title": "우리 집 작은 손님",
+        "scenes": [
+          {
+            "text": "알록달록 블록을 가지고 놀다가, 천천히 거실로 걸어가요. 엄마 곁으로 다가가 작은 동생의 얼굴을 살짝 들여다봐요. 으아앙 울던 동생이 눈을 깜빡이며 손가락을 꼼지락거려요. 콩닥콩닥, 괜찮아 괜찮아. 동생의 손이 내 손톱만큼이나 아주 작고 귀여워요.",
+            "imagePrompt": "The main character carefully looking at a tiny baby sleeping in a cozy living room."
+          },
+          {
+            "text": "엄마는 지친 미소를 지으며 고맙다고 말해줘요. 주인공은 동생이 좋아하는 딸랑이 장난감을 살짝 흔들어 보여줘요. 딸랑딸랑, 맑고 고운 소리가 방 안 가득 울려 퍼져요. 콩닥콩닥, 괜찮아 괜찮아. 동생이 눈물을 뚝 그치고 방싯방싯 웃음을 지어요.",
+            "imagePrompt": "The main character shaking a rattle gently in front of a smiling baby, with the mother watching warmly."
+          },
+          {
+            "text": "어느새 해가 지고 포근한 밤이 찾아와요. 따뜻한 이스리 속에서 누워 조용히 눈을 감아요. 콩닥콩닥, 괜찮아 괜찮아. 오늘은 우리 집 작은 손님과 함께여서 참 행복한 하루였어요.",
+            "imagePrompt": "The main character sleeping peacefully in a warm and cozy bed at night."
+          }
+        ],
+        "choice": null,
+        "isEnding": true
+      }
+    }
+  },
+  "병원 주사가 무서워": {
+    "start": {
+      "title": "따끔따끔 괜찮아",
+      "scenes": [
+        {
+          "text": "노란 햇살이 가득한 아침, 방 안에서 장난감이 반짝인다. 주인공은 곰돌이 인형을 안고 소파에 앉아 있다. 엄마가 다가와 부드러운 목소리로 이야기를 건넨다. 오늘은 건강하게 쑥쑥 크려고 병원에 가는 날이다. 주인공은 싱글벙글 웃으며 엄마 손을 잡았다. 콩닥콩닥, 괜찮아 괜찮아. 우리는 가볍게 발걸음을 옮겼다.",
+          "imagePrompt": "The main character hugging a teddy bear in a cozy sunny living room."
+        },
+        {
+          "text": "병원 로비에 도착하자 하얀 소독약 냄새가 코를 간지럽힌다. 접수처 알록달록한 그림책을 보니 조금 안심이 된다. 하지만 간호사 선생님이 부르는 목소리에 심장이 쿵쾅거린다. 주사라는 단어가 귓가를 맴돌며 발걸음이 무거워진다. 주인공은 주머니 속 작은 단추를 꾹 쥐어본다. 콩닥콩닥, 괜찮아 괜찮아. 진료실 문 앞까지 조심조심 걸어간다.",
+          "imagePrompt": "The main character standing in a bright hospital hallway holding a small button."
+        },
+        {
+          "text": "드디어 진료실 안으로 살짝 들어섰다. 친절한 의사 선생님이 반갑게 미소를 지어 보인다. 침대에 앉자 반짝이는 주사기가 눈에 들어온다. 뾰족한 끝을 보니 가슴이 콩닥콩닥 뛰기 시작한다. 의사 선생님이 다정하게 주사기를 들고 다가온다. 주인공은 무서운 마음에 입술을 살짝 깨물었다. 콩닥닥, 괜찮아 괜찮아. 어떻게 해야 이 마음을 이겨낼 수 있을까?",
+          "imagePrompt": "The main character sitting on a medical bed looking at a friendly doctor."
+        }
+      ],
+      "choice": {
+        "prompt": "주사기가 다가올 때, 어떻게 해볼까요?",
+        "options": [
+          {
+            "id": "a",
+            "text": "의사 선생님께 주사기 구경하기",
+            "copingType": "직면"
+          },
+          {
+            "id": "b",
+            "text": "천장에 붙은 동물 그림 세어보기",
+            "copingType": "스스로진정"
+          }
+        ]
+      },
+      "isEnding": false
+    },
+    "mid": {
+      "a": {
+        "title": "따끔따끔 괜찮아",
+        "scenes": [
+          {
+            "text": "주인공은 용기를 내어 의사 선생님을 바라보았다. \"선생님, 주사기를 잠깐 구경해도 돼요?\" 하고 물었다. 의사 선생님은 미소를 지으며 주사기를 가까이 보여주었다. 뾰족한 끝을 자세히 보니 생각보다 작고 귀여웠다. 알록달록한 눈금도 신기하게 반짝였다. 콩닥콩닥, 괜찮아 괜찮아. 주인공은 조금 마음이 놓였다.",
+            "imagePrompt": "The main character looking closely at a small syringe held by a smiling doctor in a bright clinic room."
+          },
+          {
+            "text": "이제 팔을 살짝 걷고 주사를 맞을 차례가 되었다. 하지만 뾰족한 바늘을 생각하니 다시 가슴이 두근거렸다. 엄마 손을 꼭 잡고 눈을 질끈 감아볼까? 아니면 방 안의 멋진 동물 그림을 보며 잠시 눈을 돌려볼까? 주인공은 두 눈을 꾹 감고 살짝 숨을 골랐다. 콩닥콩닥, 괜찮아 괜찮아. 어떻게 하면 이 무서움을 조금 더 이겨낼 수 있을까?",
+            "imagePrompt": "The main character sitting on the examination bed with eyes tightly closed, holding a parent's hand."
+          },
+          {
+            "text": "진료실 벽에 걸려 있는 동물 그림 속 사자가 웃고 있었다. 주인공은 사자를 보며 잠시 눈을 피해보았다. 씩씩한 사자처럼 용기를 내고 싶어졌다. 엄마의 품에 얼굴을 묻고 눈을 꼭 감아볼 수도 있었다. 콩닥콩닥, 괜찮아 괜찮아. 주인공은 두 가지 방법 중 하나를 골라보기로 했다.",
+            "imagePrompt": "The main character looking at a friendly animal poster on the clinic wall."
+          }
+        ],
+        "choice": {
+          "prompt": "주사 맞을 준비를 할 때, 어떤 행동을 해볼까요?",
+          "options": [
+            {
+              "id": "a",
+              "text": "벽에 걸린 동물 그림을 보며 눈을 다른 곳으로 피하기",
+              "copingType": "회피"
+            },
+            {
+              "id": "b",
+              "text": "엄마 품에 꼭 안겨서 도움을 요청하기",
+              "copingType": "도움요청"
+            }
+          ]
+        },
+        "isEnding": false
+      },
+      "b": {
+        "title": "따끔따끔 괜찮아",
+        "scenes": [
+          {
+            "text": "주인공은 고개를 번쩍 들어 천장을 올려다보았다. 알록달록 귀여운 동물 그림들이 나란히 붙어 있다. 코끼리 한 마리, 원숭이 두 마리. 하나, 둘, 셋 숫자를 세며 천천히 숨을 쉰다. 콩닥콩닥, 괜찮아 괜찮아. 무서운 주사기 생각이 조금씩 멀어진다.",
+            "imagePrompt": "The main character looking up at colorful animal stickers on the ceiling in a bright clinic room."
+          },
+          {
+            "text": "의사 선생님이 씩 웃으며 다정한 포스터를 보여준다. 주인공은 그림 속 강아지와 눈을 맞추며 마음을 가라앉힌다. 하지만 곧 톡톡 소독솜이 팔에 닿는 느낌이 서늘하다. 뾰족한 주사기가 반짝이며 팔뚝으로 가까이 다가온다. 콩닥콩닥, 괜찮아 괜찮아. 이제 정말 따끔한 순간이 코앞으로 다가왔다.",
+            "imagePrompt": "The main character looking at a friendly poster while a doctor holding a small syringe is nearby."
+          },
+          {
+            "text": "눈앞에 다가온 주사기를 보자 마음이 다시 조급해진다. 어떻게 해야 이 무서운 순간을 무사히 넘길 수 있을까? 엄마 얼굴을 슬쩍 바라보며 어떻게 할지 고민한다.",
+            "imagePrompt": "The main character looking worriedly towards the mother in the clinic room."
+          }
+        ],
+        "choice": {
+          "prompt": "주사기가 팔에 닿으려 할 때, 어떻게 해볼까요?",
+          "options": [
+            {
+              "id": "a",
+              "text": "눈을 꾹 감고 살짝 뒤로 몸 피하기",
+              "copingType": "회피"
+            },
+            {
+              "id": "b",
+              "text": "엄마 손을 더 꽉 잡고 도와달라 하기",
+              "copingType": "도움요청"
+            }
+          ]
+        },
+        "isEnding": false
+      }
+    },
+    "end": {
+      "aa": {
+        "title": "따끔따끔 괜찮아",
+        "scenes": [
+          {
+            "text": "주인공은 벽에 걸린 씩씩한 사자 그림을 바라보았다. 알록달록한 그림 속 동물들이 힘을 내라고 속삭이는 것만 같았다. 반짝이는 주사기를 보지 않으려고 눈을 꼭 감고 동물 그림을 떠올렸다. 콩닥콩닥, 괜찮아 괜찮아. 마음속으로 사자의 용기를 가득 담아보았다.",
+            "imagePrompt": "The main character looking at a colorful animal picture on the wall in a warm doctor's office."
+          },
+          {
+            "text": "따끔, 하는 느낌과 함께 순식간에 주사가 끝났다. 의사 선생님이 칭찬을 담아 반짝이는 동물 스티커를 내밀었다. 주인공은 아픔을 꾹 참고 스티커를 받아 들었다. 콩닥콩닥, 괜찮아 괜찮아. 무서운 주사를 멋지게 이겨낸 자신이 조금 자랑스러워졌다.",
+            "imagePrompt": "The main character receiving a cute animal sticker from a friendly doctor in a bright clinic."
+          },
+          {
+            "text": "병원 문을 나서자 포근한 바람이 살랑살랑 불어왔다. 엄마와 손을 잡고 집으로 돌아가는 길목이 참 평화로웠다. 방에 돌아와 곰돌이 인형을 안고 침대에 편안히 누웠다. 콩닥콩닥, 괜찮아 괜찮아. 오늘의 무서움은 사라지고 스르륵 잠이 찾아왔다.",
+            "imagePrompt": "The main character sleeping peacefully in a cozy bed hugging a toy bear."
+          }
+        ],
+        "choice": null,
+        "isEnding": true
+      },
+      "ab": {
+        "title": "따끔따끔 괜찮아",
+        "scenes": [
+          {
+            "text": "주인공은 엄마 품에 꼬옥 안기며 도움을 청했다. \"엄마, 저를 꽉 안아주세요.\" 하고 작은 목소리로 말했다. 엄마는 따뜻한 손으로 머리를 쓰다듬어 주었다. 든든한 엄마의 품에 안기니 무서움이 스르륵 녹아내렸다. 콩닥콩닥, 괜찮아 괜찮아. 마음속에 용기가 샘솟기 시작했다.",
+            "imagePrompt": "The main character hugging the mother tightly in a cozy clinic."
+          },
+          {
+            "text": "의사 선생님이 알코올 솜으로 팔을 부드럽게 닦아주었다. 따끔하는 순간, 주인공은 엄마의 품에 얼굴을 묻고 눈을 꼭 감았다. 하나, 둘, 셋 하자마자 주사가 톡 하고 끝났다. 생각보다 아프지 않고 정말 순식간에 지나갔다. 콩닥콩닥, 괜찮아 괜찮아. 해냈다는 뿌듯함에 미소가 번졌다.",
+            "imagePrompt": "The main character closing eyes and holding the mother while getting a shot."
+          },
+          {
+            "text": "병원 문을 나서자 포근한 햇살이 우리를 반겨주었다. 엄마는 잘했다고 칭찬하며 맛있는 간식을 건네주었다. 주인공은 신나게 발을 구르며 집으로 걸어갔다. 오늘 하루도 씩씩하게 잘 해낸 멋진 하루였다. 콩닥콩닥, 괜찮아 괜찮아. 달콤한 꿈을 꾸며 평화로운 밤이 찾아왔다.",
+            "imagePrompt": "The main character walking happily with the mother under warm sunlight."
+          }
+        ],
+        "choice": null,
+        "isEnding": true
+      },
+      "ba": {
+        "title": "따끔따끔 괜찮아",
+        "scenes": [
+          {
+            "text": "주인공은 눈을 꾹 감고 살짝 뒤로 몸을 피했다. 의사 선생님은 다그치지 않고 빙그레 웃어주었다. 차가운 소독솜이 팔에 닿았다가 스르륵 지나갔다. 콩닥콩닥, 괜찮아 괜찮아. 잠시 숨을 고르니 마음이 조금 편안해졌다.",
+            "imagePrompt": "The main character closing their eyes and gently leaning back on the hospital bed."
+          },
+          {
+            "text": "주인공은 다시 용기를 내어 의사 선생님을 바라보았다. 천장에 붙은 동물 그림들이 반짝반짝 빛나고 있었다. 살짝 피했다가 다시 도전하는 모습에 엄마가 칭찬을 건넨다. 콩닥콩닥, 괜찮아 괜찮아. 따끔한 주사는 금방 톡 하고 끝났다.",
+            "imagePrompt": "The main character looking up at the ceiling animals in a warm clinic."
+          },
+          {
+            "text": "병원에서 나와 집으로 돌아오는 길의 노을이 포근하다. 손에 쥐여진 반짝이는 스티커가 바람에 살랑인다. 주인공은 푹신한 침대에 누워 인형을 꼭 품에 안았다. 콩닥콩닥, 괜찮아 괜찮아. 편안한 밤이 따스하게 찾아온다.",
+            "imagePrompt": "The main character sleeping peacefully in a cozy bed with a toy."
+          }
+        ],
+        "choice": null,
+        "isEnding": true
+      },
+      "bb": {
+        "title": "따끔따끔 괜찮아",
+        "scenes": [
+          {
+            "text": "주인공은 엄마 손을 더 꽉 잡고 도와달라며 품에 쏙 안긴다. 엄마는 따뜻한 손으로 머리를 쓰다듬으며 괜찮다고 속삭여 준다. 곁에 있는 든든한 엄마 덕분에 무서운 마음이 스르르 녹아내린다. 콩닥콩닥, 괜찮아 괜찮아. 엄마의 온기가 온몸으로 퍼져나간다.",
+            "imagePrompt": "The main character hugging the mother tightly for comfort in a bright doctor's office."
+          },
+          {
+            "text": "의사 선생님이 순식간에 톡, 주사를 놓고 예쁜 밴드를 붙여준다. 생각보다 아주 잠깐 따끔하고 끝났다. 주인공은 천장의 동물 그림을 보고 엄마 손을 잡았던 기억을 떠올린다. 콩닥콩닥, 괜찮아 괜찮아. 해냈다는 뿌듯함에 얼굴에 미소가 번진다.",
+            "imagePrompt": "The main character smiling with a colorful bandage on the arm in a cozy clinic."
+          },
+          {
+            "text": "병원을 나서서 퐁퐁 가벼운 발걸음으로 집으로 돌아온다. 따스한 햇살이 비치는 포근한 방 안에서 곰돌이 인형을 품에 안는다. 오늘 하루 무서움을 이겨낸 자신을 꼭 안아준다. 콩닥콩닥, 괜찮아 괜찮아. 평화롭고 아늑한 밤이 깊어간다.",
+            "imagePrompt": "The main character holding a teddy bear happily in a warm and cozy bedroom at sunset."
+          }
+        ],
+        "choice": null,
+        "isEnding": true
+      }
+    }
+  }
+}
