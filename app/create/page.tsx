@@ -8,6 +8,7 @@ import { PRESETS } from "@/lib/story/presets";
 import { MAX_AGE, MAX_DURATION, MIN_AGE, MIN_DURATION } from "@/lib/story/schema";
 import { useApp } from "../providers";
 import Icon from "../components/Icon";
+import { WritingAnimation } from "../components/LoadingAnimation";
 import { btnPrimary, chipCls, errorCls, inputCls, Label, noteCls, Segmented } from "../components/ui";
 
 // 화면에만 보여 주는 추가 예시. PRESETS와 달리 폴백 동화가 없어서 AI 실패 시엔 직접 추가한 고민처럼 다뤄진다.
@@ -57,6 +58,7 @@ export default function CreatePage() {
   const [eraser, setEraser] = useState(false);
   const [brushSize, setBrushSize] = useState(12);
   const [submitting, setSubmitting] = useState(false);
+  const submitLock = useRef(false);
   const [localError, setLocalError] = useState("");
 
   const point = (e: React.PointerEvent<HTMLCanvasElement>) => {
@@ -162,7 +164,7 @@ export default function CreatePage() {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (submitting) return;
+    if (submitLock.current) return;
     if (!situation.trim()) {
       setLocalError("고민을 고르거나 + 버튼으로 직접 추가해 주세요.");
       return;
@@ -176,30 +178,42 @@ export default function CreatePage() {
       }
     }
     setLocalError("");
+    submitLock.current = true;
     setSubmitting(true);
-    let selectedDrawing: File | null = null;
-    if (hasSketch && canvasRef.current) {
-      const blob = await new Promise<Blob | null>((resolve) => canvasRef.current?.toBlob(resolve, "image/png"));
-      if (!blob) {
-        setLocalError("그림을 저장하지 못했어요. 다시 시도해 주세요.");
-        setSubmitting(false);
-        return;
+    try {
+      let selectedDrawing: File | null = null;
+      const canvas = canvasRef.current;
+      if (hasSketch && canvas) {
+        const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/png"));
+        if (!blob) throw new Error("그림을 저장하지 못했어요. 다시 시도해 주세요.");
+        selectedDrawing = new File([blob], "protagonist.png", { type: "image/png" });
       }
-      selectedDrawing = new File([blob], "protagonist.png", { type: "image/png" });
+      s.setDrawing(selectedDrawing);
+      const recentContext = [buildRecentStoryContext(library, pet.state.moods), cachedStoryGuidance(insightRaw)]
+        .filter(Boolean)
+        .join("\n")
+        .slice(0, 600);
+      // 성공하기 전에는 작성 화면을 유지한다. /read에서 되돌아오면 캔버스가 사라진다.
+      const started = await s.start({ age, situation, durationMin, protagonist, recentContext });
+      if (started) router.push("/read");
+    } catch (error) {
+      setLocalError(error instanceof Error ? error.message : "동화를 만들지 못했어요. 다시 시도해 주세요.");
+    } finally {
+      submitLock.current = false;
+      setSubmitting(false);
     }
-    s.setDrawing(selectedDrawing);
-        const recentContext = [buildRecentStoryContext(library, pet.state.moods), cachedStoryGuidance(insightRaw)]
-      .filter(Boolean)
-      .join("\n")
-      .slice(0, 600);
-    void s.start({ age, situation, durationMin, protagonist, recentContext }); // 로딩은 /read 화면에서 보여준다
-    router.push("/read");
   };
 
   const error = localError || s.error;
 
   return (
-    <main className="page-turn mx-auto w-full max-w-md px-4 py-8 md:max-w-5xl md:px-8 md:py-12">
+    <main aria-busy={submitting} className="page-turn mx-auto w-full max-w-md px-4 py-8 md:max-w-5xl md:px-8 md:py-12">
+      {submitting && (
+        <section role="status" className="flex flex-col items-center gap-6 rounded-2xl border border-line bg-surface px-6 py-24 text-center">
+          <WritingAnimation />
+          <p className="story text-xl text-ink">동화를 쓰고 있어요</p>
+        </section>
+      )}
       {s.draft && (
         <section className="mt-6 rounded-2xl border border-accent/35 bg-[#fff7e9] p-4 sm:p-5" aria-label="저장한 동화">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -216,13 +230,14 @@ export default function CreatePage() {
         </section>
       )}
 
-      {error && (
+      {!submitting && error && (
         <p role="alert" className={errorCls}>
           {error}
         </p>
       )}
 
-      <form onSubmit={submit} className={`space-y-6 ${error ? "mt-6" : ""}`}>
+      {/* 숨기기만 해서 생성 실패 시 선택값, 캔버스, 되돌리기 기록을 모두 유지한다. */}
+      <form hidden={submitting} onSubmit={submit} className={`space-y-6 ${error ? "mt-6" : ""}`}>
         <div className="grid gap-8 rounded-2xl border border-line bg-[#fbf2de] p-5 shadow-[0_6px_20px_rgba(20,15,40,0.28)] md:grid-cols-2 md:gap-10 md:p-7">
         <section className="space-y-4">
           <h2 className="story text-xl text-ink">요즘 아이의 마음은</h2>

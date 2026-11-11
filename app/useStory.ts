@@ -125,14 +125,14 @@ export function useStory(user = "guest") {
   }, []);
 
   const begin = useCallback(
-    async (next: StoryRequest) => {
-      removeKey(draftKey(user));
+    async (next: StoryRequest): Promise<boolean> => {
       clearImages();
       setResumePage(null);
       next = { ...next, hasUserDrawing: hasDrawing() };
       setReq(next);
       const seg = await run(() => api<StorySegment>("", next), "form");
-      if (!seg) return;
+      if (!seg) return false;
+      removeKey(draftKey(user));
       setReq({ ...next, characterBible: seg.characterBible, supportingCast: seg.supportingCast });
       appendImages(seg, next.protagonist);
       setTitle(seg.title);
@@ -143,6 +143,7 @@ export function useStory(user = "guest") {
       setCard(null);
       setUsedFallback(!!seg.fallback);
       setStep("story");
+      return true;
     },
     [run, clearImages, hasDrawing, appendImages, user],
   );
@@ -152,9 +153,9 @@ export function useStory(user = "guest") {
       const situation = input.situation.trim();
       if (!situation) {
         setError("고민 상황을 입력하거나 골라주세요.");
-        return;
+        return false;
       }
-      await begin({
+      return begin({
         age: input.age,
         situation,
         durationMin: input.durationMin,
