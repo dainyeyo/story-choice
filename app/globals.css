@@ -699,9 +699,13 @@ html {
 
 /* 마음친구 방: 다크(밤하늘)가 기본, 라이트(낮 언덕)는 html[data-theme="light"] */
 .pet-stage { position: relative; overflow: hidden; display: flex; flex-direction: column; min-height: 660px; border-radius: 26px; padding: 26px 18px 24px; color: #fff1c9;
-  background: radial-gradient(ellipse at 50% 40%, #2c3b82 0%, #16224f 55%, #0c1334 100%); box-shadow: 0 12px 40px rgba(0, 0, 0, .35); }
-.pet-glow { position: absolute; left: 50%; top: 22%; width: 540px; height: 540px; margin-left: -270px; border-radius: 50%; pointer-events: none; background: radial-gradient(circle, rgba(255, 226, 150, .36), rgba(255, 226, 150, 0) 66%); }
-.pet-hill, .pet-cloud { display: none; position: absolute; pointer-events: none; }
+  isolation: isolate; box-shadow: 0 12px 40px rgba(0, 0, 0, .35); }
+/* 두 배경을 겹쳐 두고 투명도로 바꿔서, 하늘과 같은 속도로 천천히 넘어가게 한다 */
+.pet-stage::before, .pet-stage::after { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; transition: opacity 1.6s ease-in-out; }
+.pet-stage::before { background: radial-gradient(ellipse at 50% 40%, #2c3b82 0%, #16224f 55%, #0c1334 100%); }
+.pet-stage::after { background: linear-gradient(180deg, #cfe8f7 0%, #f4efe0 62%); opacity: 0; }
+.pet-glow { transition: opacity 1.6s ease-in-out; position: absolute; left: 50%; top: 22%; width: 540px; height: 540px; margin-left: -270px; border-radius: 50%; pointer-events: none; background: radial-gradient(circle, rgba(255, 226, 150, .36), rgba(255, 226, 150, 0) 66%); }
+.pet-hill, .pet-cloud { position: absolute; pointer-events: none; opacity: 0; transition: opacity 1.6s ease-in-out; }
 .pet-title { color: #fff1c9; }
 .pet-sub { color: #b9c3ef; }
 .pet-chip { background: rgba(255, 255, 255, .14); color: #ffe9a8; }
@@ -723,9 +727,11 @@ html {
 .pet-pop button[aria-pressed="true"] { outline: 3px solid #f59e0b; outline-offset: 2px; }
 .pet-text-link { color: #b9c3ef; }
 
-html[data-theme="light"] .pet-stage { color: #3b2f25; background: linear-gradient(180deg, #cfe8f7 0%, #f4efe0 62%); box-shadow: 0 12px 34px rgba(120, 90, 40, .18); }
-html[data-theme="light"] .pet-glow { display: none; }
-html[data-theme="light"] .pet-hill, html[data-theme="light"] .pet-cloud { display: block; }
+html[data-theme="light"] .pet-stage { color: #3b2f25; box-shadow: 0 12px 34px rgba(120, 90, 40, .18); }
+html[data-theme="light"] .pet-stage::before { opacity: 0; }
+html[data-theme="light"] .pet-stage::after { opacity: 1; }
+html[data-theme="light"] .pet-glow { opacity: 0; }
+html[data-theme="light"] .pet-hill, html[data-theme="light"] .pet-cloud { opacity: 1; }
 html[data-theme="light"] .pet-title { color: #3b2f25; }
 html[data-theme="light"] .pet-sub { color: #65574a; }
 html[data-theme="light"] .pet-chip { background: #fff; color: #7a4a10; }
@@ -754,3 +760,11 @@ html[data-theme="light"] .pet-text-link { color: #6b5a3f; }
   html[data-theme="light"] .pet-act-btn { width: 104px; height: 104px; }
 }
 
+
+/* 모드를 바꾸는 동안 마음친구 방의 색·크기도 하늘과 같은 속도로 천천히 바뀐다 */
+html.theme-fade .pet-stage,
+html.theme-fade .pet-stage * {
+  transition-property: color, background-color, border-color, box-shadow, stroke, opacity, width, height, gap, padding, border-radius, margin, font-size;
+  transition-duration: 1.6s;
+  transition-timing-function: ease-in-out;
+}
