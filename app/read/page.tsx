@@ -66,7 +66,7 @@ export default function ReadPage() {
 
       <h1 className="story text-2xl text-sky-ink md:text-3xl">{s.title}</h1>
 
-      <article className="relative grid gap-6 rounded-2xl border border-line bg-surface p-4 shadow-[0_1px_2px_rgba(59,47,37,0.05)] md:grid-cols-2 md:gap-10 md:p-8">
+      <article className="relative grid gap-6 book-page rounded-2xl border p-4 md:grid-cols-2 md:gap-10 md:p-8">
         {/* 책갈피: 이 서비스의 표시. 읽는 카드에서만 쓴다 */}
         <span
           aria-hidden
