@@ -28,10 +28,23 @@ export interface StorySegment {
   fallback?: boolean; // 서버가 AI 대신 미리 만든 동화를 줬으면 true
 }
 
+// 나이 선택 범위. 양 끝 값은 "3세 이하", "8세 이상"처럼 구간으로 읽는다.
+export const MIN_AGE = 3;
+export const MAX_AGE = 8;
+export function ageLabel(age: number): string {
+  if (age <= MIN_AGE) return `${MIN_AGE}세 이하`;
+  if (age >= MAX_AGE) return `${MAX_AGE}세 이상`;
+  return `${age}세`;
+}
+
+// 동화 길이(분). 고르지 않으면 AI가 정하되 MAX_DURATION분을 넘지 않는다.
+export const MIN_DURATION = 1;
+export const MAX_DURATION = 10;
+
 export interface StoryRequest {
-  age: number; // 4~7
+  age: number; // MIN_AGE~MAX_AGE (양 끝은 "이하"/"이상" 구간)
   situation: string; // 고민 상황 (최대 200자)
-  durationMin: 3 | 5;
+  durationMin?: number; // MIN_DURATION~MAX_DURATION분. 없으면 AI가 이야기에 맞춰 정한다(최대 MAX_DURATION분)
   protagonist?: string; // 주인공 묘사. 예: "파란 토끼" (이름·개인정보 금지)
   previousMemo?: string; // 이전 동화에서 부모가 남긴 메모
   recentContext?: string; // 최근 7일의 감정·선택·메모 요약 (개인화 참고용)

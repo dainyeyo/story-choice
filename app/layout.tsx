@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Gowun_Dodum } from "next/font/google";
 import "./globals.css";
 import Shell from "./components/Shell";
+import SkyBackground from "./components/SkyBackground";
 import { AppProviders } from "./providers";
 
 const geistSans = Geist({
@@ -43,6 +44,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${geistMono.variable} ${storyFont.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        <SkyBackground />
         <AppProviders>
           <Shell>{children}</Shell>
         </AppProviders>

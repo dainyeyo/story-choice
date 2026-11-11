@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { ageLabel } from "@/lib/story/schema";
 import { useApp } from "../providers";
 import { btnPrimary, COPING_NAME, PageHeader } from "../components/ui";
 
@@ -99,7 +100,7 @@ export default function LibraryPage() {
           <header className="space-y-1">
             <h2 className="story text-2xl text-ink">{open.title}</h2>
             <p className="text-sm text-ink-3">
-              {open.situation} · 만 {open.age}세 · {fmt(open.createdAt)}
+              {open.situation} · 만 {ageLabel(open.age)} · {fmt(open.createdAt)}
             </p>
             {open.memo && <p className="text-[15px] text-ink-2">{open.memo}</p>}
           </header>

@@ -30,8 +30,9 @@ export function LogoFull({ height = 80, className = "" }: { height?: number; cla
 
 export default function Logo() {
   return (
-    <span className="flex items-center">
-      <LogoFull height={70} className="h-[58px] w-auto md:h-[70px]" />
+    // 로고 글씨가 어두워서 밤하늘 위에서는 종이색 받침 위에 놓는다
+    <span className="flex items-center rounded-2xl bg-paper px-3 py-0.5 shadow-[0_2px_10px_rgba(0,0,20,0.35)]">
+      <LogoFull height={70} className="h-[48px] w-auto md:h-[58px]" />
       <span className="sr-only">Pictory, 아이의 그림이 하나의 이야기가 됩니다</span>
     </span>
   );

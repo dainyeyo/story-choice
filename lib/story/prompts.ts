@@ -1,10 +1,11 @@
-import type { ContinueRequest, ParentCardRequest, StoryRequest } from "./schema";
+import { ageLabel, MAX_DURATION, type ContinueRequest, type ParentCardRequest, type StoryRequest } from "./schema";
 
 // 프롬프트 1: 이야기 시작 (장면 1~2개 + 첫 선택)
 // 이 파일의 문구만 고치면 이야기 품질이 바뀐다. 코드 수정 없이 AI Studio에서 먼저 테스트해도 된다.
 
-export const SYSTEM_PROMPT = `너는 만 4~7세 아이를 위한 한국어 동화 작가다.
+export const SYSTEM_PROMPT = `너는 어린아이(주로 만 4~7세)를 위한 한국어 동화 작가다.
 아이가 겪는 두려움이나 고민을 주인공이 대신 겪고, 스스로 대처 방법을 골라보게 하는 짧은 동화를 쓴다.
+요청의 나이에 맞춰 수준을 조절한다. "3세 이하"면 더 짧고 쉬운 문장과 반복을 늘리고, "8세 이상"이면 어휘와 사건을 조금 더 풍부하게 쓴다.
 
 [문장 규칙]
 - 쉬운 우리말, 짧은 문장. 한 문장은 20자 안팎. 의성어·의태어를 적절히 쓴다.
@@ -47,23 +48,49 @@ export const SYSTEM_PROMPT = `너는 만 4~7세 아이를 위한 한국어 동�
 // 분량 기준: 소리 내어 읽어주는 속도 약 분당 250자.
 //  3분 ≈ 750자 = 장면 6개 × 125자,  5분 ≈ 1250자 = 장면 9개 × 140자 (아래 chars는 모델의 과소 작성을 감안한 요청값)
 // 시작 / 중간 / 결말 구간이 같은 수의 장면을 나눠 갖는다. (선택은 시작 뒤, 중간 뒤 2번)
-export function sceneBudget(durationMin: 3 | 5) {
-  const per = durationMin === 3 ? 2 : 3;
-  const chars = durationMin === 3 ? 150 : 190; // 모델이 요청보다 15~25% 적게 쓰므로 목표를 높게 잡는다
+// durationMin이 없으면(자동) 시작 구간에서 AI가 장면 수를 정하고, 이어쓰기는 그 속도를 따른다.
+const CHARS_PER_MIN = 250;
+const UNDERWRITE = 1.3; // 모델이 요청보다 15~25% 적게 쓰므로 목표를 높게 잡는다
+
+function sceneSize(per: number, totalChars: number) {
+  const chars = Math.round((totalChars * UNDERWRITE) / (per * 3) / 10) * 10;
+  const sentences = `${Math.max(4, Math.round(chars / 32))}~${Math.max(6, Math.round(chars / 24))}문장`;
+  return { chars, perScene: `장면당 ${chars}자 안팎(${sentences})` };
+}
+
+export function sceneBudget(durationMin: number) {
+  const per = Math.min(4, Math.max(1, Math.round(durationMin * 0.6))); // 3분→2, 5분→3, 10분→4
+  const { chars, perScene } = sceneSize(per, durationMin * CHARS_PER_MIN);
   return {
     startScenes: per,
     midScenes: per,
     endScenes: per,
     label: `${durationMin}분(전체 장면 ${per * 3}개, 장면당 ${chars}자 안팎, 전체 약 ${per * 3 * chars}자, 선택 2번)`,
-    perScene: `장면당 ${chars}자 안팎(5~7문장)`,
+    perScene,
   };
 }
 
+// 자동 길이: 고민과 나이에 맞춰 AI가 길이를 정한다. 최대 MAX_DURATION분.
+const AUTO_LABEL = `자동 — 고민의 무게와 나이에 맞춰 네가 정한다. 짧게는 3분, 길어도 ${MAX_DURATION}분(약 ${MAX_DURATION * CHARS_PER_MIN}자)을 넘기지 않는다. 시작·중간·결말이 같은 수의 장면을 갖고, 선택은 2번`;
+const AUTO_START = `장면 2~4개(장면당 150~250자 안팎, 5~9문장. 어린 나이일수록 짧게)`;
+
+// 이어쓰기: 자동이면 앞 구간과 같은 장면 수와 분량을 따른다.
+function continueScenes(req: ContinueRequest, stage: number): string {
+  if (req.durationMin) {
+    const b = sceneBudget(req.durationMin);
+    return `정확히 ${stage === 1 ? b.midScenes : b.endScenes}개(${b.perScene})`;
+  }
+  const per = Math.min(4, Math.max(1, Math.round(req.scenesSoFar.length / stage)));
+  return `정확히 ${per}개(앞 장면들과 비슷한 분량)`;
+}
+
 export function buildStartPrompt(req: StoryRequest): string {
-  const { startScenes, label, perScene } = sceneBudget(req.durationMin);
+  const b = req.durationMin ? sceneBudget(req.durationMin) : undefined;
+  const label = b ? b.label : AUTO_LABEL;
+  const startScenes = b ? `정확히 ${b.startScenes}개(${b.perScene})` : AUTO_START;
   const lines = [
     `[요청]`,
-    `- 나이: 만 ${req.age}세`,
+    `- 나이: 만 ${ageLabel(req.age)}`,
     `- 아이의 고민 상황: ${req.situation}`,
     `- 주인공: ${req.protagonist?.trim() || "작고 귀여운 동물 친구"}`,
     `- 이야기 길이: ${label}`,
@@ -86,7 +113,7 @@ export function buildStartPrompt(req: StoryRequest): string {
   lines.push(
     ``,
     `[이번 출력]`,
-    `- 이야기의 시작 부분만 쓴다. 장면 정확히 ${startScenes}개(${perScene})를 쓴 뒤, 주인공이 대처 행동을 고르는 첫 번째 선택에서 멈춘다.`,
+    `- 이야기의 시작 부분만 쓴다. 장면 ${startScenes}를 쓴 뒤, 주인공이 대처 행동을 고르는 첫 번째 선택에서 멈춘다.`,
     `- 시작 부분에서는 주인공의 일상과 주변 인물을 보여주고, 두려운 상황이 다가오는 데까지 쓴다. 후렴을 여기서 처음 등장시킨다.`,
     `- choice에 질문과 선택지 2개를 넣고 isEnding은 false로 한다.`,
     typeInstruction(pickTypePair()),
@@ -100,10 +127,10 @@ export function buildStartPrompt(req: StoryRequest): string {
 
 export function buildContinuePrompt(req: ContinueRequest): string {
   const stage = req.choices.length; // 1 또는 2
-  const { midScenes, endScenes, perScene } = sceneBudget(req.durationMin);
+  const sceneRule = continueScenes(req, stage);
   const lines = [
     `[요청]`,
-    `- 나이: 만 ${req.age}세`,
+    `- 나이: 만 ${ageLabel(req.age)}`,
     `- 아이의 고민 상황: ${req.situation}`,
     `- 주인공: ${req.protagonist?.trim() || "작고 귀여운 동물 친구"}`,
     `- 동화 제목: ${req.title}`,
@@ -123,14 +150,14 @@ export function buildContinuePrompt(req: ContinueRequest): string {
       `- 그 결과 주인공은 조금 안심하지만, 아직 가장 어려운 순간이 코앞에 다가온다. 앞에서 나온 후렴을 다시 쓴다.`,
       `- 이어서 두 번째 선택을 넣는다.`,
       typeInstruction(pickTypePair(req.choices.map((c) => c.copingType))),
-      `- isEnding은 false, scenes는 정확히 ${midScenes}개(${perScene}), title은 "${req.title}" 그대로 쓴다.`,
+      `- isEnding은 false, scenes는 ${sceneRule}, title은 "${req.title}" 그대로 쓴다.`,
     );
   } else {
     lines.push(
       `- 아이의 두 번째 선택을 주인공이 실제로 해보는 장면들로 결말을 쓴다. 가장 어려운 순간을 지나 마음이 풀리고, 마지막 장면은 잠자리에 드는 것처럼 포근하게 끝낸다. 후렴으로 마무리한다.`,
       `- 아이의 두 선택을 모두 이야기 속에서 존중하고, 따뜻하고 안심되는 마무리로 끝낸다. 어떤 대처를 골랐든 잘한 일로 끝난다.`,
       `- 결말에서 가르침이나 교훈 문장을 덧붙이지 않는다.`,
-      `- choice는 null, isEnding은 true, scenes는 정확히 ${endScenes}개(${perScene}), title은 "${req.title}" 그대로 쓴다.`,
+      `- choice는 null, isEnding은 true, scenes는 ${sceneRule}, title은 "${req.title}" 그대로 쓴다.`,
     );
   }
   return lines.join("\n");
@@ -166,7 +193,7 @@ export const PARENT_CARD_SYSTEM_PROMPT = `너는 아이와 부모의 대화를 �
 export function buildParentCardPrompt(req: ParentCardRequest): string {
   return [
     `[정보]`,
-    `- 나이: 만 ${req.age}세`,
+    `- 나이: 만 ${ageLabel(req.age)}`,
     `- 아이의 고민 상황: ${req.situation}`,
     `- 주인공: ${req.protagonist?.trim() || "작고 귀여운 동물 친구"}`,
     `- 동화 제목: ${req.title}`,
