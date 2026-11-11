@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { useApp } from "../providers";
 import Icon from "../components/Icon";
 import PetRoom from "./PetRoom";
+import HatchIntro from "./HatchIntro";
 import { MoodIcon } from "./room-art";
 import { localDateKey, nextPetStage, petStage, type PetMood } from "@/lib/pet";
 
@@ -31,6 +32,7 @@ export default function PetPage() {
   const [action, setAction] = useState<"fed" | "petted" | undefined>();
   const [testOpen, setTestOpen] = useState(false);
   const [calendarOpen, setCalendarOpen] = useState(false);
+  const [popping, setPopping] = useState(false); // 알이 깨진 직후 몽이가 튀어나오는 동안
   const [renaming, setRenaming] = useState(false);
   const [nameDraft, setNameDraft] = useState(pet.state.name);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
@@ -98,6 +100,9 @@ export default function PetPage() {
   };
 
   const canCare = pet.state.points >= 1;
+  const showIntro = !pet.state.introSeen;
+  const introReveal = () => { setPopping(true); window.setTimeout(() => setPopping(false), 3200); };
+  const replayIntro = () => { setPopping(false); pet.setIntroSeen(false); };
 
   return (
     <main className="page-turn mx-auto w-full max-w-md px-4 py-8 md:max-w-4xl md:px-8 md:py-12">
@@ -127,17 +132,20 @@ export default function PetPage() {
         </section>
       )}
 
+      {showIntro && typeof document !== "undefined" && createPortal(<HatchIntro onReveal={introReveal} onDone={() => pet.setIntroSeen(true)} />, document.body)}
+
       <div className="mt-8">
         <PetRoom
           name={pet.state.name} stageName={stage.name} stageMessage={stage.message} stageIndex={stage.index}
           careDays={careDays} points={pet.state.points} mood={mood} action={action}
-          speech={action === "fed" ? "냠냠, 마음이 든든해졌어!" : action === "petted" ? "헤헤, 네 손은 참 따뜻해" : mood === "속상" ? "오늘은 내가 조용히 곁에 있을게" : mood === "용기" ? "우리 같이 한 걸음 내디뎌 보자!" : "오늘도 이야기 들려줄래?"}
+          speech={popping ? "안녕! 나는 " + pet.state.name + "이야" : action === "fed" ? "냠냠, 마음이 든든해졌어!" : action === "petted" ? "헤헤, 네 손은 참 따뜻해" : mood === "속상" ? "오늘은 내가 조용히 곁에 있을게" : mood === "용기" ? "우리 같이 한 걸음 내디뎌 보자!" : "오늘도 이야기 들려줄래?"}
           fed={fed} petted={petted} canCare={canCare} progress={progress} nextName={next?.name}
           renaming={renaming} nameDraft={nameDraft} onNameDraft={setNameDraft}
           onStartRename={() => { setNameDraft(pet.state.name); setRenaming(true); }}
           onSaveRename={() => { pet.rename(nameDraft); if (nameDraft.trim()) setRenaming(false); }}
           onCancelRename={() => { setNameDraft(pet.state.name); setRenaming(false); }}
           onMood={pet.setMood} onCare={react} onOpenCalendar={() => setCalendarOpen(true)}
+          onReplayIntro={replayIntro} mongi={popping ? "pop" : showIntro ? "hidden" : undefined}
         />
       </div>
 

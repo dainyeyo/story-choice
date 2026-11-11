@@ -31,6 +31,8 @@ type Props = {
   onMood: (mood: PetMood) => void;
   onCare: (kind: "fed" | "petted") => void;
   onOpenCalendar: () => void;
+  onReplayIntro: () => void;
+  mongi?: "hidden" | "pop"; // 알 깨기 장면 동안 몽이를 숨기거나 튀어나오게 한다
 };
 
 const WOOD = "#a97b45";
@@ -99,6 +101,7 @@ function Help({ p, className = "" }: { p: Props; className?: string }) {
         <div className="absolute right-0 top-10 z-10 w-64 rounded-2xl bg-[#fffaf0] p-4 text-left text-sm leading-6 text-ink-2 shadow-lg">
           <p className="text-ink">{p.stageMessage}</p>
           <p className="mt-2">마음별은 동화 완독 +10, 대화 메모 +5, 마음 기록 +1로 모아요. 밥 주기와 쓰다듬기에는 각각 마음별 1개가 들고, 돌봄 행동을 해야 {p.name}이(가) 자라요.</p>
+          <button type="button" onClick={p.onReplayIntro} className="calm mt-3 rounded-full bg-sunk px-3 py-1.5 text-[13px] font-medium text-ink">알 깨기 다시 보기</button>
         </div>
       )}
     </div>
@@ -128,6 +131,8 @@ export default function PetRoom(p: Props) {
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
+
+  const mongiCls = p.mongi === "hidden" ? "opacity-0" : p.mongi === "pop" ? "hatch-pop" : "";
 
   const careButtons = (cls: string, pos?: [React.CSSProperties, React.CSSProperties]) => (
     <>
@@ -179,9 +184,9 @@ export default function PetRoom(p: Props) {
 
           <Help p={p} className="absolute right-[22px] top-[22px]" />
 
-          <p aria-live="polite" className="story absolute rounded-[18px] bg-[#fffaf0] px-4 py-2 text-[17px] text-ink shadow-[0_4px_12px_rgba(0,0,0,.2)]" style={{ left: 490, top: 150, transform: "translateX(-50%)" }}>{p.speech}</p>
-          <div className="absolute rounded-[50%] bg-[rgba(70,40,10,.22)] blur-[3px]" style={{ left: 380, top: 470, width: 220, height: 34 }} />
-          <div className="absolute" style={{ left: 340, top: 205, width: 300 }}><PetAvatar stage={p.stageIndex} mood={p.mood} action={p.action} className="w-full" /></div>
+          <p aria-live="polite" className={`story absolute rounded-[18px] bg-[#fffaf0] px-4 py-2 text-[17px] text-ink shadow-[0_4px_12px_rgba(0,0,0,.2)] transition-opacity ${p.mongi === "hidden" ? "opacity-0" : ""}`} style={{ left: 490, top: 150, transform: "translateX(-50%)" }}>{p.speech}</p>
+          <div className={`absolute rounded-[50%] bg-[rgba(70,40,10,.22)] blur-[3px] ${p.mongi === "hidden" ? "opacity-0" : ""}`} style={{ left: 380, top: 470, width: 220, height: 34 }} />
+          <div className={`absolute ${mongiCls}`} style={{ left: 340, top: 205, width: 300 }}><PetAvatar stage={p.stageIndex} mood={p.mood} action={p.action} className="w-full" /></div>
           {careButtons("absolute", [{ left: 120, top: 458 }, { left: 716, top: 458 }])}
           <div className="absolute" style={{ left: 390, top: 585, width: 200 }}><Growth p={p} light /></div>
         </div>
@@ -200,8 +205,8 @@ export default function PetRoom(p: Props) {
             <WallCalendar onClick={p.onOpenCalendar} className="relative mt-2" />
             <div className="flex flex-col items-center"><StarJar /><span className="mt-0.5 rounded-full bg-[#fff6e2] px-3 py-1 text-sm font-medium text-ink shadow-[0_3px_0_rgba(120,80,30,.25)]">✦ 마음별 {p.points}</span></div>
           </div>
-          <p aria-live="polite" className="story relative mx-auto mt-3 w-fit max-w-[80%] rounded-[18px] bg-[#fffaf0] px-4 py-2 text-center text-[16px] text-ink shadow-[0_4px_12px_rgba(0,0,0,.2)]">{p.speech}</p>
-          <PetAvatar stage={p.stageIndex} mood={p.mood} action={p.action} className="mx-auto mt-2 w-[240px]" />
+          <p aria-live="polite" className={`story relative mx-auto mt-3 w-fit transition-opacity ${p.mongi === "hidden" ? "opacity-0" : ""} max-w-[80%] rounded-[18px] bg-[#fffaf0] px-4 py-2 text-center text-[16px] text-ink shadow-[0_4px_12px_rgba(0,0,0,.2)]`}>{p.speech}</p>
+          <PetAvatar stage={p.stageIndex} mood={p.mood} action={p.action} className={`mx-auto mt-2 w-[240px] ${mongiCls}`} />
           <div className="mt-2 flex flex-col items-center gap-2">
             <p className="text-[15px] font-bold text-ink">오늘 마음 스티커를 붙여요</p>
             <MoodFrames mood={p.mood} onMood={p.onMood} size={50} />

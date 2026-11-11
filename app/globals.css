@@ -665,3 +665,33 @@ html {
   100% { opacity: 0; transform: translate(8px, -14px); }
 }
 
+
+
+/* 마음친구 첫 만남: 알 깨기 장면 */
+.hatch-overlay { background: radial-gradient(ellipse at 50% 30%, #2a3a78 0%, #141d4a 55%, #0b1032 100%); transition: opacity 1.1s ease; }
+.hatch-star { position: absolute; width: 3px; height: 3px; border-radius: 50%; background: #fff3c4; animation: hatch-twinkle 2.4s ease-in-out infinite; }
+@keyframes hatch-twinkle { 0%, 100% { opacity: .25; } 50% { opacity: 1; } }
+.hatch-cursor { display: inline-block; width: 3px; height: 1em; margin-left: 4px; vertical-align: -0.12em; background: currentColor; animation: hatch-blink .8s steps(1) infinite; }
+@keyframes hatch-blink { 50% { opacity: 0; } }
+.hatch-glow { opacity: 0; transition: opacity 1.2s; }
+.hatch-glow.on { opacity: 1; animation: hatch-pulse 2.4s ease-in-out infinite; }
+@keyframes hatch-pulse { 50% { transform: scale(1.12); } }
+.hatch-eggwrap { opacity: 0; transform: scale(.6); }
+.hatch-eggwrap.show { opacity: 1; transform: scale(1); transition: opacity .9s, transform .9s cubic-bezier(.2, 1.4, .4, 1); }
+.hatch-egg { transform-origin: 50% 95%; overflow: visible; }
+.hatch-egg.w1 { animation: hatch-wob1 1.5s ease-in-out infinite; }
+.hatch-egg.w2 { animation: hatch-wob2 .55s ease-in-out infinite; }
+@keyframes hatch-wob1 { 0%, 100% { transform: rotate(-3deg); } 50% { transform: rotate(3deg); } }
+@keyframes hatch-wob2 { 0%, 100% { transform: rotate(-8deg) translateX(-3px); } 50% { transform: rotate(8deg) translateX(3px); } }
+.hatch-crack { fill: none; stroke: #5a3e28; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1; stroke-dashoffset: 1; }
+.hatch-crack.draw { stroke-dashoffset: 0; transition: stroke-dashoffset 1s ease-out; }
+.hatch-half { transition: transform .9s cubic-bezier(.2, .8, .3, 1), opacity .9s; transform-box: fill-box; transform-origin: center; }
+.hatch-egg.burst .hatch-top { transform: translate(-30px, -130px) rotate(-28deg); opacity: 0; }
+.hatch-egg.burst .hatch-bot { transform: translate(20px, 70px) rotate(10deg); opacity: 0; }
+.hatch-egg.burst .hatch-crack { opacity: 0; }
+.hatch-flash { opacity: 0; background: radial-gradient(circle at 50% 52%, #fff 0%, #fff6d6 35%, rgba(255, 240, 190, 0) 75%); }
+.hatch-flash.go { animation: hatch-flash 1.3s ease-out forwards; }
+@keyframes hatch-flash { 0% { opacity: 0; } 18% { opacity: 1; } 100% { opacity: 0; } }
+.hatch-pop { animation: hatch-popin 1s cubic-bezier(.2, 1.5, .4, 1) both; transform-origin: 50% 100%; }
+@keyframes hatch-popin { 0% { transform: scale(.1) translateY(60px); opacity: 0; } 60% { transform: scale(1.12) translateY(-20px); opacity: 1; } 100% { transform: scale(1) translateY(0); opacity: 1; } }
+
