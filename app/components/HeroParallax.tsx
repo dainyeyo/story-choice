@@ -6,8 +6,9 @@
 
 import { useEffect, useRef, type ReactNode } from "react";
 
-const DURATION = 750;
-const easeInOutExpo = (t: number) => (t === 0 ? 0 : t === 1 ? 1 : t < 0.5 ? Math.pow(2, 20 * t - 10) / 2 : (2 - Math.pow(2, -20 * t + 10)) / 2);
+const DURATION = 620;
+// 시작 반응은 빠르게, 끝은 부드럽게 (expo보다 초반 멈칫함이 훨씬 적다)
+const easeInOutExpo = (t: number) => 1 - Math.pow(1 - t, 3.2);
 
 export default function HeroParallax({ children, targetId }: { children: ReactNode; targetId: string }) {
   const ref = useRef<HTMLDivElement>(null);
