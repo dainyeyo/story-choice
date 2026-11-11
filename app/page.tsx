@@ -25,10 +25,10 @@ function LoggedInHome() {
       : "아이의 마음에서 시작되는 이야기를 만들어 볼까요?";
 
   return (
-    <main className="page-turn mx-auto w-full max-w-md px-4 py-8 md:max-w-5xl md:px-8 md:py-12">
-      <section className="rounded-3xl bg-[#fff1d8] px-6 py-8 text-center md:px-10 md:py-12">
-        <p className="text-[15px] text-ink-2">{user} 보호자님</p>
-        <h1 className="story mt-2 text-3xl leading-snug text-ink md:text-4xl">
+    <main className="page-turn mx-auto w-full max-w-md px-4 pb-8 pt-16 md:max-w-5xl md:px-8 md:pb-12 md:pt-28">
+      <section className="px-2 pb-6 text-center md:px-10 md:pb-10">
+        <p className="text-[15px] text-sky-ink-2">{user} 보호자님</p>
+        <h1 className="story mt-2 text-3xl leading-snug text-sky-ink md:text-4xl">
           오늘의 동화는
           <br />
           {message}
@@ -46,7 +46,7 @@ function LoggedInHome() {
               이어서 읽기
             </Link>
           )}
-          <Link href="/create" className={reading ? "calm text-[15px] text-ink-2 underline hover:text-ink" : btnPrimary}>
+          <Link href="/create" className={reading ? "calm text-[15px] text-sky-ink-2 underline hover:text-sky-ink" : btnPrimary}>
             {reading ? (
               "새 동화 만들기"
             ) : (
