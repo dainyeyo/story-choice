@@ -23,7 +23,7 @@ export default function SettingsPage() {
 
   return (
     <main className="page-turn mx-auto w-full max-w-md space-y-8 px-4 py-8 md:max-w-2xl md:px-8 md:py-12">
-      <PageHeader title="설정" sub={`${displayName} 보호자님`} />
+      <PageHeader title="설정" sub={displayName} />
 
       <Card className="space-y-4">
         <h2 className="story text-xl text-ink">동화 읽어주는 목소리</h2>

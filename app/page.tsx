@@ -40,7 +40,7 @@ function LoggedInHome() {
       <div className="flex min-h-[calc(100dvh-72px)] flex-col items-center justify-center pb-16 pt-8 md:min-h-[calc(100dvh-80px)] md:pt-12">
       <HeroParallax targetId="home-below">
       <section className="px-2 text-center md:px-10">
-        <p className="text-base text-sky-ink-2 md:text-lg">{displayName} 보호자님,</p>
+        <p className="text-base text-sky-ink-2 md:text-lg">{displayName},</p>
         <h1 className="story mt-3 text-4xl leading-snug text-sky-ink md:text-5xl">
           오늘의 동화는
           <br />
