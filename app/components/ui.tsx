@@ -51,14 +51,16 @@ export function Segmented<T extends string | number>({
   onChange,
   options,
   label,
+  fullWidth = false,
 }: {
   value: T;
   onChange: (v: T) => void;
   options: { value: T; label: string }[];
   label: string;
+  fullWidth?: boolean;
 }) {
   return (
-    <div role="radiogroup" aria-label={label} className="inline-flex gap-1 rounded-xl bg-sunk p-1">
+    <div role="radiogroup" aria-label={label} className={`${fullWidth ? "flex w-full" : "inline-flex"} gap-1 rounded-xl bg-sunk p-1`}>
       {options.map((o) => {
         const on = o.value === value;
         return (
@@ -68,7 +70,7 @@ export function Segmented<T extends string | number>({
             role="radio"
             aria-checked={on}
             onClick={() => onChange(o.value)}
-            className={`calm h-10 min-w-10 rounded-lg px-3 text-[15px] ${
+            className={`calm h-10 min-w-10 rounded-lg px-3 text-[15px] ${fullWidth ? "flex-1 text-center" : ""} ${
               on ? "bg-surface font-medium text-ink shadow-[0_1px_2px_rgba(59,47,37,0.08)]" : "text-ink-2 hover:text-ink"
             }`}
           >

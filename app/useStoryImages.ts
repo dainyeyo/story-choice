@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { StorySegment } from "@/lib/story/schema";
-import { backgroundScenePrompt } from "@/lib/image/story-image";
+import { drawingScenePrompt } from "@/lib/image/story-image";
 
 export interface SceneImage {
   url?: string;
@@ -59,8 +59,8 @@ export function useStoryImages() {
         };
         try {
           const form = new FormData();
-          form.set("mode", original ? "drawing-composite" : reference.current ? "scene" : "text");
-          form.set("prompt", original ? backgroundScenePrompt(scene.imagePrompt, scene.text) : [
+          form.set("mode", original ? "drawing-scene" : reference.current ? "scene" : "text");
+          form.set("prompt", original ? drawingScenePrompt(scene.imagePrompt, "", scene.text) : [
             "One soft watercolor storybook illustration, no text or speech bubbles.",
             `Fixed character appearance: ${segment.characterBible || protagonist || "a small friendly storybook animal"}`,
             `Depict exactly this moment: ${scene.imagePrompt}`,

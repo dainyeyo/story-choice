@@ -39,7 +39,9 @@ export const SYSTEM_PROMPT = `너는 어린아이(주로 만 4~7세)를 위한 �
 - id는 "a", "b"를 쓴다.
 
 [삽화 프롬프트 규칙]
-- imagePrompt는 영어로, 장면의 배경·행동·분위기만 한 문장으로 쓴다.
+- imagePrompt는 영어로 1~2문장으로 쓴다. 주인공이 지금 무엇을 하고 어떤 상태인지(자세·몸짓·표정·감정)와 소품과의 관계를 구체적으로 먼저 쓰고, 그다음 배경·분위기를 쓴다.
+  나쁜 예: "The main character in a bedroom with a blanket." / 좋은 예: "The main character huddled under a thick blanket pulled up to its eyes, trembling with wide scared eyes, in a dark bedroom lit by a small night lamp."
+- 본문에 주인공이 숨는다, 떤다, 운다, 껴안는다, 덮는다 같은 행동이 있으면 imagePrompt에 반드시 그 행동을 그대로 넣는다.
 - 주인공은 반드시 "the main character"라고만 부른다. 동물 종류(rabbit, bear 등), 색깔(blue 등), 옷, 생김새 단어는 imagePrompt에 절대 쓰지 않는다. 외형은 별도 참조 이미지로 정해진다.
   나쁜 예: "A blue rabbit sitting on a bed." / 좋은 예: "The main character sitting on a bed in a cozy bedroom."
 - 주인공 외의 인물(엄마, 의사 선생님 등)은 쓸 수 있다.

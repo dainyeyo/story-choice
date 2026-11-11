@@ -253,3 +253,42 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* 책과 그림 위를 연필이 움직이며 선을 완성한다. */
+.writing-pencil { animation: writing-pencil 3s linear infinite; }
+.writing-line { stroke-dasharray: 100; stroke-dashoffset: 100; animation: writing-line 3s linear infinite; }
+.writing-line-2 { animation-name: writing-line-2; }
+.writing-line-3 { animation-name: writing-line-3; }
+.drawing-pencil { animation: drawing-pencil 3.5s ease-in-out infinite; }
+.drawing-lines { animation: reveal-lines 3.5s ease-in-out infinite; }
+@keyframes writing-pencil {
+  0% { transform: translate(-2px, -7px); }
+  25%, 30% { transform: translate(22px, -7px); }
+  35% { transform: translate(-2px, 1px); }
+  60%, 65% { transform: translate(18px, 1px); }
+  70% { transform: translate(-2px, 9px); }
+  95%, 100% { transform: translate(22px, 9px); }
+}
+@keyframes writing-line {
+  0% { stroke-dashoffset: 100; }
+  25%, 100% { stroke-dashoffset: 0; }
+}
+@keyframes writing-line-2 {
+  0%, 35% { stroke-dashoffset: 100; }
+  60%, 100% { stroke-dashoffset: 0; }
+}
+@keyframes writing-line-3 {
+  0%, 70% { stroke-dashoffset: 100; }
+  95%, 100% { stroke-dashoffset: 0; }
+}
+@keyframes drawing-pencil {
+  0% { transform: translate(-46px, 2px); }
+  25% { transform: translate(-20px, -27px); }
+  45% { transform: translate(-2px, -8px); }
+  65% { transform: translate(11px, -21px); }
+  90%, 100% { transform: translate(38px, 2px); }
+}
+@keyframes reveal-lines {
+  0% { stroke-dasharray: 0 100; }
+  90%, 100% { stroke-dasharray: 100 100; }
+}

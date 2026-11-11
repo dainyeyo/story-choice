@@ -6,6 +6,7 @@ import { FONT_CLASS } from "@/lib/settings";
 import { useApp } from "../providers";
 import Icon from "../components/Icon";
 import SceneArt from "../components/SceneArt";
+import { DrawingAnimation, WritingAnimation } from "../components/LoadingAnimation";
 import { btnIcon, btnPrimary, btnSecondary, errorCls, noteCls, Segmented } from "../components/ui";
 
 export default function ReadPage() {
@@ -34,7 +35,7 @@ export default function ReadPage() {
       <main className="page-turn mx-auto w-full max-w-md space-y-4 px-4 py-8 md:max-w-5xl md:px-8 md:py-12">
         {s.usedFallback && <FallbackNote />}
         <div className="flex flex-col items-center gap-6 rounded-2xl border border-line bg-surface px-6 py-24 text-center">
-          <Icon name="book" size={32} className="text-accent-text" />
+          <WritingAnimation />
           <p aria-live="polite" className="story text-xl text-ink">
             동화를 쓰고 있어요
           </p>
@@ -73,8 +74,11 @@ export default function ReadPage() {
         />
 
         <div className="md:self-center">
-          <SceneArt index={cur} imageUrl={s.images[cur]?.url} title={s.title} />
-          {s.images[cur]?.loading && <p role="status" className="mt-2 text-sm text-ink-3">이 장면의 그림을 그리고 있어요.</p>}
+          {s.images[cur]?.loading ? (
+            <DrawingAnimation />
+          ) : (
+            <SceneArt index={cur} imageUrl={s.images[cur]?.url} title={s.title} />
+          )}
           {s.images[cur]?.error && <p role="alert" className={`${errorCls} mt-2`}>그림을 만들지 못했어요. {s.images[cur].error}</p>}
           {s.images[cur]?.backgroundSource === "local-fallback" && <p className="mt-2 text-sm text-ink-3">그림 생성 서비스가 바빠 기본 배경을 사용했어요.</p>}
         </div>
@@ -182,3 +186,4 @@ export default function ReadPage() {
 function FallbackNote() {
   return <p className={noteCls}>AI가 바빠서 미리 준비한 이야기를 들려드리고 있어요.</p>;
 }
+
