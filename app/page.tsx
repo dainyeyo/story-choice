@@ -23,14 +23,20 @@ function LoggedInHome() {
     ? `읽던 동화 「${s.title}」, 이어서 읽어 볼까요?`
     : s.savedMemo
       ? "지난 대화 메모를 이어서, 새로운 이야기를 만들어 볼까요?"
-      : "아이의 마음에서 시작되는 이야기를 만들어 볼까요?";
+      : (
+          <>
+            아이의 마음에서 시작되는 이야기를
+            <br />
+            만들어 볼까요?
+          </>
+        );
 
   return (
     <main className="page-turn mx-auto w-full max-w-md px-4 pb-8 md:max-w-5xl md:px-8 md:pb-12">
       {/* 첫 화면: 인사 + 새 동화 만들기까지만. 나머지는 스크롤을 내리면 올라오며 나타난다 */}
       <div className="flex min-h-[calc(100dvh-72px)] flex-col items-center justify-center pb-16 pt-8 md:min-h-[calc(100dvh-80px)] md:pt-12">
       <section className="px-2 text-center md:px-10">
-        <p className="text-base text-sky-ink-2 md:text-lg">{user} 보호자님</p>
+        <p className="text-base text-sky-ink-2 md:text-lg">{user} 보호자님,</p>
         <h1 className="story mt-3 text-4xl leading-snug text-sky-ink md:text-5xl">
           오늘의 동화는
           <br />
