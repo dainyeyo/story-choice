@@ -32,6 +32,8 @@ export default function PetPage() {
   const { pet } = useApp();
   const [action, setAction] = useState<"fed" | "petted" | undefined>();
   const [testOpen, setTestOpen] = useState(false);
+  const [renaming, setRenaming] = useState(false);
+  const [nameDraft, setNameDraft] = useState(pet.state.name);
   const today = pet.today;
   const todayDate = new Date(`${today}T12:00:00`);
   const [shownMonth, setShownMonth] = useState({ year: todayDate.getFullYear(), month: todayDate.getMonth() });
@@ -93,7 +95,7 @@ export default function PetPage() {
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div>
               <h2 className="font-medium text-ink">임시 날짜 테스트</h2>
-              <p className="mt-1 text-sm text-ink-2">날짜를 앞으로 옮기면 그동안 매일 돌본 것으로 채워져 몽이의 성장을 바로 볼 수 있어요.</p>
+              <p className="mt-1 text-sm text-ink-2">날짜를 앞으로 옮기면 그동안 매일 돌본 것으로 채워져 {pet.state.name}의 성장을 바로 볼 수 있어요.</p>
             </div>
             <label className="flex shrink-0 items-center gap-2 text-sm text-ink-2">
               테스트 날짜
@@ -112,7 +114,7 @@ export default function PetPage() {
           <div className="relative min-h-[390px] px-5 pt-5 text-center">
             <div className="absolute left-7 top-7 text-2xl opacity-70">✦</div>
             <div className="absolute right-8 top-16 text-xl opacity-60">· ✧</div>
-            <p className="inline-flex rounded-full bg-surface/80 px-3 py-1 text-sm text-ink-2">{stage.name} · 함께한 지 {careDays}일</p>
+            <p className="inline-flex rounded-full bg-surface/80 px-3 py-1 text-sm text-ink-2">{pet.state.name} · {stage.name} · 함께한 지 {careDays}일</p>
             <PetAvatar stage={stage.index} mood={mood} action={action} className="mx-auto mt-3 w-full max-w-[310px]" />
             <p aria-live="polite" className="story -mt-2 text-xl text-ink">
               {action === "fed" ? "냠냠, 마음이 든든해졌어!" : action === "petted" ? "헤헤, 네 손은 참 따뜻해" : mood === "속상" ? "오늘은 내가 조용히 곁에 있을게" : mood === "용기" ? "우리 같이 한 걸음 내디뎌 보자!" : "오늘도 이야기 들려줄래?"}
@@ -126,9 +128,28 @@ export default function PetPage() {
         <aside className="space-y-6">
           <section className="rounded-2xl border border-line bg-surface p-5">
             <div className="flex items-center justify-between gap-3">
-              <h2 className="story text-xl text-ink">{stage.name}</h2>
+              <div>
+                <h2 className="story text-xl text-ink">{pet.state.name}</h2>
+                <p className="mt-0.5 text-xs text-ink-3">현재 성장 단계 · {stage.name}</p>
+              </div>
               <span className="rounded-full bg-[#fdf0d2] px-3 py-1 text-sm font-medium text-accent-text">✦ 마음별 {pet.state.points}</span>
             </div>
+            {renaming ? (
+              <form
+                className="mt-4 flex gap-2"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  pet.rename(nameDraft);
+                  if (nameDraft.trim()) setRenaming(false);
+                }}
+              >
+                <input autoFocus maxLength={10} value={nameDraft} onChange={(event) => setNameDraft(event.target.value)} aria-label="마음 친구 이름" className="min-w-0 flex-1 rounded-lg border border-line bg-paper px-3 py-2 text-[15px] text-ink" />
+                <button type="submit" disabled={!nameDraft.trim()} className="calm rounded-lg bg-ink px-3 py-2 text-sm text-paper disabled:opacity-40">저장</button>
+                <button type="button" onClick={() => { setNameDraft(pet.state.name); setRenaming(false); }} className="calm rounded-lg px-2 py-2 text-sm text-ink-2 hover:bg-sunk">취소</button>
+              </form>
+            ) : (
+              <button type="button" onClick={() => { setNameDraft(pet.state.name); setRenaming(true); }} className="calm mt-3 text-sm text-ink-2 underline hover:text-ink">이름 바꾸기</button>
+            )}
             <p className="mt-1 text-[15px] leading-6 text-ink-2">{stage.message}</p>
             <div className="mt-4 flex items-center gap-3">
               <div className="h-2 flex-1 overflow-hidden rounded-full bg-sunk" aria-label="다음 성장까지 진행도"><div className="h-full rounded-full bg-accent transition-[width]" style={{ width: `${progress}%` }} /></div>

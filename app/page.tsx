@@ -229,8 +229,8 @@ function LoggedInHome() {
           <span className="story text-xl text-ink">나의 마음 친구</span>
           <span className="flex flex-1 flex-col items-center justify-center gap-2 py-4">
             <PetAvatar stage={stage.index} mood={pet.state.moods[localDateKey()]} className="w-40" />
-            <span className="story text-xl text-ink">{stage.name}</span>
-            <span className="text-sm text-ink-2">함께한 지 {careDays}일</span>
+            <span className="story text-xl text-ink">{pet.state.name}</span>
+            <span className="text-sm text-ink-2">{stage.name} · 함께한 지 {careDays}일</span>
           </span>
           <span className="inline-flex items-center justify-center gap-1 text-[15px] text-ink-2">
             만나러 가기 <Icon name="right" size={16} />
