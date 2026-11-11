@@ -100,5 +100,9 @@ export function usePet(user: string, library: SavedStory[]) {
     if (next) update((current) => ({ ...current, name: next }));
   }, [update]);
 
-  return { state, today, markCare, feed, pet, setMood, rename, setTestDate, advanceTestDate, resetTest };
+  const setIntroSeen = useCallback((seen: boolean) => {
+    update((current) => ({ ...current, introSeen: seen ? true : undefined }));
+  }, [update]);
+
+  return { state, today, markCare, setIntroSeen, feed, pet, setMood, rename, setTestDate, advanceTestDate, resetTest };
 }

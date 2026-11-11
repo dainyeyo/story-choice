@@ -3,6 +3,9 @@
 
 export const COPING_TYPES = ["도움요청", "스스로진정", "회피", "직면"] as const;
 export type CopingType = (typeof COPING_TYPES)[number];
+// 아이가 선택지 대신 직접 쓴 문장. AI 응답 스키마에는 넣지 않고, 고른 기록에서만 쓴다.
+export const CUSTOM_COPING = "직접입력";
+export const CHOSEN_COPING_TYPES: readonly string[] = [...COPING_TYPES, CUSTOM_COPING];
 
 export interface StoryChoiceOption {
   id: string; // "a" | "b"
@@ -122,7 +125,7 @@ export function isStorySegment(v: unknown): v is StorySegment {
 export interface ChosenChoice {
   prompt: string; // 아이가 받은 질문
   text: string; // 아이가 고른 선택지 문장
-  copingType: CopingType;
+  copingType: CopingType | typeof CUSTOM_COPING;
 }
 
 // POST /api/story/continue 요청

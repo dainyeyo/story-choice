@@ -3,17 +3,19 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { FONT_CLASS } from "@/lib/settings";
+import { CUSTOM_COPING } from "@/lib/story/schema";
 import { useApp } from "../providers";
 import Icon from "../components/Icon";
 import SceneArt from "../components/SceneArt";
 import { DrawingAnimation, WritingAnimation } from "../components/LoadingAnimation";
-import { btnIcon, btnPrimary, btnSecondary, errorCls, noteCls, Segmented } from "../components/ui";
+import { btnIcon, btnPrimary, btnSecondary, errorCls, inputCls, noteCls, Segmented } from "../components/ui";
 
 export default function ReadPage() {
   const { s, n, settings } = useApp();
   const router = useRouter();
   const [page, setPage] = useState<number | null>(null);
   const { step, resumeDraft, resumePage } = s;
+  const [custom, setCustom] = useState("");
 
   // 이 화면에 맞지 않는 단계면 알맞은 화면으로 보낸다
   useEffect(() => {
@@ -80,24 +82,24 @@ export default function ReadPage() {
         </button>
       </div>
 
-      <article className="relative grid gap-6 book-page rounded-2xl border p-4 md:grid-cols-2 md:gap-10 md:p-8">
+      <article className="relative grid gap-6 book-page overflow-hidden rounded-2xl border p-4 md:grid-cols-2 md:gap-10 md:p-5">
         {/* 책갈피: 이 서비스의 표시. 읽는 카드에서만 쓴다 */}
         <span
           aria-hidden
           className="absolute -top-px right-6 h-8 w-5 bg-accent [clip-path:polygon(0_0,100%_0,100%_100%,50%_72%,0_100%)]"
         />
 
-        <div className="md:self-center">
+        <div className="md:self-stretch">
           {s.images[cur]?.loading ? (
-            <DrawingAnimation />
+            <DrawingAnimation fill />
           ) : (
-            <SceneArt index={cur} imageUrl={s.images[cur]?.url} title={s.title} />
+            <SceneArt fill index={cur} imageUrl={s.images[cur]?.url} title={s.title} />
           )}
           {s.images[cur]?.error && <p role="alert" className={`${errorCls} mt-2`}>그림을 만들지 못했어요. {s.images[cur].error}</p>}
           {s.images[cur]?.backgroundSource === "local-fallback" && <p className="mt-2 text-sm text-ink-3">그림 생성 서비스가 바빠 기본 배경을 사용했어요.</p>}
         </div>
 
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-6 md:py-3 md:pr-3">
           <p className={`story flex-1 text-ink ${FONT_CLASS[settings.fontSize]}`}>{s.scenes[cur]}</p>
 
           <div className="space-y-4">
@@ -176,21 +178,62 @@ export default function ReadPage() {
               </button>
             ))}
           </div>
+          <form
+            className="flex gap-2"
+            onSubmit={(e) => {
+              e.preventDefault();
+              const text = custom.trim();
+              if (!text) return;
+              n.stop();
+              setPage(s.scenes.length);
+              setCustom("");
+              void s.pick({ text, copingType: CUSTOM_COPING });
+            }}
+          >
+            <input
+              value={custom}
+              onChange={(e) => setCustom(e.target.value)}
+              maxLength={60}
+              aria-label="직접 입력"
+              placeholder="내가 생각한 방법을 직접 써 볼래요"
+              className={`${inputCls} min-w-0 flex-1`}
+            />
+            <button type="submit" disabled={!custom.trim()} className={`${btnSecondary} shrink-0 disabled:opacity-40`}>
+              이렇게 할래요
+            </button>
+          </form>
         </section>
       )}
 
       {atLast && s.isEnding && (
-        <section className="mx-auto w-full max-w-sm space-y-4 text-center">
-          <p className="story text-2xl text-sky-ink">끝</p>
-          <button
-            onClick={() => {
-              n.stop();
-              void s.showCard();
-            }}
-            className={btnPrimary}
-          >
-            부모님께: 대화 카드 보기
-          </button>
+        <section className="page-turn book-page mx-auto w-full max-w-xl rounded-2xl border px-6 py-10 text-center">
+          <svg viewBox="0 0 200 24" className="mx-auto h-5 w-44 text-accent" aria-hidden>
+            <path d="M6 12h74M120 12h74" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" opacity="0.5" />
+            <path d="M100 2l3 7 7.5.6-5.7 4.9 1.8 7.3L100 18l-6.6 3.8 1.8-7.3-5.7-4.9L97 9z" fill="currentColor" />
+          </svg>
+          <p className="story mt-5 text-3xl text-ink">끝</p>
+          <p className="story mt-2 text-base text-ink-2">「{s.title}」 이야기를 끝까지 읽었어요</p>
+          <div className="mt-8 flex flex-col items-center gap-3">
+            <button
+              onClick={() => {
+                n.stop();
+                void s.showCard();
+              }}
+              className={`${btnPrimary} w-full max-w-xs`}
+            >
+              부모님께: 대화 카드 보기
+            </button>
+            <button
+              onClick={() => {
+                n.stop();
+                setPage(0);
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+              className="text-sm text-ink-2 underline underline-offset-4"
+            >
+              처음부터 다시 읽기
+            </button>
+          </div>
         </section>
       )}
     </main>

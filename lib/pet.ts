@@ -12,6 +12,7 @@ export interface PetState {
   pettedDates: string[];
   moods: Record<string, PetMood>;
   testDate?: string;
+  introSeen?: boolean; // 알 깨기 첫 만남 장면을 본 적 있는지
 }
 
 export const PET_STAGES = [
@@ -49,6 +50,7 @@ export function parsePet(raw: string | null): PetState {
       fedDates: Array.isArray(value.fedDates) ? value.fedDates.filter((x): x is string => typeof x === "string") : [],
       pettedDates: Array.isArray(value.pettedDates) ? value.pettedDates.filter((x): x is string => typeof x === "string") : [],
       moods: value.moods && typeof value.moods === "object" ? value.moods as Record<string, PetMood> : {},
+      introSeen: value.introSeen === true ? true : undefined,
       testDate: typeof value.testDate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value.testDate) ? value.testDate : undefined,
     };
   } catch {

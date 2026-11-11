@@ -75,7 +75,7 @@ function particle(word: string, withBatchim: string, without: string): string {
 
 const josa = (word: string, withBatchim: string, without: string) => `${word}${particle(word, withBatchim, without)}`;
 
-const FIRST_CHOICE_HINT: Record<CopingType, string> = {
+const FIRST_CHOICE_HINT: Record<string, string> = {
   도움요청: "곁에 있어 주면 든든하다는 마음을 먼저 \"그랬구나, 같이 있고 싶었구나\" 하고 받아주세요.",
   스스로진정: "스스로 마음을 달래 보려 한 것을 \"혼자 해보려고 했구나\" 하고 알아봐 주세요.",
   회피: "피하고 싶은 마음을 다그치지 말고 \"그만큼 무서웠구나\" 하고 먼저 받아주세요.",
@@ -96,7 +96,7 @@ export function fallbackParentCard(req: ParentCardRequest): ParentCard {
       },
       {
         text: `이야기에서 "${first.text}"를 골랐는데, 그때 어떤 마음이었어?`,
-        hint: FIRST_CHOICE_HINT[first.copingType],
+        hint: FIRST_CHOICE_HINT[first.copingType] ?? "아이가 직접 떠올린 방법이니, 어떤 마음이었는지 \"그랬구나\" 하고 먼저 받아주세요.",
       },
       {
         text: second

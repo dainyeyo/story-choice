@@ -1,0 +1,95 @@
+"use client";
+
+// 첫 화면에서 잠깐 멈춰 있다가, 스크롤(휠·터치·키보드)을 한 번 하면
+// 아래 영역(targetId)으로 빠르게 쑥 내려간다. 올라갈 때도 첫 화면으로 쑥 돌아온다.
+// 움직임을 줄이는 설정이면 평소처럼 스크롤된다.
+
+import { useEffect, useRef, type ReactNode } from "react";
+
+const DURATION = 620;
+// 시작 반응은 빠르게, 끝은 부드럽게 (expo보다 초반 멈칫함이 훨씬 적다)
+const easeInOutExpo = (t: number) => 1 - Math.pow(1 - t, 3.2);
+
+export default function HeroParallax({ children, targetId }: { children: ReactNode; targetId: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    let animating = false;
+    const targetY = () => {
+      const t = document.getElementById(targetId);
+      return t ? Math.max(t.getBoundingClientRect().top + window.scrollY - 72, 0) : 0;
+    };
+
+    const go = (to: number) => {
+      animating = true;
+      const from = window.scrollY;
+      const start = performance.now();
+      const step = (now: number) => {
+        const p = Math.min((now - start) / DURATION, 1);
+        window.scrollTo(0, from + (to - from) * easeInOutExpo(p));
+        if (p < 1) requestAnimationFrame(step);
+        else animating = false;
+      };
+      requestAnimationFrame(step);
+    };
+
+    // dir: 1 = 아래로, -1 = 위로. 스냅했으면 true
+    const trigger = (dir: number) => {
+      const y = window.scrollY;
+      const t = targetY();
+      if (dir > 0 && y < t - 8) {
+        go(t);
+        return true;
+      }
+      if (dir < 0 && y > 0 && y <= t + 8) {
+        go(0);
+        return true;
+      }
+      return false;
+    };
+
+    const onWheel = (e: WheelEvent) => {
+      if (animating) return e.preventDefault();
+      if (Math.abs(e.deltaY) < 4) return;
+      if (trigger(e.deltaY > 0 ? 1 : -1)) e.preventDefault();
+    };
+
+    let touchY = 0;
+    const onTouchStart = (e: TouchEvent) => {
+      touchY = e.touches[0].clientY;
+    };
+    const onTouchMove = (e: TouchEvent) => {
+      if (animating) return e.preventDefault();
+      const d = touchY - e.touches[0].clientY;
+      if (Math.abs(d) < 24) return;
+      if (trigger(d > 0 ? 1 : -1)) {
+        e.preventDefault();
+        touchY = e.touches[0].clientY;
+      }
+    };
+
+    const onKey = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement | null)?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+      const down = e.key === "ArrowDown" || e.key === "PageDown" || (e.key === " " && !e.shiftKey);
+      const up = e.key === "ArrowUp" || e.key === "PageUp" || (e.key === " " && e.shiftKey);
+      if (!down && !up) return;
+      if (animating || trigger(down ? 1 : -1)) e.preventDefault();
+    };
+
+    window.addEventListener("wheel", onWheel, { passive: false });
+    window.addEventListener("touchstart", onTouchStart, { passive: true });
+    window.addEventListener("touchmove", onTouchMove, { passive: false });
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("wheel", onWheel);
+      window.removeEventListener("touchstart", onTouchStart);
+      window.removeEventListener("touchmove", onTouchMove);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [targetId]);
+
+  return <div ref={ref}>{children}</div>;
+}

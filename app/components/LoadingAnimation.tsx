@@ -16,9 +16,9 @@ export function WritingAnimation() {
   );
 }
 
-export function DrawingAnimation() {
+export function DrawingAnimation({ fill = false }: { fill?: boolean }) {
   return (
-    <div className="flex aspect-[4/3] w-full flex-col items-center justify-center gap-3 rounded-xl bg-sunk text-accent-text" role="status">
+    <div className={`flex aspect-[4/3] ${fill ? "md:aspect-auto md:h-full md:min-h-64" : ""} w-full flex-col items-center justify-center gap-3 rounded-xl bg-sunk text-accent-text`} role="status">
       <svg viewBox="0 0 160 120" className="h-28 w-36" aria-hidden="true">
         <path className="drawing-stroke" d="M30 76h90" fill="none" stroke="#d98c58" strokeWidth="10" strokeLinecap="round" pathLength="100" />
         <g className="drawing-brush">
