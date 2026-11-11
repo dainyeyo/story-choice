@@ -44,7 +44,7 @@ export default function CreatePage() {
   const [age, setAge] = useState(5);
   const [situation, setSituation] = useState("");
   const [lengthMode, setLengthMode] = useState<"auto" | "custom">("auto"); // 고르지 않으면 AI가 정한다
-  const [durationMin, setDurationMin] = useState(5);
+  const [durationText, setDurationText] = useState("5"); // 직접 정하기: 분을 숫자로 적는다
   const [protagonist, setProtagonist] = useState("");
   const [localError, setLocalError] = useState("");
 
@@ -71,8 +71,16 @@ export default function CreatePage() {
       setLocalError("고민을 고르거나 + 버튼으로 직접 추가해 주세요.");
       return;
     }
+    let durationMin: number | undefined;
+    if (lengthMode === "custom") {
+      durationMin = Number(durationText);
+      if (!Number.isInteger(durationMin) || durationMin < MIN_DURATION || durationMin > MAX_DURATION) {
+        setLocalError(`길이는 ${MIN_DURATION}~${MAX_DURATION}분 사이 숫자로 적어 주세요.`);
+        return;
+      }
+    }
     setLocalError("");
-    void s.start({ age, situation, durationMin: lengthMode === "custom" ? durationMin : undefined, protagonist }); // 로딩은 /read 화면에서 보여준다
+    void s.start({ age, situation, durationMin, protagonist }); // 로딩은 /read 화면에서 보여준다
     router.push("/read");
   };
 
@@ -89,7 +97,7 @@ export default function CreatePage() {
       )}
 
       <form onSubmit={submit} className="mt-8 grid gap-6 md:grid-cols-2">
-        <section className="space-y-4 rounded-2xl border border-line bg-surface p-5 md:p-7">
+        <section className="space-y-4 rounded-2xl border border-line bg-[#f8ead2] p-5 md:p-7">
           <h2 className="story text-xl text-ink">요즘 아이의 마음은</h2>
           <div className="flex flex-wrap gap-2">
             {EXAMPLES.map((p) => (
@@ -192,21 +200,26 @@ export default function CreatePage() {
               />
             </div>
             {lengthMode === "custom" ? (
-              <div className="flex items-center gap-3 pt-1">
-                <input
-                  type="range"
-                  min={MIN_DURATION}
-                  max={MAX_DURATION}
-                  step={1}
-                  value={durationMin}
-                  onChange={(e) => setDurationMin(Number(e.target.value))}
-                  aria-label="동화 길이(분)"
-                  className="h-10 min-w-0 flex-1 accent-accent"
-                />
-                <span className="w-12 shrink-0 text-right text-[15px] text-ink tabular-nums">{durationMin}분</span>
-              </div>
+              <label className="flex items-center gap-2 pt-1">
+                <span className="w-20 shrink-0">
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    value={durationText}
+                    onChange={(e) => setDurationText(e.target.value.replace(/[^0-9]/g, "").slice(0, 2))}
+                    aria-label="동화 길이(분)"
+                    className={`${inputCls} text-center tabular-nums`}
+                  />
+                </span>
+                <span className="text-[15px] text-ink">분</span>
+                <span className="text-[13px] text-ink-3">
+                  {MIN_DURATION}~{MAX_DURATION}분 사이로 적어 주세요
+                </span>
+              </label>
             ) : (
-              <p className="text-[13px] text-ink-3">AI가 이야기에 맞춰 길이를 정해요. 최대 {MAX_DURATION}분까지 걸릴 수 있어요.</p>
+              <p className="text-[13px] text-ink-3">
+                AI가 이야기에 맞춰 길이를 정해요. 최대 {MAX_DURATION}분까지 걸릴 수 있어요.
+              </p>
             )}
           </div>
 
