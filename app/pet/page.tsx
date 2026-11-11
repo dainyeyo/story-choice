@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { useApp } from "../providers";
 import Icon from "../components/Icon";
 import PetAvatar from "../components/PetAvatar";
@@ -128,7 +129,7 @@ export default function PetPage() {
       )}
 
       <div className="mt-8 grid gap-6 md:grid-cols-[3fr_2fr] md:gap-10">
-        <section className="overflow-hidden rounded-[28px] border border-line bg-[#fff1d8]">
+        <section className="self-start overflow-hidden rounded-[28px] border border-line bg-[#fff1d8]">
           <div className="relative min-h-[390px] px-5 pt-5 text-center">
             <div className="absolute left-7 top-7 text-2xl opacity-70">✦</div>
             <div className="absolute right-8 top-16 text-xl opacity-60">· ✧</div>
@@ -222,7 +223,7 @@ export default function PetPage() {
         </div>
       </section>
 
-      {selectedDate && (
+      {selectedDate && typeof document !== "undefined" && createPortal((
         <div
           className="fixed inset-0 z-50 grid place-items-center bg-ink/45 p-4"
           role="presentation"
@@ -273,7 +274,7 @@ export default function PetPage() {
             </section>
           </section>
         </div>
-      )}
+      ), document.body)}
 
     </main>
   );

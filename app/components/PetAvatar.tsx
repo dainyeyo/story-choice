@@ -7,9 +7,12 @@ export default function PetAvatar({ stage, mood, action, className = "" }: {
   className?: string;
 }) {
   const column = Math.min(Math.max(stage, 0), 4);
-  const x = column * 25;
-  const animation = <span aria-hidden className="pet-sprite-frame absolute inset-0" style={{ backgroundPosition: `${x}% 0%` }} />;
-  const blink = <span aria-hidden className="pet-sprite-frame pet-sprite-blink absolute inset-0" style={{ backgroundPosition: `${x}% 100%` }} />;
+  // 넓은 참조 스프라이트에서 초록·파랑 몽의 그림이 격자 경계를 넘어와서
+  // 두 프레임은 각각 보정된 위치와 폭으로 잘라 옆 캐릭터가 비치지 않게 한다.
+  const x = [0, 25, 50, 71, 100][column];
+  const backgroundSize = column === 4 ? "425% 200%" : undefined;
+  const animation = <span aria-hidden className="pet-sprite-frame absolute inset-0" style={{ backgroundPosition: `${x}% 0%`, backgroundSize }} />;
+  const blink = <span aria-hidden className="pet-sprite-frame pet-sprite-blink absolute inset-0" style={{ backgroundPosition: `${x}% 100%`, backgroundSize }} />;
 
   return (
     <span role="img" aria-label={`성장 ${column + 1}단계 마음 친구${mood ? `, 오늘 마음 ${mood}` : ""}`} className={`pet-sprite relative block aspect-[1.1/1] overflow-hidden ${className}`}>
