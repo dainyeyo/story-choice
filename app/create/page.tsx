@@ -47,9 +47,7 @@ export default function CreatePage() {
   const [lengthMode, setLengthMode] = useState<"auto" | "custom">("auto"); // 고르지 않으면 AI가 정한다
   const [durationText, setDurationText] = useState("5"); // 직접 정하기: 분을 숫자로 적는다
   const [protagonist, setProtagonist] = useState("");
-  const [drawing, setDrawing] = useState<File | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const fileRef = useRef<HTMLInputElement>(null);
   const drawingPointer = useRef<number | null>(null);
   const history = useRef<ImageData[]>([]);
   const historyIndex = useRef(-1);
@@ -90,8 +88,6 @@ export default function CreatePage() {
     ctx.moveTo(x, y);
     if (!eraser) {
       setHasSketch(true);
-      setDrawing(null);
-      if (fileRef.current) fileRef.current.value = "";
     }
     setLocalError("");
   };
@@ -138,8 +134,6 @@ export default function CreatePage() {
     historyIndex.current = nextIndex;
     setHistoryPosition({ index: nextIndex, length: history.current.length });
     setHasSketch(snapshot.data.some((value, index) => index % 4 === 3 && value > 0));
-    setDrawing(null);
-    if (fileRef.current) fileRef.current.value = "";
   };
 
   const endStroke = (pointerId: number) => {
@@ -183,7 +177,7 @@ export default function CreatePage() {
     }
     setLocalError("");
     setSubmitting(true);
-    let selectedDrawing = drawing;
+    let selectedDrawing: File | null = null;
     if (hasSketch && canvasRef.current) {
       const blob = await new Promise<Blob | null>((resolve) => canvasRef.current?.toBlob(resolve, "image/png"));
       if (!blob) {
@@ -390,23 +384,6 @@ export default function CreatePage() {
               onLostPointerCapture={(e) => endStroke(e.pointerId)}
               className="sketchbook-paper block aspect-[3/2] w-full touch-none" />
             </div>
-            <label className="block space-y-2">
-            <span className="block text-sm text-ink-2">또는 그린 그림을 올려 주세요</span>
-            <input ref={fileRef} type="file" accept="image/png,image/jpeg" className={inputCls}
-              onChange={(e) => {
-                const file = e.target.files?.[0] ?? null;
-                if (file && (!['image/png', 'image/jpeg'].includes(file.type) || file.size > 10 * 1024 * 1024)) {
-                  setDrawing(null);
-                  e.target.value = '';
-                  setLocalError('그림은 10MB 이하의 PNG 또는 JPG 파일로 선택해 주세요.');
-                  return;
-                }
-                if (file) clearSketch();
-                setDrawing(file);
-                setLocalError('');
-              }} />
-            <span className="block text-sm text-ink-3">PNG 또는 JPG, 최대 10MB. 원본 주인공을 장면에 넣어 드려요.</span>
-          </label>
           </div>
         </section>
 
