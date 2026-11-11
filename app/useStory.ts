@@ -22,6 +22,7 @@
 // 서버는 상태를 저장하지 않는다. 이 훅이 장면·선택을 들고 있다가 매 요청에 같이 보낸다.
 
 import { useCallback, useState, useSyncExternalStore } from "react";
+import { useStoryImages } from "./useStoryImages";
 import type {
   ChosenChoice,
   ParentCard,
@@ -67,6 +68,7 @@ function loadMemo(user: string): string {
 }
 
 export function useStory(user = "guest") {
+  const { images, appendImages, clearImages, setDrawing, hasDrawing } = useStoryImages();
   const [step, setStep] = useState<Step>("form");
   const [error, setError] = useState("");
   const [usedFallback, setUsedFallback] = useState(false);
@@ -95,9 +97,13 @@ export function useStory(user = "guest") {
 
   const begin = useCallback(
     async (next: StoryRequest) => {
+      clearImages();
+      next = { ...next, hasUserDrawing: hasDrawing() };
       setReq(next);
       const seg = await run(() => api<StorySegment>("", next), "form");
       if (!seg) return;
+      setReq({ ...next, characterBible: seg.characterBible });
+      appendImages(seg, next.protagonist);
       setTitle(seg.title);
       setScenes(seg.scenes.map((s) => s.text));
       setChoice(seg.choice);
@@ -107,7 +113,7 @@ export function useStory(user = "guest") {
       setUsedFallback(!!seg.fallback);
       setStep("story");
     },
-    [run],
+    [run, clearImages, hasDrawing, appendImages],
   );
 
   const start = useCallback(
@@ -138,6 +144,7 @@ export function useStory(user = "guest") {
         "story",
       );
       if (!seg) return;
+      appendImages({ ...seg, characterBible: req.characterBible || seg.characterBible }, req.protagonist);
       setChosen(nextChosen);
       setScenes((prev) => [...prev, ...seg.scenes.map((s) => s.text)]);
       setChoice(seg.choice);
@@ -145,7 +152,7 @@ export function useStory(user = "guest") {
       if (seg.fallback) setUsedFallback(true);
       setStep("story");
     },
-    [req, choice, chosen, title, scenes, run],
+    [req, choice, chosen, title, scenes, run, appendImages],
   );
 
   const showCard = useCallback(async () => {
@@ -189,11 +196,14 @@ export function useStory(user = "guest") {
   );
 
   const reset = useCallback(() => {
+    clearImages();
     setStep("form");
     setError("");
-  }, []);
+  }, [clearImages]);
 
   return {
+    images,
+    setDrawing,
     step,
     error,
     req,

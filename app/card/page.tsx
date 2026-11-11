@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useApp } from "../providers";
 import Icon from "../components/Icon";
-import { btnPrimary, btnSecondary, Card, inputCls, Label, PageHeader } from "../components/ui";
+import { btnPrimary, btnSecondary, Card, errorCls, inputCls, Label, PageHeader } from "../components/ui";
 
 // 부모 전용 화면. 아이가 바로 넘겨 보지 않도록 간단한 확인 문제를 둔다.
 export default function CardPage() {
@@ -44,8 +44,8 @@ export default function CardPage() {
         <span className="flex size-12 items-center justify-center rounded-xl bg-sunk text-ink-2">
           <Icon name="lock" size={22} />
         </span>
-        <h1 className="story mt-6 text-3xl text-ink">부모님께 넘겨 주세요</h1>
-        <p className="mt-2 text-[15px] leading-7 text-ink-2">
+        <h1 className="story mt-6 text-3xl text-sky-ink">부모님께 넘겨 주세요</h1>
+        <p className="mt-2 text-[15px] leading-7 text-sky-ink-2">
           아이의 선택을 바탕으로 한 대화 질문이 준비됐어요. 아래 문제를 풀면 열립니다.
         </p>
         <form
@@ -60,7 +60,7 @@ export default function CardPage() {
           className="mt-6 space-y-4"
         >
           <label className="block space-y-1">
-            <Label>7 + 5</Label>
+            <Label onSky>7 + 5</Label>
             <input
               value={answer}
               onChange={(e) => {
@@ -73,7 +73,7 @@ export default function CardPage() {
             />
           </label>
           {wrong && (
-            <p role="alert" className="text-sm text-danger">
+            <p role="alert" className={errorCls}>
               다시 한 번 풀어 주세요
             </p>
           )}
@@ -88,17 +88,17 @@ export default function CardPage() {
   return (
     <main className="page-turn mx-auto w-full max-w-md px-4 py-8 md:max-w-2xl md:px-8 md:py-12">
       <PageHeader title="오늘의 대화 카드" />
-      <p className="mt-4 text-lg leading-8 text-ink-2">{s.card.summary}</p>
+      <p className="mt-4 text-lg leading-8 text-sky-ink-2">{s.card.summary}</p>
 
-      <ol className="mt-8 border-t border-line">
+      <ol className="mt-8 border-t border-sky-ink/20">
         {s.card.questions.map((q, i) => (
-          <li key={i} className="flex gap-4 border-b border-line py-5">
-            <span className="flex size-8 shrink-0 items-center justify-center rounded-full border border-line text-sm tabular-nums text-ink-2">
+          <li key={i} className="flex gap-4 border-b border-sky-ink/20 py-5">
+            <span className="flex size-8 shrink-0 items-center justify-center rounded-full border border-sky-ink/30 text-sm tabular-nums text-sky-ink-2">
               {i + 1}
             </span>
             <div className="space-y-1">
-              <p className="story text-xl leading-8 text-ink">“{q.text}”</p>
-              <p className="text-[15px] leading-7 text-ink-2">{q.hint}</p>
+              <p className="story text-xl leading-8 text-sky-ink">“{q.text}”</p>
+              <p className="text-[15px] leading-7 text-sky-ink-2">{q.hint}</p>
             </div>
           </li>
         ))}
@@ -157,7 +157,7 @@ export default function CardPage() {
       </Card>
 
       <p className="mt-6 text-center">
-        <Link href="/library" className="calm text-[15px] text-ink-2 underline hover:text-ink">
+        <Link href="/library" className="calm text-[15px] text-sky-ink-2 underline hover:text-sky-ink">
           내 서재로 가기
         </Link>
       </p>

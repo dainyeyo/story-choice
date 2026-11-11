@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useStored, writeRaw } from "@/lib/localStore";
 import { buildRecentStoryContext, cachedStoryGuidance } from "@/lib/parentInsights";
@@ -48,7 +48,58 @@ export default function CreatePage() {
   const [lengthMode, setLengthMode] = useState<"auto" | "custom">("auto"); // 고르지 않으면 AI가 정한다
   const [durationText, setDurationText] = useState("5"); // 직접 정하기: 분을 숫자로 적는다
   const [protagonist, setProtagonist] = useState("");
+  const [drawing, setDrawing] = useState<File | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const drawingPointer = useRef<number | null>(null);
+  const [hasSketch, setHasSketch] = useState(false);
+  const [color, setColor] = useState("#47372f");
+  const [submitting, setSubmitting] = useState(false);
   const [localError, setLocalError] = useState("");
+
+  const point = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    return { x: (e.clientX - rect.left) * e.currentTarget.width / rect.width, y: (e.clientY - rect.top) * e.currentTarget.height / rect.height };
+  };
+
+  const startStroke = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    if (drawingPointer.current !== null || (e.pointerType === "mouse" && e.button !== 0)) return;
+    const ctx = e.currentTarget.getContext("2d");
+    if (!ctx) return;
+    e.currentTarget.setPointerCapture(e.pointerId);
+    drawingPointer.current = e.pointerId;
+    const { x, y } = point(e);
+    ctx.strokeStyle = color;
+    ctx.fillStyle = color;
+    ctx.lineWidth = 8;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.beginPath();
+    ctx.arc(x, y, 4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    setHasSketch(true);
+    setDrawing(null);
+    if (fileRef.current) fileRef.current.value = "";
+    setLocalError("");
+  };
+
+  const moveStroke = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    if (drawingPointer.current !== e.pointerId) return;
+    const ctx = e.currentTarget.getContext("2d");
+    if (!ctx) return;
+    const { x, y } = point(e);
+    ctx.lineTo(x, y);
+    ctx.stroke();
+  };
+
+  const clearSketch = () => {
+    const canvas = canvasRef.current;
+    canvas?.getContext("2d")?.clearRect(0, 0, canvas.width, canvas.height);
+    drawingPointer.current = null;
+    setHasSketch(false);
+  };
 
   const saveCustom = (list: string[]) => writeRaw(customKey, JSON.stringify(list));
 
@@ -67,8 +118,9 @@ export default function CreatePage() {
     if (situation === t) setSituation("");
   };
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitting) return;
     if (!situation.trim()) {
       setLocalError("고민을 고르거나 + 버튼으로 직접 추가해 주세요.");
       return;
@@ -82,17 +134,23 @@ export default function CreatePage() {
       }
     }
     setLocalError("");
-    const recentContext = [buildRecentStoryContext(library, pet.state.moods), cachedStoryGuidance(insightRaw)]
+    setSubmitting(true);
+    let selectedDrawing = drawing;
+    if (hasSketch && canvasRef.current) {
+      const blob = await new Promise<Blob | null>((resolve) => canvasRef.current?.toBlob(resolve, "image/png"));
+      if (!blob) {
+        setLocalError("그림을 저장하지 못했어요. 다시 시도해 주세요.");
+        setSubmitting(false);
+        return;
+      }
+      selectedDrawing = new File([blob], "protagonist.png", { type: "image/png" });
+    }
+    s.setDrawing(selectedDrawing);
+        const recentContext = [buildRecentStoryContext(library, pet.state.moods), cachedStoryGuidance(insightRaw)]
       .filter(Boolean)
       .join("\n")
       .slice(0, 600);
-    void s.start({
-      age,
-      situation,
-      durationMin,
-      protagonist,
-      recentContext,
-    }); // 로딩은 /read 화면에서 보여준다
+    void s.start({ age, situation, durationMin, protagonist, recentContext }); // 로딩은 /read 화면에서 보여준다
     router.push("/read");
   };
 
@@ -109,7 +167,7 @@ export default function CreatePage() {
       )}
 
       <form onSubmit={submit} className="mt-8 grid gap-6 md:grid-cols-2">
-        <section className="space-y-4 rounded-2xl border border-line bg-[#fbf2de] p-5 shadow-[0_8px_24px_rgba(0,0,20,0.4)] md:p-7">
+        <section className="space-y-4 rounded-2xl border border-line bg-[#fbf2de] p-5 shadow-[0_6px_20px_rgba(20,15,40,0.28)] md:p-7">
           <h2 className="story text-xl text-ink">요즘 아이의 마음은</h2>
           <div className="flex flex-wrap gap-2">
             {EXAMPLES.map((p) => (
@@ -180,7 +238,7 @@ export default function CreatePage() {
           )}
         </section>
 
-        <section className="space-y-6 rounded-2xl border border-line bg-[#fbf2de] p-5 shadow-[0_8px_24px_rgba(0,0,20,0.4)] md:p-7">
+        <section className="space-y-6 rounded-2xl border border-line bg-[#fbf2de] p-5 shadow-[0_6px_20px_rgba(20,15,40,0.28)] md:p-7">
           <h2 className="story text-xl text-ink">동화 설정</h2>
 
           <div className="space-y-2">
@@ -244,8 +302,43 @@ export default function CreatePage() {
               placeholder="예: 파란 토끼 (비워도 돼요)"
               className={inputCls}
             />
-            {/* 이미지 담당: 그림 업로드/캐릭터 변환 UI는 이 아래에 붙인다 */}
           </label>
+          <div className="space-y-3">
+            <div>
+              <span className="block text-sm text-ink">주인공을 그려 보세요 (선택)</span>
+              <p className="mt-1 text-sm text-ink-3">손가락이나 마우스로 자유롭게 그려 주세요.</p>
+            </div>
+            <div className="flex flex-wrap items-center gap-2" role="group" aria-label="그림 색상">
+              {[["#47372f", "갈색"], ["#e66558", "빨강"], ["#f5a623", "주황"], ["#e7c53b", "노랑"], ["#63a873", "초록"], ["#5c8ec7", "파랑"], ["#a47bc0", "보라"]].map(([value, name]) => (
+                <button key={value} type="button" aria-label={name} aria-pressed={color === value} onClick={() => setColor(value)}
+                  className={`size-8 rounded-full border-2 ${color === value ? "border-ink ring-2 ring-accent ring-offset-2" : "border-white"}`}
+                  style={{ backgroundColor: value }} />
+              ))}
+              <button type="button" onClick={clearSketch} disabled={!hasSketch} className="ml-auto text-sm text-ink-2 underline underline-offset-4 disabled:opacity-40">다시 그리기</button>
+            </div>
+            <canvas ref={canvasRef} width={600} height={400} aria-label="주인공 그림판" onPointerDown={startStroke} onPointerMove={moveStroke}
+              onPointerUp={(e) => { if (drawingPointer.current === e.pointerId) drawingPointer.current = null; }}
+              onPointerCancel={(e) => { if (drawingPointer.current === e.pointerId) drawingPointer.current = null; }}
+              onLostPointerCapture={() => { drawingPointer.current = null; }}
+              className="block aspect-[3/2] w-full touch-none rounded-xl border border-dashed border-ink-3/50 bg-white" />
+            <label className="block space-y-2">
+            <span className="block text-sm text-ink-2">또는 그린 그림을 올려 주세요</span>
+            <input ref={fileRef} type="file" accept="image/png,image/jpeg" className={inputCls}
+              onChange={(e) => {
+                const file = e.target.files?.[0] ?? null;
+                if (file && (!['image/png', 'image/jpeg'].includes(file.type) || file.size > 10 * 1024 * 1024)) {
+                  setDrawing(null);
+                  e.target.value = '';
+                  setLocalError('그림은 10MB 이하의 PNG 또는 JPG 파일로 선택해 주세요.');
+                  return;
+                }
+                if (file) clearSketch();
+                setDrawing(file);
+                setLocalError('');
+              }} />
+            <span className="block text-sm text-ink-3">PNG 또는 JPG, 최대 10MB. 원본 주인공을 장면에 넣어 드려요.</span>
+          </label>
+          </div>
         </section>
 
         {s.savedMemo && (
@@ -256,7 +349,7 @@ export default function CreatePage() {
         )}
 
         <div className="md:col-span-2 md:flex md:justify-center">
-          <button type="submit" className={`${btnPrimary} md:w-64`}>
+          <button type="submit" disabled={submitting} className={`${btnPrimary} md:w-64 disabled:opacity-50`}>
             동화 만들기
           </button>
         </div>

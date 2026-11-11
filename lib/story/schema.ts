@@ -21,6 +21,7 @@ export interface StoryChoice {
 }
 
 export interface StorySegment {
+  characterBible?: string; // 장면 사이에 유지하는 캐릭터 외형
   title: string; // 동화 제목
   scenes: StoryScene[]; // 이번 구간의 장면들
   choice: StoryChoice | null; // 다음에 고를 선택. 결말이면 null
@@ -42,6 +43,8 @@ export const MIN_DURATION = 1;
 export const MAX_DURATION = 10;
 
 export interface StoryRequest {
+  characterBible?: string;
+  hasUserDrawing?: boolean;
   age: number; // MIN_AGE~MAX_AGE (양 끝은 "이하"/"이상" 구간)
   situation: string; // 고민 상황 (최대 200자)
   durationMin?: number; // MIN_DURATION~MAX_DURATION분. 없으면 AI가 이야기에 맞춰 정한다(최대 MAX_DURATION분)
@@ -54,6 +57,7 @@ export interface StoryRequest {
 export const storySegmentJsonSchema = {
   type: "object",
   properties: {
+    characterBible: { type: "string" },
     title: { type: "string" },
     scenes: {
       type: "array",
@@ -88,7 +92,7 @@ export const storySegmentJsonSchema = {
     },
     isEnding: { type: "boolean" },
   },
-  required: ["title", "scenes", "choice", "isEnding"],
+  required: ["title", "scenes", "choice", "isEnding", "characterBible"],
 } as const;
 
 export function isStorySegment(v: unknown): v is StorySegment {

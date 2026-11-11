@@ -41,8 +41,18 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="ko"
+      data-theme="dark"
+      suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} ${storyFont.variable} h-full antialiased`}
     >
+      <head>
+        {/* 저장된 라이트/다크 선택을 첫 그림보다 먼저 적용해서 화면이 번쩍이지 않게 한다 */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{if(localStorage.getItem("story-choice:theme")==="light")document.documentElement.dataset.theme="light"}catch(e){}`,
+          }}
+        />
+      </head>
       <body className="min-h-full flex flex-col">
         <SkyBackground />
         <AppProviders>

@@ -63,7 +63,7 @@ export default function ReadPage() {
       )}
       {s.usedFallback && <FallbackNote />}
 
-      <h1 className="story text-2xl text-ink md:text-3xl">{s.title}</h1>
+      <h1 className="story text-2xl text-sky-ink md:text-3xl">{s.title}</h1>
 
       <article className="relative grid gap-6 rounded-2xl border border-line bg-surface p-4 shadow-[0_1px_2px_rgba(59,47,37,0.05)] md:grid-cols-2 md:gap-10 md:p-8">
         {/* 책갈피: 이 서비스의 표시. 읽는 카드에서만 쓴다 */}
@@ -73,7 +73,10 @@ export default function ReadPage() {
         />
 
         <div className="md:self-center">
-          <SceneArt index={cur} />
+          <SceneArt index={cur} imageUrl={s.images[cur]?.url} title={s.title} />
+          {s.images[cur]?.loading && <p role="status" className="mt-2 text-sm text-ink-3">이 장면의 그림을 그리고 있어요.</p>}
+          {s.images[cur]?.error && <p role="alert" className={`${errorCls} mt-2`}>그림을 만들지 못했어요. {s.images[cur].error}</p>}
+          {s.images[cur]?.backgroundSource === "local-fallback" && <p className="mt-2 text-sm text-ink-3">그림 생성 서비스가 바빠 기본 배경을 사용했어요.</p>}
         </div>
 
         <div className="flex flex-col gap-6">
@@ -138,7 +141,7 @@ export default function ReadPage() {
 
       {atLast && s.choice && !s.isEnding && (
         <section className="mx-auto w-full max-w-3xl space-y-4">
-          <p className="story text-center text-xl text-ink md:text-2xl">{s.choice.prompt}</p>
+          <p className="story text-center text-xl text-sky-ink md:text-2xl">{s.choice.prompt}</p>
           <div className="grid gap-3 md:grid-cols-2">
             {s.choice.options.map((o) => (
               <button
@@ -160,7 +163,7 @@ export default function ReadPage() {
 
       {atLast && s.isEnding && (
         <section className="mx-auto w-full max-w-sm space-y-4 text-center">
-          <p className="story text-2xl text-ink">끝</p>
+          <p className="story text-2xl text-sky-ink">끝</p>
           <button
             onClick={() => {
               n.stop();
