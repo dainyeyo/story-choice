@@ -67,7 +67,7 @@ export default function ReadPage() {
   if (s.step !== "story") return null;
 
   return (
-    <main className="page-turn mx-auto w-full max-w-md space-y-6 px-4 py-6 md:max-w-7xl md:px-8 md:py-4">
+    <main className="page-turn mx-auto w-full max-w-md space-y-6 px-4 py-6 md:max-w-5xl md:space-y-8 md:px-8 md:py-10">
       <div className="reader-stage space-y-6">
       {s.error && (
         <p role="alert" className={errorCls}>
@@ -92,7 +92,7 @@ export default function ReadPage() {
         </button>
       </div>
 
-      <article className="reader-book relative grid gap-6 book-page overflow-hidden rounded-2xl border p-4 md:grid-cols-2 md:gap-8 md:p-5">
+      <article className="reader-book relative grid gap-6 book-page overflow-hidden rounded-2xl border p-4 md:grid-cols-2 md:gap-10 md:p-8">
         {/* 책갈피: 이 서비스의 표시. 읽는 카드에서만 쓴다 */}
         <span
           aria-hidden
