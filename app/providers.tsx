@@ -98,6 +98,7 @@ function StoryProvider({ user, children }: { user: string; children: ReactNode }
   const settings = useMemo(() => parseSettings(settingsRaw), [settingsRaw]);
   const pet = usePet(user, library);
   const markPetCare = pet.markCare;
+  const clearStoryDraft = s.clearDraft;
 
   // 부모 카드가 만들어지면 그 동화를 서재에 한 번 저장한다.
   const savedCard = useRef<unknown>(null);
@@ -121,7 +122,8 @@ function StoryProvider({ user, children }: { user: string; children: ReactNode }
     };
     writeRaw(libKey, JSON.stringify([entry, ...parseLibrary(readRaw(libKey))]));
     markPetCare();
-  }, [s.step, s.card, s.req, s.title, s.scenes, s.chosen, libKey, markPetCare]);
+    clearStoryDraft();
+  }, [s.step, s.card, s.req, s.title, s.scenes, s.chosen, libKey, markPetCare, clearStoryDraft]);
 
   const saveMemo = useCallback(
     (text: string) => {
@@ -146,6 +148,7 @@ function StoryProvider({ user, children }: { user: string; children: ReactNode }
     removeKey(libKey);
     removeKey(`story-choice:lastMemo:${user}`);
     removeKey(`story-choice:pet:${user}`);
+    removeKey(`story-choice:draft:${user}`);
     s.saveMemo("");
     s.reset();
   }, [libKey, user, s]);

@@ -213,19 +213,22 @@ body {
 }
 
 .pet-sprite-frame {
-  background-image: url("/pet-sprites-centered.png");
   background-repeat: no-repeat;
-  background-size: 500% 200%;
+}
+
+.pet-sprite-sequence {
+  background-image: url("/pet-animation-frames.webp");
+  background-size: 500% 600%;
+  animation: pet-idle-sequence 1.8s steps(5, end) infinite;
 }
 
 .pet-sprite-blink {
+  background-image: url("/pet-sprites-centered.png");
+  background-repeat: no-repeat;
+  background-size: 500% 200%;
+  clip-path: inset(28% 12% 50% 12%);
   opacity: 0;
   animation: pet-blink 1s steps(1, end) infinite;
-}
-
-.pet-sprite-wave {
-  opacity: 0;
-  animation: pet-wave 2.8s ease-in-out infinite;
 }
 
 @keyframes pet-blink {
@@ -233,10 +236,9 @@ body {
   80%, 94% { opacity: 1; }
 }
 
-@keyframes pet-wave {
-  0%, 76%, 100% { opacity: 0; }
-  81% { opacity: 0.82; }
-  87% { opacity: 0; }
+@keyframes pet-idle-sequence {
+  from { background-position-y: 0%; }
+  to { background-position-y: 100%; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -246,6 +248,15 @@ body {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+
+  .pet-sprite-sequence {
+    animation-duration: 6s !important;
+    animation-iteration-count: infinite !important;
+  }
+
+  .pet-sprite-blink {
+    animation: none !important;
   }
 }
 

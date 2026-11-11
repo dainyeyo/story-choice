@@ -160,6 +160,22 @@ export default function CreatePage() {
     <main className="page-turn mx-auto w-full max-w-md px-4 py-8 md:max-w-5xl md:px-8 md:py-12">
       <PageHeader title="새 동화" sub="아이의 마음을 고르면 오늘의 동화가 만들어져요" />
 
+      {s.draft && (
+        <section className="mt-6 rounded-2xl border border-accent/35 bg-[#fff7e9] p-4 sm:p-5" aria-label="저장한 동화">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="min-w-0">
+              <h2 className="story text-lg text-ink">이어서 읽을 동화</h2>
+              <p className="mt-1 truncate text-sm text-ink-2">{s.draft.title}</p>
+              <p className="mt-1 text-xs text-ink-3">{s.draft.scenes.length}쪽까지 읽음 · {new Date(s.draft.savedAt).toLocaleString("ko-KR", { month: "long", day: "numeric", hour: "numeric", minute: "2-digit" })} 저장</p>
+            </div>
+            <div className="flex shrink-0 gap-2">
+              <button type="button" onClick={() => { if (s.resumeDraft()) router.push("/read"); }} className="calm rounded-lg bg-ink px-4 py-2.5 text-sm font-medium text-paper hover:opacity-90">이어서 보기</button>
+              <button type="button" onClick={s.clearDraft} className="calm rounded-lg border border-line bg-surface px-3 py-2.5 text-sm text-ink-2 hover:bg-sunk">삭제</button>
+            </div>
+          </div>
+        </section>
+      )}
+
       {error && (
         <p role="alert" className={`${errorCls} mt-6`}>
           {error}

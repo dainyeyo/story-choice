@@ -12,7 +12,7 @@ import { btnIcon, btnPrimary, btnSecondary, errorCls, noteCls, Segmented } from 
 export default function ReadPage() {
   const { s, n, settings } = useApp();
   const router = useRouter();
-  const [page, setPage] = useState(0);
+  const [page, setPage] = useState(() => s.resumePage ?? 0);
 
   // 이 화면에 맞지 않는 단계면 알맞은 화면으로 보낸다
   useEffect(() => {
@@ -64,7 +64,20 @@ export default function ReadPage() {
       )}
       {s.usedFallback && <FallbackNote />}
 
-      <h1 className="story text-2xl text-sky-ink md:text-3xl">{s.title}</h1>
+      <div className="flex items-start justify-between gap-3">
+        <h1 className="story text-2xl text-sky-ink md:text-3xl">{s.title}</h1>
+        <button
+          type="button"
+          onClick={() => {
+            if (!s.saveDraft(cur)) return;
+            n.stop();
+            router.push("/create");
+          }}
+          className="calm shrink-0 rounded-lg border border-line bg-surface px-3 py-2 text-sm text-ink-2 hover:bg-sunk"
+        >
+          저장하고 나가기
+        </button>
+      </div>
 
       <article className="relative grid gap-6 rounded-2xl border border-line bg-surface p-4 shadow-[0_1px_2px_rgba(59,47,37,0.05)] md:grid-cols-2 md:gap-10 md:p-8">
         {/* 책갈피: 이 서비스의 표시. 읽는 카드에서만 쓴다 */}

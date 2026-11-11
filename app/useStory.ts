@@ -22,6 +22,7 @@
 // 서버는 상태를 저장하지 않는다. 이 훅이 장면·선택을 들고 있다가 매 요청에 같이 보낸다.
 
 import { useCallback, useState, useSyncExternalStore } from "react";
+import { removeKey, useStored } from "@/lib/localStore";
 import { useStoryImages } from "./useStoryImages";
 import type {
   ChosenChoice,
@@ -35,9 +36,39 @@ import type {
 export type Step = "form" | "loading" | "story" | "card";
 export type StartInput = Omit<StoryRequest, "previousMemo">;
 
+export interface StoryDraft {
+  version: 1;
+  savedAt: number;
+  req: StoryRequest;
+  title: string;
+  scenes: string[];
+  choice: StoryChoice | null;
+  chosen: ChosenChoice[];
+  isEnding: boolean;
+  usedFallback: boolean;
+  page: number;
+}
+
 // 부모 메모는 사용자(로그인 계정)마다 따로 저장한다.
 const memoKey = (user: string) => `story-choice:lastMemo:${user}`;
+const draftKey = (user: string) => `story-choice:draft:${user}`;
 const MEMO_EVENT = "story-choice:memo";
+
+function parseDraft(raw: string | null): StoryDraft | null {
+  if (!raw) return null;
+  try {
+    const value = JSON.parse(raw) as Partial<StoryDraft>;
+    if (
+      value.version !== 1 || typeof value.savedAt !== "number" || !value.req ||
+      typeof value.title !== "string" || !Array.isArray(value.scenes) ||
+      !Array.isArray(value.chosen) || typeof value.isEnding !== "boolean" ||
+      typeof value.page !== "number"
+    ) return null;
+    return value as StoryDraft;
+  } catch {
+    return null;
+  }
+}
 
 async function api<T>(path: string, body: unknown): Promise<T> {
   const res = await fetch(`/api/story${path}`, {
@@ -69,6 +100,7 @@ function loadMemo(user: string): string {
 
 export function useStory(user = "guest") {
   const { images, appendImages, clearImages, setDrawing, hasDrawing } = useStoryImages();
+  const draft = parseDraft(useStored(draftKey(user)));
   const [step, setStep] = useState<Step>("form");
   const [error, setError] = useState("");
   const [usedFallback, setUsedFallback] = useState(false);
@@ -80,6 +112,7 @@ export function useStory(user = "guest") {
   const [chosen, setChosen] = useState<ChosenChoice[]>([]);
   const [isEnding, setIsEnding] = useState(false);
   const [card, setCard] = useState<ParentCard | null>(null);
+  const [resumePage, setResumePage] = useState<number | null>(null);
 
   const savedMemo = useSyncExternalStore(subscribeMemo, () => loadMemo(user), () => "");
 
@@ -97,7 +130,9 @@ export function useStory(user = "guest") {
 
   const begin = useCallback(
     async (next: StoryRequest) => {
+      removeKey(draftKey(user));
       clearImages();
+      setResumePage(null);
       next = { ...next, hasUserDrawing: hasDrawing() };
       setReq(next);
       const seg = await run(() => api<StorySegment>("", next), "form");
@@ -113,7 +148,7 @@ export function useStory(user = "guest") {
       setUsedFallback(!!seg.fallback);
       setStep("story");
     },
-    [run, clearImages, hasDrawing, appendImages],
+    [run, clearImages, hasDrawing, appendImages, user],
   );
 
   const start = useCallback(
@@ -186,6 +221,48 @@ export function useStory(user = "guest") {
     [user],
   );
 
+  const saveDraft = useCallback((page: number) => {
+    if (!req || step !== "story") return false;
+    const value: StoryDraft = {
+      version: 1,
+      savedAt: Date.now(),
+      req,
+      title,
+      scenes,
+      choice,
+      chosen,
+      isEnding,
+      usedFallback,
+      page: Math.max(0, Math.min(page, scenes.length - 1)),
+    };
+    try {
+      localStorage.setItem(draftKey(user), JSON.stringify(value));
+      window.dispatchEvent(new Event("story-choice:store"));
+      return true;
+    } catch {
+      setError("저장 공간이 부족해요. 기기의 저장 공간을 확인해 주세요.");
+      return false;
+    }
+  }, [req, step, title, scenes, choice, chosen, isEnding, usedFallback, user]);
+
+  const resumeDraft = useCallback(() => {
+    if (!draft) return false;
+    setReq(draft.req);
+    setTitle(draft.title);
+    setScenes(draft.scenes);
+    setChoice(draft.choice);
+    setChosen(draft.chosen);
+    setIsEnding(draft.isEnding);
+    setUsedFallback(draft.usedFallback);
+    setCard(null);
+    setError("");
+    setResumePage(draft.page);
+    setStep("story");
+    return true;
+  }, [draft]);
+
+  const clearDraft = useCallback(() => removeKey(draftKey(user)), [user]);
+
   // 같은 입력으로 다음 동화를 시작한다. memo를 안 주면 저장된 메모를 쓴다.
   const nextStory = useCallback(
     async (memo?: string) => {
@@ -214,11 +291,16 @@ export function useStory(user = "guest") {
     isEnding,
     card,
     savedMemo,
+    draft,
+    resumePage,
     usedFallback,
     start,
     pick,
     showCard,
     saveMemo,
+    saveDraft,
+    resumeDraft,
+    clearDraft,
     nextStory,
     reset,
   };
