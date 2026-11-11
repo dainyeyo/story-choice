@@ -36,6 +36,23 @@ npm run dev
 
 선택 환경변수: `GEMINI_MODEL` (기본 `gemini-3.5-flash-lite`). 기획안의 `gemini-2.5-flash`는 신규 사용자에게 막혀 있다. `gemini-3.8-flash`는 품질이 낫지만 수요가 몰리면 수십 초 걸린다.
 
+## Azure Speech 낭독(TTS)
+
+현수(`ko-KR-HyunsuMultilingualNeural`)와 선히(`ko-KR-SunHiNeural`) 음성만 서버 API에서 허용한다. 브라우저는 `/api/tts`에 글과 음성 선택만 보내고, Azure Speech 키는 서버에만 둔다.
+
+1. [Azure Portal](https://portal.azure.com/)에서 **Speech** 리소스를 만든다. 적은 사용량으로 시작하려면 가격 책정 계층에서 **F0 (Free)** 를 선택한다.
+2. 생성한 Speech 리소스의 **Keys and Endpoint**에서 키를 복사하고 리소스의 지역(Region)도 확인한다. 지역은 예를 들어 `koreacentral`처럼 소문자로 입력한다.
+3. 로컬에서는 `.env.local`에 다음 값을 채운다.
+
+   ```dotenv
+   AZURE_SPEECH_KEY=발급받은_Speech_키
+   AZURE_SPEECH_REGION=리소스_지역
+   ```
+
+4. Vercel 프로젝트의 **Settings → Environment Variables**에도 `AZURE_SPEECH_KEY`와 `AZURE_SPEECH_REGION`을 추가한 뒤 재배포한다.
+
+F0 실시간 Neural TTS는 월 50만 자 무료이며, 요청은 Speech 리소스당 60초에 최대 20건이다. 글자 한도와 요청 한도는 별개다. Azure 키는 `NEXT_PUBLIC_` 접두사를 붙이지 않는다.
+
 ## 구조
 
 ```

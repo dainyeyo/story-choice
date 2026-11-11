@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { FONT_CLASS } from "@/lib/settings";
 import { CUSTOM_COPING } from "@/lib/story/schema";
+import { TTS_VOICES } from "@/lib/tts";
 import { useApp } from "../providers";
 import Icon from "../components/Icon";
 import SceneArt from "../components/SceneArt";
@@ -11,7 +12,7 @@ import { DrawingAnimation, WritingAnimation } from "../components/LoadingAnimati
 import { btnIcon, btnPrimary, btnSecondary, errorCls, inputCls, noteCls, Segmented } from "../components/ui";
 
 export default function ReadPage() {
-  const { s, n, settings } = useApp();
+  const { s, n, settings, setSettings } = useApp();
   const router = useRouter();
   const [page, setPage] = useState<number | null>(null);
   const { step, resumeDraft, resumePage } = s;
@@ -30,7 +31,7 @@ export default function ReadPage() {
   // 사용자가 버튼을 누른 순간에 읽기를 시작해야 브라우저가 소리를 허용한다.
   const go = (to: number) => {
     setPage(to);
-    if (n.speaking) n.speak(s.scenes[to]);
+    if (n.speaking) void n.speak(s.scenes[to], settings.ttsVoice);
   };
 
   if (s.step === "loading") {
@@ -65,6 +66,7 @@ export default function ReadPage() {
           {s.error}
         </p>
       )}
+      {n.error && <p role="alert" className={errorCls}>{n.error}</p>}
       {s.usedFallback && <FallbackNote />}
 
       <div className="flex items-start justify-between gap-3">
@@ -126,7 +128,7 @@ export default function ReadPage() {
                     멈춤
                   </button>
                 ) : (
-                  <button onClick={() => n.speak(s.scenes[cur])} className={`${btnSecondary} flex-1`}>
+                  <button onClick={() => void n.speak(s.scenes[cur], settings.ttsVoice)} className={`${btnSecondary} flex-1`}>
                     <Icon name="volume" />
                     읽어주기
                   </button>
@@ -141,18 +143,32 @@ export default function ReadPage() {
             </div>
 
             {n.available && (
-              <div className="flex items-center gap-3">
-                <span className="text-sm text-ink-3">속도</span>
-                <Segmented
-                  label="낭독 속도"
-                  value={n.rate}
-                  onChange={n.setRate}
-                  options={[
-                    { value: 0.7, label: "느리게" },
-                    { value: 0.9, label: "보통" },
-                    { value: 1.1, label: "빠르게" },
-                  ]}
-                />
+              <div className="space-y-3">
+                <div className="flex items-center justify-between gap-3">
+                  <span className="shrink-0 text-sm text-ink-3">목소리</span>
+                  <Segmented
+                    label="낭독 목소리"
+                    value={settings.ttsVoice}
+                    onChange={(ttsVoice) => setSettings({ ...settings, ttsVoice })}
+                    options={[
+                      { value: "sunhi" as const, label: TTS_VOICES.sunhi.label },
+                      { value: "hyunsu" as const, label: TTS_VOICES.hyunsu.label },
+                    ]}
+                  />
+                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <span className="shrink-0 text-sm text-ink-3">속도</span>
+                  <Segmented
+                    label="낭독 속도"
+                    value={n.rate}
+                    onChange={n.setRate}
+                    options={[
+                      { value: 0.7, label: "느리게" },
+                      { value: 0.9, label: "보통" },
+                      { value: 1.1, label: "빠르게" },
+                    ]}
+                  />
+                </div>
               </div>
             )}
           </div>
