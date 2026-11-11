@@ -22,8 +22,8 @@ const storyFont = Gowun_Dodum({
 });
 
 export const metadata: Metadata = {
-  title: "우리 아이 동화",
-  description: "아이의 선택에서 부모와의 대화가 시작되는 동화",
+  title: "픽토리 | 아이의 그림이 하나의 이야기가 됩니다",
+  description: "아이의 그림(Picture)이 하나의 이야기(Story)가 되고, 아이가 고른 선택에서 부모와의 대화가 시작됩니다",
 };
 
 // 로그인 정보를 브라우저(localStorage)에서만 읽는 앱이라 정적 첫 화면에는 "불러오는 중"만 있다.

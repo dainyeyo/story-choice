@@ -8,10 +8,35 @@ import SceneArt from "./components/SceneArt";
 import { btnPrimary, noteCls, PageHeader } from "./components/ui";
 
 const STEPS = [
-  { title: "아이의 마음을 고릅니다", text: "치과가 무서워, 동생이 생겼어. 요즘 아이를 힘들게 하는 일을 고르거나 직접 적습니다." },
-  { title: "동화 속에서 선택합니다", text: "주인공이 어떻게 할지 아이가 직접 고릅니다. 그 선택에 아이의 마음이 담깁니다." },
-  { title: "부모와 이야기합니다", text: "아이의 선택을 바탕으로 대화 질문을 드립니다. 한 줄 메모는 다음 동화로 이어집니다." },
+  { title: "아이의 그림과 마음을 담습니다", text: "아이가 그린 주인공을 정하고, 치과가 무서워 같은 요즘 아이의 고민을 고르거나 직접 적습니다." },
+  { title: "이야기 속에서 선택합니다", text: "그림 속 주인공이 어떻게 할지 아이가 직접 고릅니다. 그 선택에 아이의 마음이 담깁니다." },
+  { title: "부모와 이야기합니다", text: "아이의 선택을 바탕으로 대화 질문을 드립니다. 한 줄 메모는 다음 이야기로 이어집니다." },
 ];
+
+// 아이가 그린 곰돌이 그림 (샘플). 테이프로 붙인 종이 한 장.
+function ChildDrawing({ className = "" }: { className?: string }) {
+  return (
+    <div
+      aria-hidden
+      className={`-rotate-3 rounded-sm border border-line bg-surface p-2 shadow-[0_4px_12px_rgba(59,47,37,0.14)] ${className}`}
+    >
+      <span className="absolute -top-2 left-1/2 h-4 w-12 -translate-x-1/2 rotate-2 bg-[#f6e3b4]/80" />
+      <svg viewBox="0 0 120 120" className="block w-full">
+        <circle cx="96" cy="22" r="8" fill="#fcd34d" stroke="#f59e0b" strokeWidth="2.5" />
+        <g stroke="#8a5a2b" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="38" cy="46" r="10" fill="#e8bd78" />
+          <circle cx="82" cy="46" r="10" fill="#e8bd78" />
+          <circle cx="60" cy="68" r="28" fill="#f0cd8d" />
+          <path d="M54 82q6 5 12 0" fill="none" />
+        </g>
+        <circle cx="50" cy="62" r="2.6" fill="#3b2f25" />
+        <circle cx="70" cy="62" r="2.6" fill="#3b2f25" />
+        <ellipse cx="60" cy="72" rx="5" ry="3.6" fill="#8a5a2b" />
+        <path d="M14 108q20-6 36 0t36 0 20-2" stroke="#86b56a" strokeWidth="3" strokeLinecap="round" fill="none" />
+      </svg>
+    </div>
+  );
+}
 
 // 첫 화면에서 직접 눌러 볼 수 있는 예시 장면 (서비스가 만드는 동화의 한 장면을 흉내 낸 샘플)
 const DEMO = {
@@ -37,8 +62,10 @@ function BookDemo() {
 
   return (
     <div className="relative grid overflow-hidden rounded-2xl border border-line bg-surface shadow-[0_8px_24px_rgba(59,47,37,0.06)] md:grid-cols-2">
-      <div className="p-4 md:p-6">
+      <div className="relative p-4 md:p-6">
         <SceneArt index={picked === null ? 0 : picked + 1} className="md:h-full md:aspect-auto" />
+        {/* 아이가 그린 그림이 이야기의 주인공이 된다 */}
+        <ChildDrawing className="absolute bottom-8 left-8 w-28 md:bottom-10 md:left-10 md:w-36" />
       </div>
 
       <div className="relative flex flex-col justify-center gap-6 border-t border-line p-6 md:border-l md:border-t-0 md:p-10">
@@ -89,17 +116,17 @@ function LoggedOutHome() {
     <main className="rise mx-auto w-full max-w-md px-4 pt-8 md:max-w-6xl md:px-8 md:pt-14">
       <section className="grid items-end gap-6 md:grid-cols-[1.2fr_1fr] md:gap-16">
         <h1 className="story text-4xl leading-[1.2] text-ink md:text-5xl md:leading-[1.2]">
-          아이가 고른 선택이
+          아이의 그림이
           <br />
-          오늘 밤 대화가 됩니다
+          하나의 이야기가 됩니다
         </h1>
         <div className="space-y-5">
           <p className="text-[17px] leading-8 text-ink-2">
-            만 4~7세 아이가 자기 고민을 동화 속에서 만나고, 주인공이 어떻게 할지 직접 고릅니다. 부모님께는 그 선택을 바탕으로
-            한 대화 질문을 드립니다.
+            만 4~7세 아이가 그린 주인공이 이야기 속에서 아이의 고민을 만나고, 아이는 주인공이 어떻게 할지 직접 고릅니다.
+            부모님께는 그 선택을 바탕으로 한 대화 질문을 드립니다.
           </p>
           <Link href="/login" className={`${btnPrimary} md:w-56`}>
-            동화 만들기 시작
+            이야기 만들기 시작
           </Link>
         </div>
       </section>
@@ -120,13 +147,13 @@ function LoggedOutHome() {
 
       <section className="mt-20 grid items-center gap-6 rounded-2xl bg-sunk p-6 md:mt-28 md:grid-cols-[1fr_auto] md:gap-12 md:p-12">
         <div className="space-y-2">
-          <h2 className="story text-2xl text-ink md:text-3xl">오늘 밤 첫 동화를 만들어 보세요</h2>
+          <h2 className="story text-2xl text-ink md:text-3xl">오늘 밤, 아이의 그림으로 첫 이야기를 만들어 보세요</h2>
           <p className="text-[15px] leading-7 text-ink-2">
             아이 이름 없이 고민만 고르면 3분 안에 읽을 수 있어요. 기록은 이 기기에만 저장됩니다.
           </p>
         </div>
         <Link href="/login" className={`${btnPrimary} md:w-56`}>
-          동화 만들기 시작
+          이야기 만들기 시작
         </Link>
       </section>
     </main>

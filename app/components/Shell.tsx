@@ -7,6 +7,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, type ReactNode } from "react";
 import { useAuth } from "../providers";
 import Icon, { type IconName } from "./Icon";
+import Logo from "./Logo";
 
 const PUBLIC = ["/", "/login"];
 
@@ -41,9 +42,8 @@ export default function Shell({ children }: { children: ReactNode }) {
         {/* 왼쪽 빈칸 · 가운데 로고 · 오른쪽 끝 메뉴 */}
         <div className="grid h-14 grid-cols-[1fr_auto_1fr] items-center px-4 md:h-16 md:px-8">
           <div aria-hidden />
-          <Link href="/" className="flex items-center gap-2 text-ink">
-            <Icon name="moon" size={20} className="text-accent-text" />
-            <span className="story text-lg">우리 아이 동화</span>
+          <Link href="/" aria-label="픽토리 홈">
+            <Logo />
           </Link>
 
           {user ? (
