@@ -3,8 +3,55 @@
 /* 픽토리 디자인 토큰
    방향: 취침 전 그림책. 종이와 램프 불빛. 바탕과 표면은 조용하게 두고, 색은 삽화와 주요 버튼에만 쓴다. */
 
+/* 다크(밤하늘)가 기본, 라이트(종이)는 html[data-theme="light"] */
 :root {
+  color-scheme: dark;
+  --sky-ink: #fff4d6;
+  --sky-ink-2: #c3cbe8;
+  --chrome-bg: rgb(14 26 58 / 0.82);
+  --chrome-line: rgb(255 255 255 / 0.1);
+  --chrome-hover: rgb(255 255 255 / 0.1);
+  --chrome-active: rgb(255 255 255 / 0.15);
+  --nav-on: #f59e0b;
+  --logo-bg: #fff7e8;
+}
+html[data-theme="light"] {
   color-scheme: light;
+  --sky-ink: #3b2f25;
+  --sky-ink-2: #65574a;
+  --chrome-bg: rgb(255 247 232 / 0.95);
+  --chrome-line: rgb(59 47 37 / 0.12);
+  --chrome-hover: #f5ecda;
+  --chrome-active: #f5ecda;
+  --nav-on: #92400e;
+  --logo-bg: transparent;
+}
+
+/* 로고: 다크에서는 밝게 뒤집고 가장자리가 번지는 은은한 빛 위에, 라이트에서는 그대로 */
+.logo-glow {
+  background: radial-gradient(ellipse at center, rgb(255 233 168 / 0.16) 0%, rgb(255 233 168 / 0.06) 55%, transparent 80%);
+}
+.logo-img {
+  filter: invert(1) hue-rotate(180deg) brightness(1.15);
+}
+html[data-theme="light"] .logo-glow {
+  background: none;
+}
+html[data-theme="light"] .logo-img {
+  filter: none;
+}
+
+.sky-night {
+  display: block;
+}
+.sky-day {
+  display: none;
+}
+html[data-theme="light"] .sky-night {
+  display: none;
+}
+html[data-theme="light"] .sky-day {
+  display: block;
 }
 
 @theme inline {
@@ -18,8 +65,15 @@
   --color-accent: #f59e0b; /* 주요 행동, 선택 */
   --color-accent-hover: #e08e00;
   --color-accent-text: #92400e; /* 밝은 면 위의 강조 글씨 */
-  --color-sky-ink: #fff4d6; /* 밤하늘 위에 바로 놓는 글씨 */
-  --color-sky-ink-2: #c3cbe8;
+  /* 배경 위에 바로 놓는 글씨와 상단·하단 메뉴 색. 다크/라이트에 따라 아래 변수가 바뀐다 */
+  --color-sky-ink: var(--sky-ink);
+  --color-sky-ink-2: var(--sky-ink-2);
+  --color-chrome: var(--chrome-bg);
+  --color-chrome-line: var(--chrome-line);
+  --color-chrome-hover: var(--chrome-hover);
+  --color-chrome-active: var(--chrome-active);
+  --color-nav-on: var(--nav-on);
+  --color-logo-bg: var(--logo-bg);
   --color-danger: #b42318;
   --font-sans: var(--font-story), "Malgun Gothic", sans-serif;
   --font-mono: var(--font-geist-mono);
@@ -27,6 +81,9 @@
 
 html {
   background: #0e1a3a; /* 밤하늘 맨 위 색. 별과 언덕은 SkyBackground가 그린다 */
+}
+html[data-theme="light"] {
+  background: #fff7e8;
 }
 
 @keyframes twinkle {

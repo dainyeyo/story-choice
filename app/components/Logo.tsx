@@ -30,9 +30,9 @@ export function LogoFull({ height = 80, className = "" }: { height?: number; cla
 
 export default function Logo() {
   return (
-    // 로고 글씨가 어두워서 밤하늘 위에서는 종이색 받침 위에 놓는다
-    <span className="flex items-center rounded-2xl bg-paper px-3 py-0.5 shadow-[0_2px_10px_rgba(0,0,20,0.35)]">
-      <LogoFull height={70} className="h-[48px] w-auto md:h-[58px]" />
+    // 다크 모드(밤하늘)에서는 로고 색을 밝게 뒤집고, 은은한 빛 번짐 위에 올려 배경에 자연스럽게 섞는다 (globals.css의 .logo-glow, .logo-img)
+    <span className="logo-glow flex items-center rounded-2xl px-3 py-0.5">
+      <LogoFull height={70} className="logo-img h-[48px] w-auto md:h-[58px]" />
       <span className="sr-only">Pictory, 아이의 그림이 하나의 이야기가 됩니다</span>
     </span>
   );

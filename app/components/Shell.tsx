@@ -8,6 +8,7 @@ import { useEffect, type ReactNode } from "react";
 import { useAuth } from "../providers";
 import Icon, { type IconName } from "./Icon";
 import Logo from "./Logo";
+import ThemeToggle from "./ThemeToggle";
 
 const PUBLIC = ["/", "/login"];
 
@@ -32,14 +33,17 @@ export default function Shell({ children }: { children: ReactNode }) {
     if (ready && user && pathname === "/login") router.replace("/");
   }, [blocked, ready, user, pathname, router]);
 
-  const active = (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href));
+  const active = (href: string) =>
+    href === "/" ? pathname === "/" : pathname.startsWith(href);
   // 읽는 중에는 "새 동화" 탭을 켜 둔다
   const isMenuActive = (href: string) =>
-    active(href) || (href === "/create" && (pathname.startsWith("/read") || pathname.startsWith("/card")));
+    active(href) ||
+    (href === "/create" &&
+      (pathname.startsWith("/read") || pathname.startsWith("/card")));
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <header className="sticky top-0 z-20 border-b border-white/10 bg-[#0e1a3a]/80 backdrop-blur">
+      <header className="sticky top-0 z-20 border-b border-chrome-line bg-chrome backdrop-blur">
         {/* 왼쪽 빈칸 · 가운데 로고 · 오른쪽 끝 메뉴 */}
         <div className="grid h-[72px] grid-cols-[1fr_auto_1fr] items-center px-4 md:h-20 md:grid-cols-[auto_1fr] md:px-8 lg:grid-cols-[1fr_auto_1fr]">
           <div aria-hidden className="md:hidden lg:block" />
@@ -47,52 +51,65 @@ export default function Shell({ children }: { children: ReactNode }) {
             <Logo />
           </Link>
 
-          {user ? (
-            <nav className="hidden items-center justify-end gap-1 md:flex" aria-label="주 메뉴">
-              {MENU.map((m) => (
-                <Link
-                  key={m.href}
-                  href={m.href}
-                  aria-current={isMenuActive(m.href) ? "page" : undefined}
-                  className={`calm inline-flex h-9 items-center whitespace-nowrap rounded-lg px-3 text-[15px] ${
-                    isMenuActive(m.href)
-                      ? "bg-white/15 font-medium text-sky-ink"
-                      : "text-sky-ink-2 hover:bg-white/10 hover:text-sky-ink"
-                  }`}
-                >
-                  {m.label}
-                </Link>
-              ))}
-              <button
-                onClick={() => {
-                  logOut();
-                  router.replace("/");
-                }}
-                className="calm ml-2 inline-flex h-9 items-center rounded-lg border-l border-white/15 pl-4 pr-3 text-[15px] text-sky-ink-2 hover:text-sky-ink"
+          <div className="flex items-center justify-end gap-1 md:gap-3">
+            {user ? (
+              <nav
+                className="hidden items-center justify-end gap-1 md:flex"
+                aria-label="주 메뉴"
               >
-                로그아웃
-              </button>
-            </nav>
-          ) : (
-            <div className="flex justify-end">
-              {ready && (
-                <Link href="/login" className="calm text-[15px] text-sky-ink-2 hover:text-sky-ink">
-                  로그인
-                </Link>
-              )}
-            </div>
-          )}
+                {MENU.map((m) => (
+                  <Link
+                    key={m.href}
+                    href={m.href}
+                    aria-current={isMenuActive(m.href) ? "page" : undefined}
+                    className={`calm inline-flex h-9 items-center whitespace-nowrap rounded-lg px-3 text-[15px] ${
+                      isMenuActive(m.href)
+                        ? "bg-chrome-active font-medium text-sky-ink"
+                        : "text-sky-ink-2 hover:bg-chrome-hover hover:text-sky-ink"
+                    }`}
+                  >
+                    {m.label}
+                  </Link>
+                ))}
+                <button
+                  onClick={() => {
+                    logOut();
+                    router.replace("/");
+                  }}
+                  className="calm ml-2 inline-flex h-9 items-center rounded-lg border-l border-chrome-line pl-4 pr-3 text-[15px] text-sky-ink-2 hover:text-sky-ink"
+                >
+                  로그아웃
+                </button>
+              </nav>
+            ) : (
+              <div className="flex justify-end">
+                {ready && (
+                  <Link
+                    href="/login"
+                    className="calm text-[15px] text-sky-ink-2 hover:text-sky-ink"
+                  >
+                    로그인
+                  </Link>
+                )}
+              </div>
+            )}
+            <ThemeToggle />
+          </div>
         </div>
       </header>
 
       <div className={`flex-1 ${user ? "pb-20 md:pb-12" : "pb-12"}`}>
-        {!ready || blocked ? <p className="mt-24 text-center text-sky-ink-2">불러오는 중</p> : children}
+        {!ready || blocked ? (
+          <p className="mt-24 text-center text-sky-ink-2">불러오는 중</p>
+        ) : (
+          children
+        )}
       </div>
 
       {user && (
         <nav
           aria-label="주 메뉴"
-          className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-5 border-t border-white/10 bg-[#0e1a3a]/90 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden"
+          className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-5 border-t border-chrome-line bg-chrome pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden"
         >
           {MENU.map((m) => {
             const on = isMenuActive(m.href);
@@ -102,7 +119,7 @@ export default function Shell({ children }: { children: ReactNode }) {
                 href={m.href}
                 aria-current={on ? "page" : undefined}
                 className={`calm flex h-14 flex-col items-center justify-center gap-1 text-xs ${
-                  on ? "font-medium text-accent" : "text-sky-ink-2"
+                  on ? "font-medium text-nav-on" : "text-sky-ink-2"
                 }`}
               >
                 <Icon name={m.icon} size={20} />

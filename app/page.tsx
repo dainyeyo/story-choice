@@ -139,7 +139,7 @@ function LoggedOutHome() {
 
       <ol className="mt-20 grid gap-8 md:mt-28 md:grid-cols-3 md:gap-10">
         {STEPS.map((s, i) => (
-          <li key={s.title} className="border-t border-white/25 pt-4">
+          <li key={s.title} className="border-t border-sky-ink/25 pt-4">
             <p className="text-sm tabular-nums text-sky-ink-2">{i + 1}</p>
             <h2 className="story mt-2 text-xl text-sky-ink">{s.title}</h2>
             <p className="mt-2 text-[15px] leading-7 text-sky-ink-2">{s.text}</p>
