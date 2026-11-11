@@ -27,9 +27,6 @@ export default function SettingsPage() {
 
       <Card className="space-y-4">
         <h2 className="story text-xl text-ink">동화 읽어주는 목소리</h2>
-        <p className="text-[15px] leading-7 text-ink-2">
-          동화에서 읽어주기를 누르면 선택한 목소리로 들려드려요. 선택은 자동으로 저장돼요.
-        </p>
         <Segmented
           label="낭독 목소리"
           value={settings.ttsVoice}
