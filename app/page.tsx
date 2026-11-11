@@ -180,7 +180,7 @@ function LoggedInHome() {
   return (
     <main className="page-turn mx-auto w-full max-w-md px-4 py-8 md:max-w-5xl md:px-8 md:py-12">
       <section className="rounded-3xl bg-[#fff1d8] px-6 py-8 text-center md:px-10 md:py-12">
-        <p className="text-[15px] text-ink-2">{user} 보호자님, 안녕하세요</p>
+        <p className="text-[15px] text-ink-2">{user} 보호자님</p>
         <h1 className="story mt-2 text-3xl leading-snug text-ink md:text-4xl">
           오늘의 동화는
           <br />
