@@ -48,7 +48,8 @@ export default function PetPage() {
   const cells = monthCells(shownMonth.year, shownMonth.month);
 
   const react = (nextAction: "fed" | "petted") => {
-    if (nextAction === "fed") pet.feed(); else pet.pet();
+    const succeeded = nextAction === "fed" ? pet.feed() : pet.pet();
+    if (!succeeded) return;
     setAction(nextAction);
     window.setTimeout(() => setAction(undefined), 1400);
   };
@@ -81,12 +82,7 @@ export default function PetPage() {
     showDate(localDateKey());
   };
 
-  const nurturePet = () => {
-    if (pet.nurture(5, 7)) {
-      setAction("petted");
-      window.setTimeout(() => setAction(undefined), 1400);
-    }
-  };
+  const canCare = pet.state.points >= 1;
 
   return (
     <main className="page-turn mx-auto w-full max-w-md px-4 py-8 md:max-w-4xl md:px-8 md:py-12">
@@ -129,8 +125,8 @@ export default function PetPage() {
             </p>
           </div>
           <div className="grid grid-cols-2 gap-3 border-t border-line bg-surface/75 p-4">
-            <button disabled={fed} onClick={() => react("fed")} className={btnSecondary}>{fed ? "오늘 밥 먹었어요" : "밥 주기"}</button>
-            <button disabled={petted} onClick={() => react("petted")} className={btnSecondary}>{petted ? "오늘 쓰다듬었어요" : "쓰다듬기"}</button>
+            <button disabled={fed || !canCare} onClick={() => react("fed")} className={btnSecondary}>{fed ? "오늘 밥 먹었어요" : "밥 주기 · 마음별 1"}</button>
+            <button disabled={petted || !canCare} onClick={() => react("petted")} className={btnSecondary}>{petted ? "오늘 쓰다듬었어요" : "쓰다듬기 · 마음별 1"}</button>
           </div>
         </section>
         <aside className="space-y-6">
@@ -158,17 +154,13 @@ export default function PetPage() {
             ) : (
               <button type="button" onClick={() => { setNameDraft(pet.state.name); setRenaming(true); }} className="calm mt-3 text-sm text-ink-2 underline hover:text-ink">이름 바꾸기</button>
             )}
-            <p className="mt-1 text-[15px] leading-6 text-ink-2">{stage.message} 시간이 지나면 저절로 자라고, 마음별로 성장을 도와줄 수도 있어요.</p>
+            <p className="mt-1 text-[15px] leading-6 text-ink-2">{stage.message} 밥 주기나 쓰다듬기를 하면 한 번씩 자라요.</p>
             <div className="mt-4 flex items-center gap-3">
               <div className="h-2 flex-1 overflow-hidden rounded-full bg-sunk" aria-label="다음 성장까지 진행도"><div className="h-full rounded-full bg-accent transition-[width]" style={{ width: `${progress}%` }} /></div>
               <span className="text-sm text-ink-3">{Math.round(progress)}%</span>
             </div>
             <p className="mt-2 text-sm text-ink-3">{next ? `다음에는 ${next.name}으로 자라요` : "모든 성장 단계를 만났어요"}</p>
-            {next && (
-              <button type="button" disabled={pet.state.points < 5} onClick={nurturePet} className="calm mt-4 w-full rounded-xl bg-[#fdf0d2] px-4 py-3 text-[15px] font-medium text-accent-text hover:bg-[#f8e6bd] disabled:cursor-not-allowed disabled:opacity-50">
-                ✦ 마음별 5개로 성장 도와주기 <span className="block pt-1 text-xs font-normal">사용하면 성장 진행도가 7일만큼 빨라져요</span>
-              </button>
-            )}
+            {next && <p className="mt-3 text-xs leading-5 text-ink-3">밥 주기나 쓰다듬기 한 번마다 성장 행동이 쌓여요. 행동마다 마음별 1개를 사용해요.</p>}
           </section>
           <section className="rounded-2xl border border-line bg-surface p-5">
             <h2 className="story text-xl text-ink">오늘 마음은 어때?</h2>
@@ -178,7 +170,7 @@ export default function PetPage() {
             </div>
             {mood && <p className="mt-3 text-center text-sm text-ink-2">오늘은 “{mood}” 마음을 기록했어요</p>}
           </section>
-          <p className="rounded-xl bg-sunk px-4 py-3 text-sm leading-6 text-ink-2">몽은 시간이 지나면 스스로 자라요. 동화 완독 +10, 대화 메모 +5, 마음 기록·밥 주기·쓰다듬기 +1 마음별을 모아 성장에 사용할 수 있어요.</p>
+          <p className="rounded-xl bg-sunk px-4 py-3 text-sm leading-6 text-ink-2">마음별은 동화 완독 +10, 대화 메모 +5, 마음 기록 +1로 모아요. 밥 주기와 쓰다듬기에는 각각 마음별 1개가 들고, 돌봄 행동을 해야 몽이가 자라요.</p>
         </aside>
       </div>
 

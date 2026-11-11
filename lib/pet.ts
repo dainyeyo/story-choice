@@ -5,7 +5,7 @@ export interface PetState {
   bornAt: number;
   stars: number;
   spentStars: number;
-  growthBoostDays: number;
+  growthActions: number;
   careDates: string[];
   testCareDates: string[];
   fedDates: string[];
@@ -31,7 +31,7 @@ export function localDateKey(time = Date.now()) {
 }
 
 export function defaultPet(): PetState {
-  return { name: "몽이", bornAt: Date.now(), stars: 0, spentStars: 0, growthBoostDays: 0, careDates: [], testCareDates: [], fedDates: [], pettedDates: [], moods: {} };
+  return { name: "몽이", bornAt: Date.now(), stars: 0, spentStars: 0, growthActions: 0, careDates: [], testCareDates: [], fedDates: [], pettedDates: [], moods: {} };
 }
 
 export function parsePet(raw: string | null): PetState {
@@ -43,7 +43,7 @@ export function parsePet(raw: string | null): PetState {
       bornAt: typeof value.bornAt === "number" ? value.bornAt : Date.now(),
       stars: typeof value.stars === "number" && value.stars >= 0 ? Math.floor(value.stars) : 0,
       spentStars: typeof value.spentStars === "number" && value.spentStars >= 0 ? Math.floor(value.spentStars) : 0,
-      growthBoostDays: typeof value.growthBoostDays === "number" && value.growthBoostDays >= 0 ? Math.floor(value.growthBoostDays) : 0,
+      growthActions: typeof value.growthActions === "number" && value.growthActions >= 0 ? Math.floor(value.growthActions) : 0,
       careDates: Array.isArray(value.careDates) ? value.careDates.filter((x): x is string => typeof x === "string") : [],
       testCareDates: Array.isArray(value.testCareDates) ? value.testCareDates.filter((x): x is string => typeof x === "string") : [],
       fedDates: Array.isArray(value.fedDates) ? value.fedDates.filter((x): x is string => typeof x === "string") : [],
@@ -68,8 +68,7 @@ export function nextPetStage(growthDays: number) {
   return PET_STAGES.find((stage) => stage.days > growthDays) ?? null;
 }
 
-export function petGrowthDays(pet: PetState, today = localDateKey()) {
-  const birthDate = localDateKey(pet.bornAt);
-  const elapsed = Math.max(0, Math.floor((Date.parse(`${today}T12:00:00`) - Date.parse(`${birthDate}T12:00:00`)) / 86_400_000));
-  return elapsed + pet.growthBoostDays;
+export function petGrowthDays(pet: PetState) {
+  // 몽이는 유료 돌봄 행동으로만 성장한다. 테스트 날짜 진행분은 실제 데이터와 분리한다.
+  return pet.growthActions + pet.testCareDates.length;
 }

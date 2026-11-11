@@ -37,9 +37,9 @@ export function usePet(user: string, library: SavedStory[]) {
   const state = useMemo(() => ({
     ...saved,
     careDates,
-    growthDays: petGrowthDays(saved, today),
+    growthDays: petGrowthDays(saved),
     points: Math.max(0, saved.stars + storyStars - saved.spentStars),
-  }), [saved, careDates, storyStars, today]);
+  }), [saved, careDates, storyStars]);
 
   const update = useCallback((change: (current: PetState) => PetState) => {
     writeRaw(key, JSON.stringify(change(parsePet(readRaw(key)))));
@@ -51,18 +51,16 @@ export function usePet(user: string, library: SavedStory[]) {
   }, [today, update]);
 
   const feed = useCallback(() => {
-    update((current) => {
-      const first = !current.fedDates.includes(today);
-      return { ...current, stars: current.stars + (first ? 1 : 0), fedDates: addUnique(current.fedDates, today), careDates: addUnique(current.careDates, today) };
-    });
-  }, [today, update]);
+    if (saved.stars + storyStars - saved.spentStars < 1 || saved.fedDates.includes(today)) return false;
+    update((current) => ({ ...current, spentStars: current.spentStars + 1, growthActions: current.growthActions + 1, fedDates: addUnique(current.fedDates, today), careDates: addUnique(current.careDates, today) }));
+    return true;
+  }, [saved.stars, saved.spentStars, saved.fedDates, storyStars, today, update]);
 
   const pet = useCallback(() => {
-    update((current) => {
-      const first = !current.pettedDates.includes(today);
-      return { ...current, stars: current.stars + (first ? 1 : 0), pettedDates: addUnique(current.pettedDates, today), careDates: addUnique(current.careDates, today) };
-    });
-  }, [today, update]);
+    if (saved.stars + storyStars - saved.spentStars < 1 || saved.pettedDates.includes(today)) return false;
+    update((current) => ({ ...current, spentStars: current.spentStars + 1, growthActions: current.growthActions + 1, pettedDates: addUnique(current.pettedDates, today), careDates: addUnique(current.careDates, today) }));
+    return true;
+  }, [saved.stars, saved.spentStars, saved.pettedDates, storyStars, today, update]);
 
   const setMood = useCallback((mood: PetMood) => {
     update((current) => ({
@@ -72,14 +70,6 @@ export function usePet(user: string, library: SavedStory[]) {
       careDates: addUnique(current.careDates, today),
     }));
   }, [today, update]);
-
-  const nurture = useCallback((starCost: number, growthDays: number) => {
-    if (!Number.isInteger(starCost) || starCost <= 0 || !Number.isInteger(growthDays) || growthDays <= 0) return false;
-    const available = Math.max(0, saved.stars + storyStars - saved.spentStars);
-    if (available < starCost) return false;
-    update((current) => ({ ...current, spentStars: current.spentStars + starCost, growthBoostDays: current.growthBoostDays + growthDays }));
-    return true;
-  }, [saved.stars, saved.spentStars, storyStars, update]);
 
   const setTestDate = useCallback((date: string) => {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return;
@@ -110,5 +100,5 @@ export function usePet(user: string, library: SavedStory[]) {
     if (next) update((current) => ({ ...current, name: next }));
   }, [update]);
 
-  return { state, today, markCare, feed, pet, setMood, rename, nurture, setTestDate, advanceTestDate, resetTest };
+  return { state, today, markCare, feed, pet, setMood, rename, setTestDate, advanceTestDate, resetTest };
 }
