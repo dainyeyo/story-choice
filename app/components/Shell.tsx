@@ -4,14 +4,14 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, type MouseEvent, type ReactNode } from "react";
+import { useEffect, useState, type MouseEvent, type ReactNode } from "react";
 import { useAuth } from "../providers";
 import Icon, { type IconName } from "./Icon";
 import Logo from "./Logo";
+import SettingsPanel from "./SettingsPanel";
 import ThemeToggle from "./ThemeToggle";
 
 const PUBLIC = ["/", "/login"];
-const CREATE_RETURN_KEY = "story-choice:return-to-create";
 
 const MENU: { href: string; label: string; icon: IconName }[] = [
   { href: "/", label: "홈", icon: "home" },
@@ -22,9 +22,10 @@ const MENU: { href: string; label: string; icon: IconName }[] = [
 ];
 
 export default function Shell({ children }: { children: ReactNode }) {
-  const { ready, user, logOut } = useAuth();
+  const { ready, user, displayName, logOut } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const isPublic = PUBLIC.includes(pathname);
   const blocked = ready && !user && !isPublic;
@@ -35,22 +36,20 @@ export default function Shell({ children }: { children: ReactNode }) {
   }, [blocked, ready, user, pathname, router]);
 
   useEffect(() => {
-    if (pathname !== "/settings") sessionStorage.removeItem(CREATE_RETURN_KEY);
-  }, [pathname]);
+    if (!settingsOpen) return;
+    const close = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setSettingsOpen(false);
+    };
+    document.addEventListener("keydown", close);
+    return () => document.removeEventListener("keydown", close);
+  }, [settingsOpen]);
 
   const menuHref = (href: string) => href === "/create/new" ? "/create/new?reset=1" : href;
 
   const handleMenuClick = (event: MouseEvent<HTMLAnchorElement>, href: string) => {
-    if (href === "/settings" && pathname.startsWith("/create")) {
-      sessionStorage.setItem(CREATE_RETURN_KEY, pathname);
-      return;
-    }
-    if (href !== "/create/new" || pathname !== "/settings") return;
-    const returnPath = sessionStorage.getItem(CREATE_RETURN_KEY);
-    if (!returnPath?.startsWith("/create")) return;
+    if (href !== "/settings") return;
     event.preventDefault();
-    sessionStorage.removeItem(CREATE_RETURN_KEY);
-    router.push(returnPath);
+    setSettingsOpen(true);
   };
 
   const active = (href: string) => {
@@ -84,9 +83,11 @@ export default function Shell({ children }: { children: ReactNode }) {
                     key={m.href}
                     href={menuHref(m.href)}
                     onClick={(event) => handleMenuClick(event, m.href)}
-                    aria-current={isMenuActive(m.href) ? "page" : undefined}
+                    aria-current={isMenuActive(m.href) || (m.href === "/settings" && settingsOpen) ? "page" : undefined}
+                    aria-expanded={m.href === "/settings" ? settingsOpen : undefined}
+                    aria-controls={m.href === "/settings" ? "settings-dialog" : undefined}
                     className={`calm inline-flex h-9 items-center whitespace-nowrap rounded-lg px-3 text-[15px] ${
-                      isMenuActive(m.href)
+                      isMenuActive(m.href) || (m.href === "/settings" && settingsOpen)
                         ? "bg-chrome-active font-medium text-sky-ink"
                         : "text-sky-ink-2 hover:bg-chrome-hover hover:text-sky-ink"
                     }`}
@@ -141,8 +142,10 @@ export default function Shell({ children }: { children: ReactNode }) {
                 href={menuHref(m.href)}
                 onClick={(event) => handleMenuClick(event, m.href)}
                 aria-current={on ? "page" : undefined}
+                aria-expanded={m.href === "/settings" ? settingsOpen : undefined}
+                aria-controls={m.href === "/settings" ? "settings-dialog" : undefined}
                 className={`calm flex h-14 flex-col items-center justify-center gap-1 text-xs ${
-                  on ? "font-medium text-nav-on" : "text-sky-ink-2"
+                  on || (m.href === "/settings" && settingsOpen) ? "font-medium text-nav-on" : "text-sky-ink-2"
                 }`}
               >
                 <Icon name={m.icon} size={20} />
@@ -151,6 +154,39 @@ export default function Shell({ children }: { children: ReactNode }) {
             );
           })}
         </nav>
+      )}
+
+      {user && settingsOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
+          role="presentation"
+          onMouseDown={() => setSettingsOpen(false)}
+        >
+          <section
+            id="settings-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="settings-dialog-title"
+            className="max-h-[calc(100dvh-2rem)] w-full max-w-2xl overflow-y-auto rounded-3xl border border-line bg-paper p-5 shadow-2xl sm:p-7"
+            onMouseDown={(event) => event.stopPropagation()}
+          >
+            <header className="mb-5 flex items-start justify-between gap-4">
+              <div>
+                <h1 id="settings-dialog-title" className="story text-3xl text-ink">설정</h1>
+                <p className="mt-1 text-[15px] text-ink-2">{displayName}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSettingsOpen(false)}
+                aria-label="설정 닫기"
+                className="calm inline-flex size-10 shrink-0 items-center justify-center rounded-xl border border-line bg-surface text-ink-2 hover:bg-sunk hover:text-ink"
+              >
+                <Icon name="close" />
+              </button>
+            </header>
+            <SettingsPanel />
+          </section>
+        </div>
       )}
     </div>
   );
