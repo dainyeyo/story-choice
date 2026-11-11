@@ -34,7 +34,6 @@ export default function Logo() {
     // 은은한 빛 번짐 위에 올려 배경에 섞는다. 어느 쪽을 보일지는 globals.css의 .logo-light / .logo-dark가 고른다
     <span className="logo-glow flex items-center rounded-2xl px-3 py-0.5">
       <LogoFull height={70} className="logo-light h-[48px] w-auto md:h-[58px]" />
-      {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src="/pictory-logo-dark.png"
         alt=""
