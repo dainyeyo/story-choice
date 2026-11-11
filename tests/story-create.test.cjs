@@ -23,6 +23,7 @@ function hookRuntime() {
       },
       useMemo: factory => factory(),
       useCallback: callback => callback,
+      useEffect: () => {},
       useSyncExternalStore: (_subscribe, snapshot) => snapshot(),
     },
   };
@@ -63,7 +64,7 @@ function find(tree, predicate) {
 function setup() {
   const story = hookRuntime(), page = hookRuntime();
   const navigations = [], deleted = [], drawings = [];
-  const store = { useStored: () => '', readRaw: () => '', removeKey: key => deleted.push(key) };
+  const store = { useStored: () => '', readRaw: () => '', writeRaw: () => {}, removeKey: key => deleted.push(key) };
   const { useStory } = loadTs('app/useStory.ts', {
     react: story.react,
     '@/lib/localStore': store,
@@ -73,7 +74,7 @@ function setup() {
     }) },
   });
   const app = { user: 'tester', library: [], pet: { state: { moods: {} } } };
-  const { default: CreatePage } = loadTs('app/create/page.tsx', {
+  const { CreateForm } = loadTs('app/create/CreateForm.tsx', {
     react: page.react,
     'next/navigation': { useRouter: () => ({ push: route => navigations.push(route) }) },
     '@/lib/localStore': store,
@@ -83,12 +84,15 @@ function setup() {
   });
   function render() {
     app.s = story.render(() => useStory('tester'));
-    return page.render(CreatePage);
+    return page.render(() => CreateForm({}));
   }
   let tree = render();
   find(tree, node => node.type === 'button' && node.props.children === '밤에 혼자 자기 무서워').props.onClick();
+  tree = render();
   find(tree, node => node.props?.label === '아이 나이').props.onChange(7);
+  tree = render();
   find(tree, node => node.props?.label === '동화 길이').props.onChange('custom');
+  tree = render();
   find(tree, node => node.type === 'input' && node.props.maxLength === 50).props.onChange({ target: { value: '파란 토끼' } });
   tree = render();
   find(tree, node => node.props?.['aria-label'] === '동화 길이(분)').props.onChange({ target: { value: '8' } });
@@ -102,7 +106,8 @@ function setup() {
   const canvas = {
     width: 1200, height: 800, getContext: () => ctx,
     getBoundingClientRect: () => ({ left: 0, top: 0, width: 1200, height: 800 }),
-    setPointerCapture() {}, toBlob: callback => callback(new Blob([pixels], { type: 'image/png' })),
+    setPointerCapture() {}, toDataURL: () => 'data:image/png;base64,test',
+    toBlob: callback => callback(new Blob([pixels], { type: 'image/png' })),
   };
   ctx.canvas = canvas;
   const drawing = find(tree, node => node.type === 'canvas');
@@ -171,7 +176,7 @@ test('failed creation preserves selections, canvas, edit history and saved story
   global.fetch = async () => Response.json(segment);
   await find(state.render(), node => node.type === 'form').props.onSubmit({ preventDefault() {} });
   assert.deepEqual(state.navigations, ['/read']);
-  assert.deepEqual(state.deleted, ['story-choice:draft:tester']);
+  assert.deepEqual(state.deleted, ['story-choice:draft:tester', 'story-choice:create-form:tester']);
   assert.deepEqual(await state.drawings[0].arrayBuffer(), await state.drawings[1].arrayBuffer());
 });
 

@@ -105,7 +105,7 @@ export default function InsightsPage() {
               <p className="mt-2 text-[15px] leading-7 text-ink-2">{report.storyGuidance.goal} · {report.storyGuidance.promptHint}</p>
               <p className="mt-2 text-xs text-ink-3">새 동화는 이 리포트와 별개로 최근 7일 기록을 자동 참고합니다.</p>
             </div>
-            <Link href="/create" className={`${btnPrimary} shrink-0 md:w-48`}>새 동화 만들기 <Icon name="right" size={16} /></Link>
+            <Link href="/create/new" className={`${btnPrimary} shrink-0 md:w-48`}>새 동화 만들기 <Icon name="right" size={16} /></Link>
           </section>
           {report.fallback && <p className="text-center text-xs text-ink-3">AI 연결이 불안정해 안전한 기본 제안을 보여드렸어요.</p>}
         </div>

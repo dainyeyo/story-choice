@@ -19,6 +19,7 @@ export default function ReadPage() {
   const { step, resumeDraft, resumePage } = s;
   const [custom, setCustom] = useState("");
   const [enterAtEnd, setEnterAtEnd] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   // 이 화면에 맞지 않는 단계면 알맞은 화면으로 보낸다
   useEffect(() => {
@@ -130,12 +131,12 @@ export default function ReadPage() {
 
               {n.available ? (
                 n.speaking ? (
-                  <button onClick={n.stop} className={`${btnSecondary} flex-1`}>
+                  <button onClick={n.stop} className={`${btnSecondary} min-w-0 flex-1`}>
                     <Icon name="stop" size={16} />
                     멈춤
                   </button>
                 ) : (
-                  <button onClick={() => void n.speak(s.scenes[cur], settings.ttsVoice)} className={`${btnSecondary} flex-1`}>
+                  <button onClick={() => void n.speak(s.scenes[cur], settings.ttsVoice)} className={`${btnSecondary} min-w-0 flex-1`}>
                     <Icon name="volume" />
                     읽어주기
                   </button>
@@ -144,43 +145,22 @@ export default function ReadPage() {
                 <span className="flex-1 text-center text-sm text-ink-3">이 기기에서는 낭독을 쓸 수 없어요</span>
               )}
 
+              {n.available && (
+                <button
+                  type="button"
+                  onClick={() => setSettingsOpen(true)}
+                  aria-label="낭독 설정 열기"
+                  title="낭독 설정"
+                  className={btnIcon}
+                >
+                  <Icon name="sliders" />
+                </button>
+              )}
+
               <button onClick={() => !atSceneEnd ? reading.turn(1) : go(cur + 1)} disabled={atLast && atSceneEnd} aria-label="다음 쪽" className={btnIcon}>
                 <Icon name="right" />
               </button>
             </div>
-
-            {n.available && (
-              <div className="space-y-3">
-                <div className="flex items-center justify-between gap-3">
-                  <span className="shrink-0 text-sm text-ink-3">목소리</span>
-                  <Segmented
-                    label="낭독 목소리"
-                    value={settings.ttsVoice}
-                    onChange={(ttsVoice) => {
-                      n.stop();
-                      setSettings({ ...settings, ttsVoice });
-                    }}
-                    options={[
-                      { value: "sunhi" as const, label: TTS_VOICES.sunhi.label },
-                      { value: "hyunsu" as const, label: TTS_VOICES.hyunsu.label },
-                    ]}
-                  />
-                </div>
-                <div className="flex items-center justify-between gap-3">
-                  <span className="shrink-0 text-sm text-ink-3">속도</span>
-                  <Segmented
-                    label="낭독 속도"
-                    value={n.rate}
-                    onChange={n.setRate}
-                    options={[
-                      { value: 0.7, label: "느리게" },
-                      { value: 0.9, label: "보통" },
-                      { value: 1.1, label: "빠르게" },
-                    ]}
-                  />
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </article>
@@ -264,6 +244,60 @@ export default function ReadPage() {
             </button>
           </div>
         </section>
+      )}
+
+      {settingsOpen && n.available && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          role="presentation"
+          onClick={() => setSettingsOpen(false)}
+          onKeyDown={(e) => { if (e.key === "Escape") setSettingsOpen(false); }}
+        >
+          <section
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="reading-settings-title"
+            className="w-full max-w-sm space-y-5 rounded-2xl border border-line bg-surface p-5 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between gap-3">
+              <h2 id="reading-settings-title" className="story text-xl text-ink">낭독 설정</h2>
+              <button type="button" onClick={() => setSettingsOpen(false)} aria-label="닫기" className={btnIcon}>
+                <Icon name="close" />
+              </button>
+            </div>
+            <div className="space-y-2">
+              <p className="text-sm text-ink-3">목소리</p>
+              <Segmented
+                label="낭독 목소리"
+                value={settings.ttsVoice}
+                onChange={(ttsVoice) => {
+                  n.stop();
+                  setSettings({ ...settings, ttsVoice });
+                }}
+                options={[
+                  { value: "sunhi" as const, label: TTS_VOICES.sunhi.label },
+                  { value: "hyunsu" as const, label: TTS_VOICES.hyunsu.label },
+                ]}
+                fullWidth
+              />
+            </div>
+            <div className="space-y-2">
+              <p className="text-sm text-ink-3">속도</p>
+              <Segmented
+                label="낭독 속도"
+                value={n.rate}
+                onChange={n.setRate}
+                options={[
+                  { value: 0.7, label: "느리게" },
+                  { value: 0.9, label: "보통" },
+                  { value: 1.1, label: "빠르게" },
+                ]}
+                fullWidth
+              />
+            </div>
+          </section>
+        </div>
       )}
     </main>
   );

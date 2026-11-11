@@ -14,7 +14,7 @@ const PUBLIC = ["/", "/login"];
 
 const MENU: { href: string; label: string; icon: IconName }[] = [
   { href: "/", label: "홈", icon: "home" },
-  { href: "/create", label: "새 동화", icon: "plus" },
+  { href: "/create/new", label: "새 동화", icon: "plus" },
   { href: "/library", label: "내 서재", icon: "book" },
   { href: "/pet", label: "마음 친구", icon: "pet" },
   { href: "/settings", label: "설정", icon: "sliders" },
@@ -33,12 +33,14 @@ export default function Shell({ children }: { children: ReactNode }) {
     if (ready && user && pathname === "/login") router.replace("/");
   }, [blocked, ready, user, pathname, router]);
 
-  const active = (href: string) =>
-    href === "/" ? pathname === "/" : pathname.startsWith(href);
+  const active = (href: string) => {
+    const route = href === "/create/new" ? "/create" : href;
+    return route === "/" ? pathname === "/" : pathname.startsWith(route);
+  };
   // 읽는 중에는 "새 동화" 탭을 켜 둔다
   const isMenuActive = (href: string) =>
     active(href) ||
-    (href === "/create" &&
+    (href === "/create/new" &&
       (pathname.startsWith("/read") || pathname.startsWith("/card")));
 
   return (

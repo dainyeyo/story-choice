@@ -66,7 +66,7 @@ function LoggedInHome() {
               {resumableRead ? "이어 만들기" : "만들던 동화 이어서 만들기"}
             </Link>
           )}
-          <Link href="/create" className={resumable ? "calm text-[15px] text-sky-ink-2 underline hover:text-sky-ink" : btnPrimary}>
+          <Link href="/create/new" className={resumable ? "calm text-[15px] text-sky-ink-2 underline hover:text-sky-ink" : btnPrimary}>
             {resumable ? (
               "새 동화 만들기"
             ) : (
