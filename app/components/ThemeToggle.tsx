@@ -17,8 +17,15 @@ function subscribe(cb: () => void) {
   return () => listeners.delete(cb);
 }
 
+let fadeTimer: number | undefined;
+
 function setTheme(t: Theme) {
-  document.documentElement.dataset.theme = t;
+  const root = document.documentElement;
+  // 전환하는 동안만 글자·메뉴 색도 하늘과 같은 속도로 바뀌게 한다 (globals.css의 .theme-fade)
+  root.classList.add("theme-fade");
+  window.clearTimeout(fadeTimer);
+  fadeTimer = window.setTimeout(() => root.classList.remove("theme-fade"), 1900);
+  root.dataset.theme = t;
   try {
     localStorage.setItem(THEME_KEY, t);
   } catch {

@@ -44,17 +44,56 @@ html[data-theme="light"] .logo-dark {
   display: none;
 }
 
-.sky-night {
-  display: block;
+/* 하늘 전환: 모드가 바뀌면 달이 지고 해가 뜬다. 궤도는 화면 아래 가운데가 중심이고,
+   다크는 달이 오른쪽 위, 라이트는 반 바퀴(180도) 돌아 해가 같은 자리에 온다. */
+.sky-fade {
+  transition: opacity 1.6s ease-in-out;
 }
-.sky-day {
-  display: none;
+.sky-night-only {
+  opacity: 1;
 }
-html[data-theme="light"] .sky-night {
-  display: none;
+.sky-day-only {
+  opacity: 0;
 }
-html[data-theme="light"] .sky-day {
-  display: block;
+html[data-theme="light"] .sky-night-only {
+  opacity: 0;
+}
+html[data-theme="light"] .sky-day-only {
+  opacity: 1;
+}
+
+/* 모드를 바꾸는 동안만: 배경 위에 바로 놓인 글자와 상단·하단 메뉴도 하늘과 같은 속도로 색이 바뀐다 */
+html.theme-fade [class*="text-sky-ink"],
+html.theme-fade [class*="bg-chrome"],
+html.theme-fade [class*="border-chrome"],
+html.theme-fade [class*="border-sky-ink"],
+html.theme-fade [class*="text-nav-on"] {
+  transition:
+    color 1.6s ease-in-out,
+    background-color 1.6s ease-in-out,
+    border-color 1.6s ease-in-out;
+}
+
+.sky-orbit {
+  --orbit-r: min(70vh, 85vw);
+  --angle: 28deg;
+  transform: rotate(var(--angle));
+  transition: transform 1.8s cubic-bezier(0.45, 0, 0.25, 1);
+}
+html[data-theme="light"] .sky-orbit {
+  --angle: 208deg;
+}
+/* 몸체는 궤도와 반대로 돌려서 항상 똑바로 서 있게 한다 */
+.sky-body {
+  left: 0;
+  transform: translate(-50%, -50%) rotate(calc(-1 * var(--angle)));
+  transition: transform 1.8s cubic-bezier(0.45, 0, 0.25, 1);
+}
+.sky-moon {
+  top: calc(-1 * var(--orbit-r));
+}
+.sky-sun {
+  top: var(--orbit-r);
 }
 
 @theme inline {
