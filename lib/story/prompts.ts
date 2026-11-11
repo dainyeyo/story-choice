@@ -26,12 +26,15 @@ export const SYSTEM_PROMPT = `너는 만 4~7세 아이를 위한 한국어 동�
 
 [선택지 규칙]
 - 선택지는 항상 2개다. 서로 다른 대처 유형이어야 한다.
-- 대처 유형은 도움요청, 스스로진정, 회피, 직면 중 하나다.
-  - 도움요청: 어른이나 친구에게 도움을 청한다 (예: 엄마 손 잡기)
-  - 스스로진정: 스스로 마음을 가라앉힌다 (예: 숫자 세기, 심호흡)
-  - 회피: 상황에서 벗어난다 (예: 숨기, 도망가기)
-  - 직면: 상황에 맞선다 (예: 직접 물어보기)
-- 선택지 문장은 아이가 이해하는 행동 한 가지로 10자 안팎으로 쓴다.
+- 대처 유형은 도움요청, 스스로진정, 회피, 직면 중 하나다. 요청에서 이번 선택지의 대처 유형 2개를 정해준다. 반드시 그 유형으로 만든다.
+  - 도움요청: 어른이나 친구, 곁의 누군가에게 도움을 청하거나 함께 해달라고 한다. 상대를 매번 엄마로 하지 말고 장면에 있는 인물(선생님, 친구, 아빠, 동생, 인형, 이웃 동물 등)로 바꾼다.
+  - 스스로진정: 스스로 마음을 가라앉히는 자기만의 방법을 쓴다
+  - 회피: 그 상황에서 잠시 벗어나거나 피한다
+  - 직면: 그 상황이나 두려운 대상에 직접 다가가거나 맞선다
+- 선택지는 바로 앞 장면에 나온 장소·물건·인물에서 나와야 한다. 그 장면에서만 할 수 있는 구체적인 행동으로 쓴다.
+  - 나쁜 예(어느 이야기에나 붙는 뻔한 행동): "엄마 손 꼭 잡기", "이불 속에 숨기", "심호흡하기", "숫자 세기" — 장면에 그럴 이유가 뚜렷할 때만 쓴다.
+  - 좋은 예: 장면에 인형이 있으면 "인형에게 용기를 달라고 하기"(도움요청), 불빛이 눈부시면 "불빛을 노래로 바꿔 부르기"(스스로진정), 의사 선생님이 있으면 "선생님께 그 기계 이름 물어보기"(직면)
+- 선택지 문장은 아이가 이해하는 행동 한 가지로 10~16자로 쓴다.
 - id는 "a", "b"를 쓴다.
 
 [삽화 프롬프트 규칙]
@@ -79,6 +82,7 @@ export function buildStartPrompt(req: StoryRequest): string {
     `- 이야기의 시작 부분만 쓴다. 장면 정확히 ${startScenes}개(${perScene})를 쓴 뒤, 주인공이 대처 행동을 고르는 첫 번째 선택에서 멈춘다.`,
     `- 시작 부분에서는 주인공의 일상과 주변 인물을 보여주고, 두려운 상황이 다가오는 데까지 쓴다. 후렴을 여기서 처음 등장시킨다.`,
     `- choice에 질문과 선택지 2개를 넣고 isEnding은 false로 한다.`,
+    typeInstruction(pickTypePair()),
     `- title에는 동화 제목을 쓴다.`,
   );
   return lines.join("\n");
@@ -110,7 +114,8 @@ export function buildContinuePrompt(req: ContinueRequest): string {
     lines.push(
       `- 아이의 첫 번째 선택을 주인공이 실제로 해보는 장면들을 쓴다. 선택한 행동이 이야기 안에서 자연스럽게 일어나야 한다.`,
       `- 그 결과 주인공은 조금 안심하지만, 아직 가장 어려운 순간이 코앞에 다가온다. 앞에서 나온 후렴을 다시 쓴다.`,
-      `- 이어서 두 번째 선택을 넣는다. 두 번째 선택지는 첫 번째에서 고른 것과 다른 대처 유형을 하나 이상 포함한다.`,
+      `- 이어서 두 번째 선택을 넣는다.`,
+      typeInstruction(pickTypePair(req.choices.map((c) => c.copingType))),
       `- isEnding은 false, scenes는 정확히 ${midScenes}개(${perScene}), title은 "${req.title}" 그대로 쓴다.`,
     );
   } else {
@@ -164,4 +169,25 @@ export function buildParentCardPrompt(req: ParentCardRequest): string {
     ``,
     `위 선택을 근거로 부모 카드를 만들어라.`,
   ].join("\n");
+}
+
+// ───────── 선택지 대처 유형 배정 ─────────
+// 모델에게 맡기면 '도움요청'(손 잡기)과 '회피'(숨기)로 몰린다.
+// 서버가 유형 조합을 무작위로 정해 지시해서 선택지가 매번 다양해지게 한다.
+
+const TYPES = ["도움요청", "스스로진정", "회피", "직면"] as const;
+
+function pickTypePair(exclude: readonly string[] = []): [string, string] {
+  // 직전에 아이가 고른 유형은 가능하면 피해서 두 번째 선택지가 첫 번째와 다르게 나오게 한다.
+  const pool = TYPES.filter((t) => !exclude.includes(t));
+  const base = pool.length >= 2 ? [...pool] : [...TYPES];
+  for (let i = base.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [base[i], base[j]] = [base[j], base[i]];
+  }
+  return [base[0], base[1]];
+}
+
+function typeInstruction([a, b]: [string, string]): string {
+  return `- 이번 선택지의 대처 유형은 a는 "${a}", b는 "${b}"로 정한다. 이 유형에 맞게 장면에 어울리는 구체적인 행동을 만든다.`;
 }
