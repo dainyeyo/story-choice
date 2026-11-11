@@ -1,54 +1,41 @@
 @import "tailwindcss";
 
-/* 제본과 종이는 캔버스 바깥에 두어 저장되는 그림에 포함되지 않는다. */
+/* 동화책 스타일 틀은 캔버스 바깥에 두어 저장되는 그림에 포함되지 않는다. */
 .sketchbook {
-  position: relative;
-  padding: 27px 7px 9px;
-  background: linear-gradient(90deg, #c4b8a5, #eee9dd 3%, #f6f3ec 97%, #b9ac99);
-  border: 1px solid #b7aa96;
-  border-radius: 2px;
-  box-shadow: 0 3px 0 #e5ded1, 0 5px 0 #bfb3a1, 0 12px 20px rgb(49 37 24 / 0.24);
-}
-.sketchbook-binding {
-  position: absolute;
-  z-index: 1;
-  inset: 7px 3% auto;
-  display: flex;
-  justify-content: space-between;
-  pointer-events: none;
-}
-.sketchbook-binding span {
-  position: relative;
-  width: 10px;
-  height: 23px;
-  border: 2px solid #393a38;
-  border-top: 3px solid #272825;
-  border-radius: 5px 5px 4px 4px;
-  background: linear-gradient(90deg, #62615b 0%, #dfdfd8 25%, #77766e 45%, #343532 75%);
-  box-shadow: 1px 2px 2px rgb(20 20 18 / 0.4), inset 1px 0 rgb(255 255 255 / 0.5);
-}
-.sketchbook-binding span::after {
-  content: "";
-  position: absolute;
-  z-index: -1;
-  left: -3px;
-  right: -3px;
-  bottom: -4px;
-  height: 5px;
-  border-radius: 50%;
-  background: #858279;
-  box-shadow: 0 1px 1px rgb(255 255 255 / 0.8);
+  padding: 12px;
+  border-radius: 22px;
+  background: #f5c77a;
+  box-shadow: 0 6px 0 #e3a94c;
 }
 .sketchbook-paper {
-  border: 1px solid #dededb;
-  background: linear-gradient(105deg, #f7f7f5, #fff 18%, #fdfdfc 82%, #f3f3f1);
-  box-shadow: 0 2px 4px rgb(50 45 38 / 0.16);
+  border-radius: 14px;
+  background: #fffdf6;
+  outline: 2.5px dashed #e6b867;
+  outline-offset: -9px;
   cursor: crosshair;
 }
 @media (max-width: 480px) {
-  .sketchbook { padding: 23px 5px 7px; }
-  .sketchbook-binding { top: 6px; }
-  .sketchbook-binding span { width: 7px; height: 19px; border-width: 2px; }
+  .sketchbook { padding: 9px; border-radius: 18px; }
+  .sketchbook-paper { border-radius: 11px; outline-offset: -7px; }
+}
+
+/* 책 읽는 화면: 종이 질감(잔 결 + 섬유), 가장자리 음영, 쌓인 쪽 단면, 가운데 접힘 */
+.book-page {
+  --grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.45 0 0 0 0 0.33 0 0 0 0 0.18 0 0 0 0.11 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  --fiber: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><filter id='f'><feTurbulence type='fractalNoise' baseFrequency='0.012 0.5' numOctaves='2' seed='4'/><feColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.38 0 0 0 0 0.2 0 0 0 0.07 0'/></filter><rect width='100%' height='100%' filter='url(%23f)'/></svg>");
+  background: var(--grain), var(--fiber), #fbf3e0;
+  border-color: #e8dcc0;
+  box-shadow:
+    inset 0 0 70px rgb(150 105 45 / 0.16),
+    0 1px 0 #f3e8d0, 0 3px 0 #e6d8b9, 0 4px 0 #f1e6cc, 0 6px 0 #d9c8a5,
+    0 14px 26px rgb(0 0 0 / 0.35);
+}
+@media (min-width: 768px) {
+  .book-page {
+    background:
+      linear-gradient(90deg, transparent calc(50% - 34px), rgb(130 90 40 / 0.05) calc(50% - 10px), rgb(120 80 35 / 0.17) 50%, rgb(130 90 40 / 0.05) calc(50% + 10px), transparent calc(50% + 34px)),
+      var(--grain), var(--fiber), #fbf3e0;
+  }
 }
 
 /* 픽토리 디자인 토큰
@@ -325,8 +312,8 @@ body {
 .writing-line { stroke-dasharray: 100; stroke-dashoffset: 100; animation: writing-line 3s linear infinite; }
 .writing-line-2 { animation-name: writing-line-2; }
 .writing-line-3 { animation-name: writing-line-3; }
-.drawing-pencil { animation: drawing-pencil 3.5s ease-in-out infinite; }
-.drawing-lines { animation: reveal-lines 3.5s ease-in-out infinite; }
+.drawing-brush { animation: drawing-brush 3s linear infinite; }
+.drawing-stroke { stroke-dasharray: 100; stroke-dashoffset: 100; animation: drawing-stroke 3s linear infinite; }
 @keyframes writing-pencil {
   0% { transform: translate(-2px, -7px); }
   25%, 30% { transform: translate(22px, -7px); }
@@ -347,16 +334,17 @@ body {
   0%, 70% { stroke-dashoffset: 100; }
   95%, 100% { stroke-dashoffset: 0; }
 }
-@keyframes drawing-pencil {
-  0% { transform: translate(-46px, 2px); }
-  25% { transform: translate(-20px, -27px); }
-  45% { transform: translate(-2px, -8px); }
-  65% { transform: translate(11px, -21px); }
-  90%, 100% { transform: translate(38px, 2px); }
+@keyframes drawing-brush {
+  0% { transform: translateX(0); }
+  85%, 100% { transform: translateX(90px); }
 }
-@keyframes reveal-lines {
-  0% { stroke-dasharray: 0 100; }
-  90%, 100% { stroke-dasharray: 100 100; }
+@keyframes drawing-stroke {
+  0% { stroke-dashoffset: 100; }
+  85%, 100% { stroke-dashoffset: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .drawing-brush { animation: none; transform: translateX(90px); }
+  .drawing-stroke { animation: none; stroke-dashoffset: 0; }
 }
 
 /* ───────── 첫 화면(Landing) ─────────

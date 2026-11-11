@@ -391,9 +391,6 @@ export default function CreatePage() {
               <button type="button" onClick={clearSketch} disabled={!hasSketch} className="text-sm text-ink-2 underline underline-offset-4 disabled:opacity-40">다시 그리기</button>
             </div>
             <div className="sketchbook">
-              <div className="sketchbook-binding" aria-hidden="true">
-                {Array.from({ length: 24 }, (_, i) => <span key={i} />)}
-              </div>
             <canvas ref={canvasRef} width={1200} height={800} aria-label="주인공 그림판" onPointerDown={startStroke} onPointerMove={moveStroke}
               onPointerUp={(e) => endStroke(e.pointerId)}
               onPointerCancel={(e) => endStroke(e.pointerId)}
