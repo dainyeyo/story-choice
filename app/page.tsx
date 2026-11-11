@@ -113,7 +113,7 @@ function BookDemo() {
 
 function LoggedOutHome() {
   return (
-    <main className="rise mx-auto w-full max-w-md px-4 pt-8 md:max-w-6xl md:px-8 md:pt-14">
+    <main className="page-turn mx-auto w-full max-w-md px-4 pt-8 md:max-w-6xl md:px-8 md:pt-14">
       <section className="grid items-end gap-6 md:grid-cols-[1.2fr_1fr] md:gap-16">
         <h1 className="story text-4xl leading-[1.2] text-ink md:text-5xl md:leading-[1.2]">
           아이의 그림이
@@ -166,7 +166,7 @@ function LoggedInHome() {
   const fmt = (t: number) => new Date(t).toLocaleDateString("ko-KR", { month: "long", day: "numeric" });
 
   return (
-    <main className="rise mx-auto w-full max-w-md px-4 py-8 md:max-w-5xl md:px-8 md:py-12">
+    <main className="page-turn mx-auto w-full max-w-md px-4 py-8 md:max-w-5xl md:px-8 md:py-12">
       <PageHeader title="오늘의 동화" sub={`${user} 보호자님`} />
 
       <div className="mt-8 grid gap-10 md:grid-cols-[2fr_3fr] md:gap-16">

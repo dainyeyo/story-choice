@@ -42,7 +42,7 @@ export default function LibraryPage() {
   for (let i = 0; i < Math.max(library.length, 1); i += perShelf) shelves.push(library.slice(i, i + perShelf));
 
   return (
-    <main className="rise mx-auto w-full max-w-md px-4 py-8 md:max-w-4xl md:px-8 md:py-12">
+    <main className="page-turn mx-auto w-full max-w-md px-4 py-8 md:max-w-4xl md:px-8 md:py-12">
       <PageHeader title="내 서재" sub="읽고 싶은 책을 골라 꺼내 보세요" />
 
       <div className="mt-8 space-y-6 rounded-2xl bg-[#ead9b8] p-3 shadow-[inset_0_2px_10px_rgb(59_47_37/0.18)] md:p-5">

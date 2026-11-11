@@ -25,7 +25,7 @@ export default function CardPage() {
 
   if (s.step === "loading") {
     return (
-      <main className="rise mx-auto w-full max-w-md px-4 py-16">
+      <main className="page-turn mx-auto w-full max-w-md px-4 py-16">
         <div className="flex flex-col items-center gap-4 rounded-2xl border border-line bg-surface px-6 py-20 text-center">
           <Icon name="book" size={32} className="text-accent-text" />
           <p aria-live="polite" className="story text-xl text-ink">
@@ -40,7 +40,7 @@ export default function CardPage() {
 
   if (!unlocked) {
     return (
-      <main className="rise mx-auto w-full max-w-sm px-4 py-12 md:py-20">
+      <main className="page-turn mx-auto w-full max-w-sm px-4 py-12 md:py-20">
         <span className="flex size-12 items-center justify-center rounded-xl bg-sunk text-ink-2">
           <Icon name="lock" size={22} />
         </span>
@@ -86,7 +86,7 @@ export default function CardPage() {
   }
 
   return (
-    <main className="rise mx-auto w-full max-w-md px-4 py-8 md:max-w-2xl md:px-8 md:py-12">
+    <main className="page-turn mx-auto w-full max-w-md px-4 py-8 md:max-w-2xl md:px-8 md:py-12">
       <PageHeader title="오늘의 대화 카드" />
       <p className="mt-4 text-lg leading-8 text-ink-2">{s.card.summary}</p>
 

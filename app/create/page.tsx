@@ -63,7 +63,7 @@ export default function CreatePage() {
   const error = localError || s.error;
 
   return (
-    <main className="rise mx-auto w-full max-w-md px-4 py-8 md:max-w-5xl md:px-8 md:py-12">
+    <main className="page-turn mx-auto w-full max-w-md px-4 py-8 md:max-w-5xl md:px-8 md:py-12">
       <PageHeader title="새 동화" sub="아이의 마음을 고르면 오늘의 동화가 만들어져요" />
 
       {error && (
