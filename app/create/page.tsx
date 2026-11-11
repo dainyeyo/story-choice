@@ -8,7 +8,7 @@ import { PRESETS } from "@/lib/story/presets";
 import { MAX_AGE, MAX_DURATION, MIN_AGE, MIN_DURATION } from "@/lib/story/schema";
 import { useApp } from "../providers";
 import Icon from "../components/Icon";
-import { btnPrimary, chipCls, errorCls, inputCls, Label, noteCls, PageHeader, Segmented } from "../components/ui";
+import { btnPrimary, chipCls, errorCls, inputCls, Label, noteCls, Segmented } from "../components/ui";
 
 // 화면에만 보여 주는 추가 예시. PRESETS와 달리 폴백 동화가 없어서 AI 실패 시엔 직접 추가한 고민처럼 다뤄진다.
 // (PRESETS를 늘리면 폴백 데이터를 다시 만들어야 하므로 여기 따로 둔다)
@@ -47,9 +47,7 @@ export default function CreatePage() {
   const [lengthMode, setLengthMode] = useState<"auto" | "custom">("auto"); // 고르지 않으면 AI가 정한다
   const [durationText, setDurationText] = useState("5"); // 직접 정하기: 분을 숫자로 적는다
   const [protagonist, setProtagonist] = useState("");
-  const [drawing, setDrawing] = useState<File | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const fileRef = useRef<HTMLInputElement>(null);
   const drawingPointer = useRef<number | null>(null);
   const history = useRef<ImageData[]>([]);
   const historyIndex = useRef(-1);
@@ -90,8 +88,6 @@ export default function CreatePage() {
     ctx.moveTo(x, y);
     if (!eraser) {
       setHasSketch(true);
-      setDrawing(null);
-      if (fileRef.current) fileRef.current.value = "";
     }
     setLocalError("");
   };
@@ -138,8 +134,6 @@ export default function CreatePage() {
     historyIndex.current = nextIndex;
     setHistoryPosition({ index: nextIndex, length: history.current.length });
     setHasSketch(snapshot.data.some((value, index) => index % 4 === 3 && value > 0));
-    setDrawing(null);
-    if (fileRef.current) fileRef.current.value = "";
   };
 
   const endStroke = (pointerId: number) => {
@@ -183,7 +177,7 @@ export default function CreatePage() {
     }
     setLocalError("");
     setSubmitting(true);
-    let selectedDrawing = drawing;
+    let selectedDrawing: File | null = null;
     if (hasSketch && canvasRef.current) {
       const blob = await new Promise<Blob | null>((resolve) => canvasRef.current?.toBlob(resolve, "image/png"));
       if (!blob) {
@@ -206,8 +200,6 @@ export default function CreatePage() {
 
   return (
     <main className="page-turn mx-auto w-full max-w-md px-4 py-8 md:max-w-5xl md:px-8 md:py-12">
-      <PageHeader title="새 동화" sub="아이의 마음을 고르면 오늘의 동화가 만들어져요" />
-
       {s.draft && (
         <section className="mt-6 rounded-2xl border border-accent/35 bg-[#fff7e9] p-4 sm:p-5" aria-label="저장한 동화">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -225,12 +217,12 @@ export default function CreatePage() {
       )}
 
       {error && (
-        <p role="alert" className={`${errorCls} mt-6`}>
+        <p role="alert" className={errorCls}>
           {error}
         </p>
       )}
 
-      <form onSubmit={submit} className="mt-8 space-y-6">
+      <form onSubmit={submit} className={`space-y-6 ${error ? "mt-6" : ""}`}>
         <div className="grid gap-8 rounded-2xl border border-line bg-[#fbf2de] p-5 shadow-[0_6px_20px_rgba(20,15,40,0.28)] md:grid-cols-2 md:gap-10 md:p-7">
         <section className="space-y-4">
           <h2 className="story text-xl text-ink">요즘 아이의 마음은</h2>
@@ -408,23 +400,6 @@ export default function CreatePage() {
               onLostPointerCapture={(e) => endStroke(e.pointerId)}
               className="sketchbook-paper block aspect-[3/2] w-full touch-none" />
             </div>
-            <label className="block space-y-2">
-            <span className="block text-sm text-ink-2">또는 그린 그림을 올려 주세요</span>
-            <input ref={fileRef} type="file" accept="image/png,image/jpeg" className={inputCls}
-              onChange={(e) => {
-                const file = e.target.files?.[0] ?? null;
-                if (file && (!['image/png', 'image/jpeg'].includes(file.type) || file.size > 10 * 1024 * 1024)) {
-                  setDrawing(null);
-                  e.target.value = '';
-                  setLocalError('그림은 10MB 이하의 PNG 또는 JPG 파일로 선택해 주세요.');
-                  return;
-                }
-                if (file) clearSketch();
-                setDrawing(file);
-                setLocalError('');
-              }} />
-            <span className="block text-sm text-ink-3">PNG 또는 JPG, 최대 10MB. 원본 주인공을 장면에 넣어 드려요.</span>
-          </label>
           </div>
         </section>
 

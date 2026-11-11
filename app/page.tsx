@@ -5,6 +5,7 @@ import { useApp, useAuth } from "./providers";
 import Icon from "./components/Icon";
 import PetAvatar from "./components/PetAvatar";
 import Landing from "./components/Landing";
+import Reveal from "./components/Reveal";
 import { btnPrimary } from "./components/ui";
 import { localDateKey, petStage } from "@/lib/pet";
 
@@ -26,8 +27,8 @@ function LoggedInHome() {
 
   return (
     <main className="page-turn mx-auto w-full max-w-md px-4 pb-8 md:max-w-5xl md:px-8 md:pb-12">
-      {/* 첫 화면: 인사 + 집. 나머지는 스크롤을 내려야 보인다 */}
-      <div className="flex min-h-[calc(100dvh-72px)] flex-col items-center justify-center gap-8 pb-16 pt-8 md:min-h-[calc(100dvh-80px)] md:gap-10 md:pt-12">
+      {/* 첫 화면: 인사 + 새 동화 만들기까지만. 나머지는 스크롤을 내리면 올라오며 나타난다 */}
+      <div className="flex min-h-[calc(100dvh-72px)] flex-col items-center justify-center pb-16 pt-8 md:min-h-[calc(100dvh-80px)] md:pt-12">
       <section className="px-2 text-center md:px-10">
         <p className="text-base text-sky-ink-2 md:text-lg">{user} 보호자님</p>
         <h1 className="story mt-3 text-4xl leading-snug text-sky-ink md:text-5xl">
@@ -60,7 +61,11 @@ function LoggedInHome() {
           </Link>
         </div>
       </section>
+      </div>
 
+      {/* 스크롤을 내리면 보이는 영역 */}
+      <div className="grid gap-16 pb-8 md:gap-20">
+        <Reveal>
         <Link
           href="/pet"
           aria-label="나의 마음 친구 만나러 가기"
@@ -83,10 +88,9 @@ function LoggedInHome() {
           <span className="story mt-5 text-2xl text-sky-ink">{pet.state.name}</span>
           <span className="text-base text-sky-ink-2">{stage.name} · 함께한 지 {careDays}일</span>
         </Link>
-      </div>
+        </Reveal>
 
-      {/* 스크롤을 내리면 보이는 영역 */}
-      <div className="mt-6 grid gap-6 md:gap-8">
+        <Reveal>
         <Link href="/insights" className="calm flex items-center justify-between gap-5 rounded-2xl border border-line bg-surface p-5 hover:bg-sunk/60 md:p-6">
           <span>
             <span className="text-sm font-medium text-accent-text">AI 부모 인사이트</span>
@@ -95,7 +99,9 @@ function LoggedInHome() {
           </span>
           <Icon name="right" className="shrink-0 text-ink-3" />
         </Link>
+        </Reveal>
 
+        <Reveal>
         <section className="flex flex-col rounded-2xl border border-line bg-surface p-5 md:p-6">
           <div className="flex items-baseline justify-between pb-3">
             <h2 className="story text-xl text-ink">최근 동화</h2>
@@ -127,6 +133,7 @@ function LoggedInHome() {
             </ul>
           )}
         </section>
+        </Reveal>
       </div>
     </main>
   );
