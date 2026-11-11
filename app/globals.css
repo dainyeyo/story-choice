@@ -75,13 +75,21 @@ html.theme-fade [class*="text-nav-on"] {
 }
 
 .sky-orbit {
-  --orbit-r: min(70vh, 85vw);
-  --angle: 28deg;
+  /* 궤도를 크게 잡아 해·달이 화면 위쪽 오른쪽 여백(가운데 내용 옆)에 오게 한다 */
+  --orbit-r: 88vh;
+  --base-angle: 38deg;
+  /* --sky-spin은 모드를 바꿀 때마다 ThemeToggle이 1씩 올린다. 각도가 계속 커지므로 늘 같은 방향(시계 방향)으로만 돈다 */
+  --angle: calc(var(--base-angle) + var(--sky-spin, 0) * 180deg);
   transform: rotate(var(--angle));
   transition: transform 1.8s cubic-bezier(0.45, 0, 0.25, 1);
 }
-html[data-theme="light"] .sky-orbit {
-  --angle: 208deg;
+html[data-theme="light"] {
+  --sky-spin: 1; /* 저장된 라이트 모드로 처음 열었을 때(스크립트가 값을 넣기 전) */
+}
+@media (max-width: 767px) {
+  .sky-orbit {
+    --base-angle: 12deg; /* 좁은 화면: 오른쪽 위 모서리, 상단 바로 아래 */
+  }
 }
 /* 몸체는 궤도와 반대로 돌려서 항상 똑바로 서 있게 한다 */
 .sky-body {
