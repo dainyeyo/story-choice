@@ -1,7 +1,6 @@
 import data from "./fallback-data.json";
 import type {
   ContinueRequest,
-  CopingType,
   ParentCard,
   ParentCardRequest,
   StoryRequest,
@@ -42,7 +41,28 @@ function optionId(seg: StorySegment, text: string): "a" | "b" | undefined {
   return id === "a" || id === "b" ? id : undefined;
 }
 
-const mark = (seg: StorySegment): StorySegment => ({ ...seg, fallback: true });
+const REFRAIN = "콩닥콩닥, 괜찮아 괜찮아.";
+
+function withoutRepeatedRefrain(seg: StorySegment, previousScenes: string[] = []): StorySegment {
+  let kept = previousScenes.some((scene) => scene.includes(REFRAIN)) ? 1 : 0;
+  const scenes = seg.scenes.map((scene) => {
+    let text = scene.text;
+    const first = text.indexOf(REFRAIN);
+    if (first >= 0 && kept === 0) {
+      kept = 1;
+      text = text.slice(0, first + REFRAIN.length) + text.slice(first + REFRAIN.length).replaceAll(REFRAIN, "");
+    } else {
+      text = text.replaceAll(REFRAIN, "");
+    }
+    return { ...scene, text: text.replace(/[\t ]{2,}/g, " ").replace(/ ([,.!?])/g, "$1").trim() };
+  });
+  return { ...seg, scenes };
+}
+
+const mark = (seg: StorySegment, previousScenes: string[] = []): StorySegment => ({
+  ...withoutRepeatedRefrain(seg, previousScenes),
+  fallback: true,
+});
 
 export function fallbackStart(req: StoryRequest): StorySegment | undefined {
   const story = findStory(req.situation);
@@ -57,11 +77,11 @@ export function fallbackContinue(req: ContinueRequest): StorySegment | undefined
 
   const first = optionId(story.start, req.choices[0].text);
   if (!first) return undefined;
-  if (req.choices.length === 1) return mark(story.mid[first]);
+  if (req.choices.length === 1) return mark(story.mid[first], req.scenesSoFar);
 
   const second = optionId(story.mid[first], req.choices[1].text);
   if (!second) return undefined;
-  return mark(story.end[`${first}${second}` as "aa" | "ab" | "ba" | "bb"]);
+  return mark(story.end[`${first}${second}` as "aa" | "ab" | "ba" | "bb"], req.scenesSoFar);
 }
 
 

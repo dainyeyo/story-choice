@@ -39,9 +39,9 @@ export default function ReadPage() {
       <main className="page-turn mx-auto w-full max-w-md space-y-4 px-4 py-8 md:max-w-5xl md:px-8 md:py-12">
         {s.usedFallback && <FallbackNote />}
         <div className="flex flex-col items-center gap-6 rounded-2xl border border-line bg-surface px-6 py-24 text-center">
-          <WritingAnimation />
+          {s.loadingPurpose === "card" ? <Icon name="book" size={40} className="text-accent-text" /> : <WritingAnimation />}
           <p aria-live="polite" className="story text-xl text-ink">
-            동화를 쓰고 있어요
+            {s.loadingPurpose === "card" ? "부모님 대화 카드를 준비하고 있어요" : "동화를 쓰고 있어요"}
           </p>
           <div className="flex gap-2" aria-hidden>
             {[0, 1, 2].map((i) => (
@@ -84,18 +84,18 @@ export default function ReadPage() {
         </button>
       </div>
 
-      <article className="relative grid gap-6 book-page overflow-hidden rounded-2xl border p-4 md:grid-cols-2 md:gap-10 md:p-5">
+      <article className="relative grid gap-6 book-page rounded-2xl border p-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] md:items-start md:gap-10 md:p-5">
         {/* 책갈피: 이 서비스의 표시. 읽는 카드에서만 쓴다 */}
         <span
           aria-hidden
           className="absolute -top-px right-6 h-8 w-5 bg-accent [clip-path:polygon(0_0,100%_0,100%_100%,50%_72%,0_100%)]"
         />
 
-        <div className="md:self-stretch">
+        <div className="w-full md:self-start">
           {s.images[cur]?.loading ? (
-            <DrawingAnimation fill />
+            <DrawingAnimation />
           ) : (
-            <SceneArt fill index={cur} imageUrl={s.images[cur]?.url} title={s.title} />
+            <SceneArt index={cur} imageUrl={s.images[cur]?.url} title={s.title} />
           )}
           {s.images[cur]?.error && <p role="alert" className={`${errorCls} mt-2`}>그림을 만들지 못했어요. {s.images[cur].error}</p>}
           {s.images[cur]?.backgroundSource === "local-fallback" && <p className="mt-2 text-sm text-ink-3">그림 생성 서비스가 바빠 기본 배경을 사용했어요.</p>}

@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useStored, writeRaw } from "@/lib/localStore";
+import { removeKey, useStored, writeRaw } from "@/lib/localStore";
+import { EMPTY_CREATE_DRAFT, parseCreateDraft, type CreateDraft } from "@/lib/createDraft";
 import { buildRecentStoryContext, cachedStoryGuidance } from "@/lib/parentInsights";
 import { PRESETS } from "@/lib/story/presets";
 import { MAX_AGE, MAX_DURATION, MIN_AGE, MIN_DURATION } from "@/lib/story/schema";
@@ -30,8 +31,11 @@ export default function CreatePage() {
 
   // 직접 추가한 고민 상황도 사용자 계정에 저장해 다시 고를 수 있게 한다.
   const customKey = `story-choice:situations:${user}`;
+  const formKey = `story-choice:create-form:${user}`;
   const customRaw = useStored(customKey);
+  const formRaw = useStored(formKey);
   const insightRaw = useStored(`story-choice:insight:${user}`);
+  const [form, setForm] = useState<CreateDraft>(() => parseCreateDraft(formRaw) ?? EMPTY_CREATE_DRAFT);
   const custom = useMemo<string[]>(() => {
     try {
       const v = JSON.parse(customRaw || "[]");
@@ -40,26 +44,47 @@ export default function CreatePage() {
       return [];
     }
   }, [customRaw]);
-  const [adding, setAdding] = useState(false);
-  const [draft, setDraft] = useState("");
+  const [adding, setAdding] = useState(() => Boolean(parseCreateDraft(formRaw)?.customSituation));
 
-  const [age, setAge] = useState(5);
-  const [situation, setSituation] = useState("");
-  const [lengthMode, setLengthMode] = useState<"auto" | "custom">("auto"); // 고르지 않으면 AI가 정한다
-  const [durationText, setDurationText] = useState("5"); // 직접 정하기: 분을 숫자로 적는다
-  const [protagonist, setProtagonist] = useState("");
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const drawingPointer = useRef<number | null>(null);
   const history = useRef<ImageData[]>([]);
   const historyIndex = useRef(-1);
   const [historyPosition, setHistoryPosition] = useState({ index: -1, length: 0 });
-  const [hasSketch, setHasSketch] = useState(false);
+  const hasSketch = Boolean(form.sketchDataUrl);
   const [color, setColor] = useState("#47372f");
   const [eraser, setEraser] = useState(false);
   const [brushSize, setBrushSize] = useState(12);
   const [submitting, setSubmitting] = useState(false);
   const submitLock = useRef(false);
   const [localError, setLocalError] = useState("");
+
+  const updateForm = (patch: Partial<CreateDraft>) => {
+    const next = { ...form, ...patch };
+    setForm(next);
+    writeRaw(formKey, JSON.stringify(next));
+  };
+
+  useEffect(() => {
+    const source = form.sketchDataUrl;
+    const canvas = canvasRef.current;
+    if (!source || !canvas) return;
+    let active = true;
+    const image = new Image();
+    image.onload = () => {
+      if (!active) return;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+      const snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      history.current = [snapshot];
+      historyIndex.current = 0;
+      setHistoryPosition({ index: 0, length: 1 });
+    };
+    image.src = source;
+    return () => { active = false; };
+  }, [form.sketchDataUrl]);
 
   const point = (e: React.PointerEvent<HTMLCanvasElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -88,9 +113,6 @@ export default function CreatePage() {
     ctx.fill();
     ctx.beginPath();
     ctx.moveTo(x, y);
-    if (!eraser) {
-      setHasSketch(true);
-    }
     setLocalError("");
   };
 
@@ -113,7 +135,8 @@ export default function CreatePage() {
     history.current = next;
     historyIndex.current = next.length - 1;
     setHistoryPosition({ index: historyIndex.current, length: next.length });
-    setHasSketch(snapshot.data.some((value, index) => index % 4 === 3 && value > 0));
+    const hasInk = snapshot.data.some((value, index) => index % 4 === 3 && value > 0);
+    updateForm({ sketchDataUrl: hasInk ? ctx.canvas.toDataURL("image/png") : "" });
   };
 
   const clearSketch = () => {
@@ -124,7 +147,7 @@ export default function CreatePage() {
       saveHistory(ctx);
     }
     drawingPointer.current = null;
-    setHasSketch(false);
+    if (!canvas || !ctx) updateForm({ sketchDataUrl: "" });
   };
 
   const restoreHistory = (offset: number) => {
@@ -135,7 +158,8 @@ export default function CreatePage() {
     ctx.putImageData(snapshot, 0, 0);
     historyIndex.current = nextIndex;
     setHistoryPosition({ index: nextIndex, length: history.current.length });
-    setHasSketch(snapshot.data.some((value, index) => index % 4 === 3 && value > 0));
+    const hasInk = snapshot.data.some((value, index) => index % 4 === 3 && value > 0);
+    updateForm({ sketchDataUrl: hasInk ? ctx.canvas.toDataURL("image/png") : "" });
   };
 
   const endStroke = (pointerId: number) => {
@@ -148,30 +172,29 @@ export default function CreatePage() {
   const saveCustom = (list: string[]) => writeRaw(customKey, JSON.stringify(list));
 
   const addCustom = () => {
-    const t = draft.trim();
+    const t = form.customSituation.trim();
     if (!t) return;
     if (!EXAMPLES.includes(t) && !custom.includes(t)) saveCustom([...custom, t].slice(-8));
-    setSituation(t);
-    setDraft("");
+    updateForm({ situation: t, customSituation: "" });
     setAdding(false);
     setLocalError("");
   };
 
   const removeCustom = (t: string) => {
     saveCustom(custom.filter((x) => x !== t));
-    if (situation === t) setSituation("");
+    if (form.situation === t) updateForm({ situation: "" });
   };
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (submitLock.current) return;
-    if (!situation.trim()) {
+    if (!form.situation.trim()) {
       setLocalError("고민을 고르거나 + 버튼으로 직접 추가해 주세요.");
       return;
     }
     let durationMin: number | undefined;
-    if (lengthMode === "custom") {
-      durationMin = Number(durationText);
+    if (form.lengthMode === "custom") {
+      durationMin = Number(form.durationText);
       if (!Number.isInteger(durationMin) || durationMin < MIN_DURATION || durationMin > MAX_DURATION) {
         setLocalError(`길이는 ${MIN_DURATION}~${MAX_DURATION}분 사이 숫자로 적어 주세요.`);
         return;
@@ -194,8 +217,11 @@ export default function CreatePage() {
         .join("\n")
         .slice(0, 600);
       // 성공하기 전에는 작성 화면을 유지한다. /read에서 되돌아오면 캔버스가 사라진다.
-      const started = await s.start({ age, situation, durationMin, protagonist, recentContext });
-      if (started) router.push("/read");
+      const started = await s.start({ age: form.age, situation: form.situation, durationMin, protagonist: form.protagonist, recentContext });
+      if (started) {
+        removeKey(formKey);
+        router.push("/read");
+      }
     } catch (error) {
       setLocalError(error instanceof Error ? error.message : "동화를 만들지 못했어요. 다시 시도해 주세요.");
     } finally {
@@ -243,7 +269,7 @@ export default function CreatePage() {
           <h2 className="story text-xl text-ink">요즘 아이의 마음은</h2>
           <div className="flex flex-wrap gap-2">
             {EXAMPLES.map((p) => (
-              <button key={p} type="button" onClick={() => setSituation(p)} className={chipCls(situation === p)}>
+              <button key={p} type="button" onClick={() => updateForm({ situation: p })} className={chipCls(form.situation === p)}>
                 {p}
               </button>
             ))}
@@ -252,10 +278,10 @@ export default function CreatePage() {
               <span
                 key={c}
                 className={`calm inline-flex min-h-10 items-center rounded-lg border text-[15px] ${
-                  situation === c ? "border-accent bg-[#fdf0d2] text-ink" : "border-line bg-surface text-ink-2"
+                  form.situation === c ? "border-accent bg-[#fdf0d2] text-ink" : "border-line bg-surface text-ink-2"
                 }`}
               >
-                <button type="button" onClick={() => setSituation(c)} className="px-3 py-2 text-left hover:text-ink">
+                <button type="button" onClick={() => updateForm({ situation: c })} className="px-3 py-2 text-left hover:text-ink">
                   {c}
                 </button>
                 <button
@@ -284,8 +310,8 @@ export default function CreatePage() {
           {adding && (
             <div className="flex gap-2">
               <input
-                value={draft}
-                onChange={(e) => setDraft(e.target.value)}
+                value={form.customSituation}
+                onChange={(e) => updateForm({ customSituation: e.target.value })}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
                     e.preventDefault(); // 이야기 만들기가 아니라 칩 추가만 한다
@@ -301,7 +327,7 @@ export default function CreatePage() {
               <button
                 type="button"
                 onClick={addCustom}
-                disabled={!draft.trim()}
+                disabled={!form.customSituation.trim()}
                 className="calm h-10 shrink-0 rounded-lg bg-ink px-4 text-[15px] text-paper hover:opacity-90 disabled:opacity-40"
               >
                 추가
@@ -318,8 +344,8 @@ export default function CreatePage() {
             <div>
               <Segmented
                 label="아이 나이"
-                value={age}
-                onChange={setAge}
+                value={form.age}
+                onChange={(age) => updateForm({ age })}
                 options={Array.from({ length: MAX_AGE - MIN_AGE + 1 }, (_, i) => MIN_AGE + i).map((a) => ({
                   value: a,
                   label: a === MIN_AGE ? `~${a}세` : a === MAX_AGE ? `${a}세~` : `${a}세`, // 칸이 좁아 양 끝은 짧게
@@ -333,21 +359,21 @@ export default function CreatePage() {
             <div className="flex items-center gap-2">
               <Segmented
                 label="동화 길이"
-                value={lengthMode}
-                onChange={setLengthMode}
+                value={form.lengthMode}
+                onChange={(lengthMode) => updateForm({ lengthMode })}
                 options={[
                   { value: "auto" as const, label: "자동" },
                   { value: "custom" as const, label: "직접 정하기" },
                 ]}
               />
-              {lengthMode === "custom" && (
+              {form.lengthMode === "custom" && (
                 <label className="flex shrink-0 items-center gap-1">
                   <span className="w-16">
                   <input
                     type="text"
                     inputMode="numeric"
-                    value={durationText}
-                    onChange={(e) => setDurationText(e.target.value.replace(/[^0-9]/g, "").slice(0, 2))}
+                    value={form.durationText}
+                    onChange={(e) => updateForm({ durationText: e.target.value.replace(/[^0-9]/g, "").slice(0, 2) })}
                     aria-label="동화 길이(분)"
                     className={`${inputCls} h-12 py-0 text-center tabular-nums`}
                   />
@@ -357,10 +383,10 @@ export default function CreatePage() {
               )}
             </div>
             <div className="grid text-[13px] text-ink-3">
-              <p className={`col-start-1 row-start-1 ${lengthMode === "custom" ? "invisible" : ""}`} aria-hidden={lengthMode === "custom"}>
+              <p className={`col-start-1 row-start-1 ${form.lengthMode === "custom" ? "invisible" : ""}`} aria-hidden={form.lengthMode === "custom"}>
                 AI가 이야기에 맞춰 길이를 정해요. 최대 {MAX_DURATION}분까지 걸릴 수 있어요.
               </p>
-              <p className={`col-start-1 row-start-1 ${lengthMode === "auto" ? "invisible" : ""}`} aria-hidden={lengthMode === "auto"}>
+              <p className={`col-start-1 row-start-1 ${form.lengthMode === "auto" ? "invisible" : ""}`} aria-hidden={form.lengthMode === "auto"}>
                 {MIN_DURATION}~{MAX_DURATION}분 사이로 적어 주세요
               </p>
             </div>
@@ -373,8 +399,8 @@ export default function CreatePage() {
           <label className="block space-y-2">
             <Label>주인공 이름</Label>
             <input
-              value={protagonist}
-              onChange={(e) => setProtagonist(e.target.value)}
+              value={form.protagonist}
+              onChange={(e) => updateForm({ protagonist: e.target.value })}
               maxLength={50}
               placeholder="예: 파란 토끼 (비워도 돼요)"
               className={inputCls}

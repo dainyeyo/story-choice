@@ -34,6 +34,7 @@ import type {
 } from "@/lib/story/schema";
 
 export type Step = "form" | "loading" | "story" | "card";
+export type LoadingPurpose = "story" | "card";
 export type StartInput = Omit<StoryRequest, "previousMemo">;
 
 export interface StoryDraft {
@@ -98,6 +99,7 @@ export function useStory(user = "guest") {
   const { images, appendImages, clearImages, setDrawing, hasDrawing } = useStoryImages();
   const draft = parseDraft(useStored(draftKey(user)));
   const [step, setStep] = useState<Step>("form");
+  const [loadingPurpose, setLoadingPurpose] = useState<LoadingPurpose>("story");
   const [error, setError] = useState("");
   const [usedFallback, setUsedFallback] = useState(false);
 
@@ -113,8 +115,9 @@ export function useStory(user = "guest") {
   const savedMemo = useSyncExternalStore(subscribeMemo, () => loadMemo(user), () => "");
 
   // 로딩 화면을 띄우고 호출한다. 실패하면 에러 문장을 남기고 backTo 화면으로 돌아간다.
-  const run = useCallback(async <T,>(fn: () => Promise<T>, backTo: Step): Promise<T | undefined> => {
+  const run = useCallback(async <T,>(fn: () => Promise<T>, backTo: Step, purpose: LoadingPurpose = "story"): Promise<T | undefined> => {
     setError("");
+    setLoadingPurpose(purpose);
     setStep("loading");
     try {
       return await fn();
@@ -205,6 +208,7 @@ export function useStory(user = "guest") {
           choices: chosen,
         }),
       "story",
+      "card",
     );
     if (!c) return;
     setCard(c);
@@ -280,6 +284,7 @@ export function useStory(user = "guest") {
     images,
     setDrawing,
     step,
+    loadingPurpose,
     error,
     req,
     title,

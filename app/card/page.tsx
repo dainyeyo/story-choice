@@ -5,16 +5,13 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useApp } from "../providers";
 import Icon from "../components/Icon";
-import { btnPrimary, btnSecondary, Card, errorCls, inputCls, Label, PageHeader } from "../components/ui";
+import { btnPrimary, btnSecondary, Card, inputCls, Label, PageHeader } from "../components/ui";
 
 // 부모 전용 화면. 아이가 바로 넘겨 보지 않도록 간단한 확인 문제를 둔다.
 export default function CardPage() {
   const { s, saveMemo } = useApp();
   const router = useRouter();
 
-  const [unlocked, setUnlocked] = useState(false);
-  const [answer, setAnswer] = useState("");
-  const [wrong, setWrong] = useState(false);
   const [memo, setMemo] = useState("");
   const [memoSaved, setMemoSaved] = useState(false);
 
@@ -37,53 +34,6 @@ export default function CardPage() {
   }
 
   if (s.step !== "card" || !s.card) return null;
-
-  if (!unlocked) {
-    return (
-      <main className="page-turn mx-auto w-full max-w-sm px-4 py-12 md:py-20">
-        <span className="flex size-12 items-center justify-center rounded-xl bg-sunk text-ink-2">
-          <Icon name="lock" size={22} />
-        </span>
-        <h1 className="story mt-6 text-3xl text-sky-ink">부모님께 넘겨 주세요</h1>
-        <p className="mt-2 text-[15px] leading-7 text-sky-ink-2">
-          아이의 선택을 바탕으로 한 대화 질문이 준비됐어요. 아래 문제를 풀면 열립니다.
-        </p>
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            if (answer.trim() === "12") setUnlocked(true);
-            else {
-              setAnswer("");
-              setWrong(true);
-            }
-          }}
-          className="mt-6 space-y-4"
-        >
-          <label className="block space-y-1">
-            <Label onSky>7 + 5</Label>
-            <input
-              value={answer}
-              onChange={(e) => {
-                setAnswer(e.target.value.replace(/\D/g, ""));
-                setWrong(false);
-              }}
-              inputMode="numeric"
-              aria-invalid={wrong}
-              className={inputCls}
-            />
-          </label>
-          {wrong && (
-            <p role="alert" className={errorCls}>
-              다시 한 번 풀어 주세요
-            </p>
-          )}
-          <button type="submit" className={btnPrimary}>
-            열기
-          </button>
-        </form>
-      </main>
-    );
-  }
 
   return (
     <main className="page-turn mx-auto w-full max-w-md px-4 py-8 md:max-w-2xl md:px-8 md:py-12">

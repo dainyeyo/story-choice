@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useApp, useAuth } from "./providers";
+import { useStored } from "@/lib/localStore";
+import { hasCreateDraft, parseCreateDraft } from "@/lib/createDraft";
 import Icon from "./components/Icon";
 import PetAvatar from "./components/PetAvatar";
 import Landing from "./components/Landing";
@@ -12,18 +14,23 @@ import { localDateKey, petStage } from "@/lib/pet";
 
 
 function LoggedInHome() {
-  const { displayName, s, library, pet } = useApp();
+  const { user, displayName, s, library, pet } = useApp();
+  const createDraft = parseCreateDraft(useStored(`story-choice:create-form:${user}`));
   const recent = library.slice(0, 4);
   const fmt = (t: number) => new Date(t).toLocaleDateString("ko-KR", { month: "long", day: "numeric" });
   const careDays = pet.state.careDates.length;
   const stage = petStage(pet.state.growthDays);
   const reading = s.step === "story";
-  const resumable = reading || Boolean(s.draft);
+  const resumableRead = reading || Boolean(s.draft);
+  const resumableCreate = !resumableRead && hasCreateDraft(createDraft);
+  const resumable = resumableRead || resumableCreate;
   const resumableTitle = reading ? s.title : s.draft?.title;
 
   // 상황에 맞는 한 줄 인사
   const message = resumable
-    ? `읽던 동화 「${resumableTitle}」, 이어서 만들어 볼까요?`
+    ? resumableRead
+      ? `읽던 동화 「${resumableTitle}」, 이어서 만들어 볼까요?`
+      : "만들던 동화 설정을 이어서 작성해 볼까요?"
     : s.savedMemo
       ? "지난 대화 메모를 이어서, 새로운 이야기를 만들어 볼까요?"
       : (
@@ -55,8 +62,8 @@ function LoggedInHome() {
 
         <div className="mx-auto mt-6 flex max-w-sm flex-col gap-3">
           {resumable && (
-            <Link href="/read" className={btnPrimary}>
-              이어 만들기
+            <Link href={resumableRead ? "/read" : "/create"} className={btnPrimary}>
+              {resumableRead ? "이어 만들기" : "만들던 동화 이어서 만들기"}
             </Link>
           )}
           <Link href="/create" className={resumable ? "calm text-[15px] text-sky-ink-2 underline hover:text-sky-ink" : btnPrimary}>
