@@ -58,3 +58,25 @@ export function StarJar() {
     </svg>
   );
 }
+
+export function CalendarIcon({ size = 44 }: { size?: number }) {
+  return (
+    <svg viewBox="0 0 48 48" width={size} height={size} {...LINE} aria-hidden>
+      <rect x="7" y="10" width="34" height="31" rx="5" fill="#fffdf6" />
+      <path d="M7 20h34M16 6v8M32 6v8" />
+      <circle cx="18" cy="29" r="2" fill="#e66558" stroke="none" /><circle cx="26" cy="29" r="2" fill="#d9ccb2" stroke="none" /><circle cx="34" cy="29" r="2" fill="#d9ccb2" stroke="none" />
+      <circle cx="18" cy="35" r="2" fill="#d9ccb2" stroke="none" /><circle cx="26" cy="35" r="2" fill="#d9ccb2" stroke="none" />
+    </svg>
+  );
+}
+
+// 아직 오늘 마음을 고르지 않았을 때 보여주는 기본 얼굴
+export function MoodFaceIcon({ size = 44 }: { size?: number }) {
+  return (
+    <svg viewBox="0 0 48 48" width={size} height={size} {...LINE} aria-hidden>
+      <circle cx="24" cy="24" r="16" fill="#fde9a8" />
+      <circle cx="18" cy="21" r="2" fill="#5a3e28" stroke="none" /><circle cx="30" cy="21" r="2" fill="#5a3e28" stroke="none" />
+      <path d="M17 29c3 4 11 4 14 0" />
+    </svg>
+  );
+}

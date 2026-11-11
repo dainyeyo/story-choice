@@ -695,3 +695,62 @@ html {
 .hatch-pop { animation: hatch-popin 1s cubic-bezier(.2, 1.5, .4, 1) both; transform-origin: 50% 100%; }
 @keyframes hatch-popin { 0% { transform: scale(.1) translateY(60px); opacity: 0; } 60% { transform: scale(1.12) translateY(-20px); opacity: 1; } 100% { transform: scale(1) translateY(0); opacity: 1; } }
 
+
+
+/* 마음친구 방: 다크(밤하늘)가 기본, 라이트(낮 언덕)는 html[data-theme="light"] */
+.pet-stage { position: relative; overflow: hidden; display: flex; flex-direction: column; min-height: 660px; border-radius: 26px; padding: 26px 18px 24px; color: #fff1c9;
+  background: radial-gradient(ellipse at 50% 40%, #2c3b82 0%, #16224f 55%, #0c1334 100%); box-shadow: 0 12px 40px rgba(0, 0, 0, .35); }
+.pet-glow { position: absolute; left: 50%; top: 22%; width: 540px; height: 540px; margin-left: -270px; border-radius: 50%; pointer-events: none; background: radial-gradient(circle, rgba(255, 226, 150, .36), rgba(255, 226, 150, 0) 66%); }
+.pet-hill, .pet-cloud { display: none; position: absolute; pointer-events: none; }
+.pet-title { color: #fff1c9; }
+.pet-sub { color: #b9c3ef; }
+.pet-chip { background: rgba(255, 255, 255, .14); color: #ffe9a8; }
+.pet-help { background: rgba(255, 255, 255, .14); color: #fff1c9; }
+.pet-speech { color: #fff1c9; }
+.pet-bar { background: rgba(255, 255, 255, .16); }
+.pet-bar-text { color: #b9c3ef; }
+.pet-shadow { background: rgba(0, 0, 0, .28); }
+.pet-dock { display: flex; justify-content: center; gap: 2px; padding: 8px; border-radius: 30px; background: rgba(255, 255, 255, .13); border: 1px solid rgba(255, 255, 255, .2); backdrop-filter: blur(8px); }
+.pet-act { width: 70px; color: #fff; text-align: center; }
+.pet-act-btn { display: grid; place-items: center; width: 64px; height: 58px; margin: 0 auto; border-radius: 20px; background: transparent; transition: background .2s, transform .2s; }
+.pet-act:hover:not(:disabled) .pet-act-btn { background: rgba(255, 255, 255, .12); }
+.pet-act:disabled { opacity: .55; }
+.pet-act-label { display: block; margin-top: 2px; font-size: 13px; white-space: nowrap; font-weight: 700; }
+.pet-act-sub { display: block; font-size: 12px; color: #ffe9a8; }
+.pet-act-btn svg { stroke: #fff3dc; }
+.pet-pop { background: rgba(20, 29, 74, .94); border: 1px solid rgba(255, 255, 255, .2); }
+.pet-pop button { background: rgba(255, 255, 255, .08); }
+.pet-pop button[aria-pressed="true"] { outline: 3px solid #f59e0b; outline-offset: 2px; }
+.pet-text-link { color: #b9c3ef; }
+
+html[data-theme="light"] .pet-stage { color: #3b2f25; background: linear-gradient(180deg, #cfe8f7 0%, #f4efe0 62%); box-shadow: 0 12px 34px rgba(120, 90, 40, .18); }
+html[data-theme="light"] .pet-glow { display: none; }
+html[data-theme="light"] .pet-hill, html[data-theme="light"] .pet-cloud { display: block; }
+html[data-theme="light"] .pet-title { color: #3b2f25; }
+html[data-theme="light"] .pet-sub { color: #65574a; }
+html[data-theme="light"] .pet-chip { background: #fff; color: #7a4a10; }
+html[data-theme="light"] .pet-help { background: #fff; color: #3b2f25; }
+html[data-theme="light"] .pet-speech { color: #3b2f25; }
+html[data-theme="light"] .pet-bar { background: rgba(255, 255, 255, .7); }
+html[data-theme="light"] .pet-bar-text { color: #3d5f2e; }
+html[data-theme="light"] .pet-shadow { background: rgba(40, 90, 30, .22); }
+html[data-theme="light"] .pet-dock { gap: 8px; padding: 0; background: transparent; border: 0; backdrop-filter: none; }
+html[data-theme="light"] .pet-act { width: 70px; color: #244a1a; }
+html[data-theme="light"] .pet-act-btn { width: 70px; height: 70px; border-radius: 50%; background: #fff; box-shadow: 0 6px 0 rgba(60, 110, 40, .35); }
+html[data-theme="light"] .pet-act:hover:not(:disabled) .pet-act-btn { background: #fff; transform: translateY(-2px); }
+html[data-theme="light"] .pet-act-label { margin-top: 8px; font-size: 15px; }
+html[data-theme="light"] .pet-act-sub { color: #3d5f2e; }
+html[data-theme="light"] .pet-act-btn svg { stroke: #5a3e28; }
+html[data-theme="light"] .pet-pop { background: #fff; border: 0; box-shadow: 0 8px 24px rgba(60, 110, 40, .3); }
+html[data-theme="light"] .pet-pop button { background: #f6f1e4; }
+html[data-theme="light"] .pet-text-link { color: #6b5a3f; }
+@media (min-width: 640px) {
+  .pet-dock { gap: 6px; padding: 10px 14px; }
+  .pet-act { width: 112px; }
+  .pet-act-btn { width: 72px; height: 62px; }
+  .pet-act-label { font-size: 14px; }
+  html[data-theme="light"] .pet-dock { gap: 22px; padding: 0; }
+  html[data-theme="light"] .pet-act { width: 104px; }
+  html[data-theme="light"] .pet-act-btn { width: 104px; height: 104px; }
+}
+
