@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { ageLabel } from "@/lib/story/schema";
 import { useApp } from "../providers";
 import { btnPrimary, COPING_NAME } from "../components/ui";
+import DeleteStoryDialog from "./DeleteStoryDialog";
 
 // 책등 색: 서재 느낌이 나도록 차분한 책 색을 쓴다. 글씨는 모두 크림색이라 대비가 충분한 어두운 색만 둔다.
 const SPINES = ["#b45309", "#9a3412", "#4d6b3a", "#1f5f7a", "#7c3a5b", "#7a5a2b", "#3f4f7a"];
@@ -36,9 +37,11 @@ export default function LibraryPage() {
   const { library, deleteStory } = useApp();
   const perShelf = useBooksPerShelf();
   const [openId, setOpenId] = useState<string | null>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
   const fmt = (t: number) => new Date(t).toLocaleDateString("ko-KR", { year: "numeric", month: "long", day: "numeric" });
 
   const open = library.find((r) => String(r.id) === openId) ?? null;
+  const deleting = library.find((r) => String(r.id) === deleteId) ?? null;
   const shelves: (typeof library)[] = [];
   for (let i = 0; i < Math.max(library.length, 1); i += perShelf) shelves.push(library.slice(i, i + perShelf));
 
@@ -137,17 +140,24 @@ export default function LibraryPage() {
           </section>
 
           <button
-            onClick={() => {
-              if (window.confirm("이 동화를 서재에서 지울까요? 되돌릴 수 없어요.")) {
-                deleteStory(open.id);
-                setOpenId(null);
-              }
-            }}
+            onClick={() => setDeleteId(String(open.id))}
             className="calm text-sm text-danger underline hover:opacity-80"
           >
             삭제
           </button>
         </article>
+      )}
+      {deleting && (
+        <DeleteStoryDialog
+          key={`${deleting.id}:${deleting.title}`}
+          title={deleting.title}
+          onCancel={() => setDeleteId(null)}
+          onConfirm={() => {
+            deleteStory(deleting.id);
+            setDeleteId(null);
+            setOpenId(null);
+          }}
+        />
       )}
     </main>
   );
