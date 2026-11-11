@@ -27,18 +27,21 @@ html[data-theme="light"] {
   --logo-bg: transparent;
 }
 
-/* 로고: 다크에서는 밝게 뒤집고 가장자리가 번지는 은은한 빛 위에, 라이트에서는 그대로 */
+/* 로고: 다크에서는 글자·테두리가 흰색인 버전을 은은한 빛 위에, 라이트에서는 원래 로고 */
 .logo-glow {
   background: radial-gradient(ellipse at center, rgb(255 233 168 / 0.16) 0%, rgb(255 233 168 / 0.06) 55%, transparent 80%);
 }
-.logo-img {
-  filter: invert(1) hue-rotate(180deg) brightness(1.15);
+.logo-light {
+  display: none;
 }
 html[data-theme="light"] .logo-glow {
   background: none;
 }
-html[data-theme="light"] .logo-img {
-  filter: none;
+html[data-theme="light"] .logo-light {
+  display: block;
+}
+html[data-theme="light"] .logo-dark {
+  display: none;
 }
 
 .sky-night {

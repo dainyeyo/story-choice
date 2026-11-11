@@ -30,9 +30,19 @@ export function LogoFull({ height = 80, className = "" }: { height?: number; cla
 
 export default function Logo() {
   return (
-    // 다크 모드(밤하늘)에서는 로고 색을 밝게 뒤집고, 은은한 빛 번짐 위에 올려 배경에 자연스럽게 섞는다 (globals.css의 .logo-glow, .logo-img)
+    // 다크 모드(밤하늘)에서는 글자·테두리만 흰색으로 바꾼 로고(pictory-logo-dark.png, 노란 메인 색은 그대로)를 보여 주고,
+    // 은은한 빛 번짐 위에 올려 배경에 섞는다. 어느 쪽을 보일지는 globals.css의 .logo-light / .logo-dark가 고른다
     <span className="logo-glow flex items-center rounded-2xl px-3 py-0.5">
-      <LogoFull height={70} className="logo-img h-[48px] w-auto md:h-[58px]" />
+      <LogoFull height={70} className="logo-light h-[48px] w-auto md:h-[58px]" />
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/pictory-logo-dark.png"
+        alt=""
+        aria-hidden
+        width={Math.round((70 * 1272) / 472)}
+        height={70}
+        className="logo-dark h-[48px] w-auto md:h-[58px]"
+      />
       <span className="sr-only">Pictory, 아이의 그림이 하나의 이야기가 됩니다</span>
     </span>
   );
