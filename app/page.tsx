@@ -71,17 +71,25 @@ function LoggedInHome() {
       <div className="mt-8 grid gap-6 md:grid-cols-2 md:gap-8">
         <Link
           href="/pet"
-          className="calm flex flex-col rounded-2xl border border-line bg-surface p-5 hover:bg-sunk/60 md:p-6"
+          aria-label="나의 마음 친구 만나러 가기"
+          className="calm flex flex-col items-center justify-center py-2"
         >
-          <span className="story text-xl text-ink">나의 마음 친구</span>
-          <span className="flex flex-1 flex-col items-center justify-center gap-2 py-4">
-            <PetAvatar stage={stage.index} mood={pet.state.moods[localDateKey()]} className="w-40" />
-            <span className="story text-xl text-ink">{pet.state.name}</span>
-            <span className="text-sm text-ink-2">{stage.name} · 함께한 지 {careDays}일</span>
+          {/* 집 모양: 지붕 + 몸체 + 둥근 문 안에 친구가 들어가 있다 */}
+          <span className="flex w-full max-w-[300px] flex-col items-center">
+            <svg viewBox="0 0 300 96" className="relative z-10 -mb-1 w-full" aria-hidden>
+              <polygon points="150,6 294,90 6,90" fill="#a8622f" />
+              <polygon points="150,22 262,86 38,86" fill="#c27a3f" />
+              <rect x="0" y="86" width="300" height="10" rx="4" fill="#8a4f25" />
+            </svg>
+            <span className="flex h-[210px] w-[88%] items-end justify-center rounded-b-xl bg-[#e9bd86] px-6">
+              <span className="flex h-[176px] w-[170px] items-end justify-center overflow-hidden rounded-t-full bg-[#5b3a22] shadow-[inset_0_6px_14px_rgba(0,0,0,0.35)]">
+                <PetAvatar stage={stage.index} mood={pet.state.moods[localDateKey()]} className="mb-2 w-[130px]" />
+              </span>
+            </span>
+            <span className="h-3 w-[94%] rounded-b-md bg-[#8a4f25]" />
           </span>
-          <span className="inline-flex items-center justify-center gap-1 text-[15px] text-ink-2">
-            만나러 가기 <Icon name="right" size={16} />
-          </span>
+          <span className="story mt-4 text-xl text-sky-ink">{pet.state.name}</span>
+          <span className="text-sm text-sky-ink-2">{stage.name} · 함께한 지 {careDays}일</span>
         </Link>
 
         <section className="flex flex-col rounded-2xl border border-line bg-surface p-5 md:p-6">
