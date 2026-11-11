@@ -114,8 +114,8 @@ html.theme-fade [class*="text-nav-on"] {
 
 .sky-orbit {
   /* 궤도를 크게 잡아 해·달이 화면 위쪽 오른쪽 여백(가운데 내용 옆)에 오게 한다 */
-  --orbit-r: 88vh;
-  --base-angle: 38deg;
+  --orbit-r: min(88vh, 53vw); /* 너비로도 제한해서 좁은 데스크톱에서도 화면 밖으로 안 나가게 */
+  --base-angle: 52deg;
   /* --sky-spin은 모드를 바꿀 때마다 ThemeToggle이 1씩 올린다. 각도가 계속 커지므로 늘 같은 방향(시계 방향)으로만 돈다 */
   --angle: calc(var(--base-angle) + var(--sky-spin, 0) * 180deg);
   transform: rotate(var(--angle));
@@ -126,6 +126,7 @@ html[data-theme="light"] {
 }
 @media (max-width: 767px) {
   .sky-orbit {
+    --orbit-r: 88vh;
     --base-angle: 12deg; /* 좁은 화면: 오른쪽 위 모서리, 상단 바로 아래 */
   }
 }
