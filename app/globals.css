@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* 우리 아이 동화 디자인 토큰
+/* 픽토리 디자인 토큰
    방향: 취침 전 그림책. 종이와 램프 불빛. 바탕과 표면은 조용하게 두고, 색은 삽화와 주요 버튼에만 쓴다. */
 
 :root {
@@ -19,7 +19,7 @@
   --color-accent-hover: #e08e00;
   --color-accent-text: #92400e; /* 밝은 면 위의 강조 글씨 */
   --color-danger: #b42318;
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-story), "Malgun Gothic", sans-serif;
   --font-mono: var(--font-geist-mono);
 }
 
@@ -28,9 +28,10 @@ html {
 }
 
 body {
+  overflow-x: clip;
   background: #fff7e8;
   color: #3b2f25;
-  font-family: system-ui, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  font-family: var(--font-story), "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
   /* 한글은 단어 중간에서 줄을 바꾸지 않는다 */
   word-break: keep-all;
   overflow-wrap: break-word;
@@ -64,6 +65,22 @@ body {
 }
 @utility rise {
   animation: rise 400ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* 페이지가 바뀔 때: 책장이 왼쪽 가장자리를 축으로 넘어와 펼쳐진다 */
+@keyframes page-turn {
+  from {
+    opacity: 0;
+    transform: perspective(1400px) rotateY(-16deg) translateX(28px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@utility page-turn {
+  transform-origin: left center;
+  animation: page-turn 550ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 /* 불러오는 중에만 쓴다 */

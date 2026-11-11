@@ -31,7 +31,7 @@ export default function ReadPage() {
 
   if (s.step === "loading") {
     return (
-      <main className="rise mx-auto w-full max-w-md space-y-4 px-4 py-8 md:max-w-5xl md:px-8 md:py-12">
+      <main className="page-turn mx-auto w-full max-w-md space-y-4 px-4 py-8 md:max-w-5xl md:px-8 md:py-12">
         {s.usedFallback && <FallbackNote />}
         <div className="flex flex-col items-center gap-6 rounded-2xl border border-line bg-surface px-6 py-24 text-center">
           <Icon name="book" size={32} className="text-accent-text" />
@@ -55,7 +55,7 @@ export default function ReadPage() {
   if (s.step !== "story") return null;
 
   return (
-    <main className="rise mx-auto w-full max-w-md space-y-6 px-4 py-6 md:max-w-5xl md:space-y-8 md:px-8 md:py-10">
+    <main className="page-turn mx-auto w-full max-w-md space-y-6 px-4 py-6 md:max-w-5xl md:space-y-8 md:px-8 md:py-10">
       {s.error && (
         <p role="alert" className={errorCls}>
           {s.error}

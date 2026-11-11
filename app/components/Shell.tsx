@@ -7,19 +7,20 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, type ReactNode } from "react";
 import { useAuth } from "../providers";
 import Icon, { type IconName } from "./Icon";
+import Logo from "./Logo";
 
 const PUBLIC = ["/", "/login"];
 
 const MENU: { href: string; label: string; icon: IconName }[] = [
   { href: "/", label: "홈", icon: "home" },
-  { href: "/create", label: "동화 만들기", icon: "plus" },
+  { href: "/create", label: "새 동화", icon: "plus" },
   { href: "/library", label: "내 서재", icon: "book" },
   { href: "/pet", label: "마음 친구", icon: "pet" },
   { href: "/settings", label: "설정", icon: "sliders" },
 ];
 
 export default function Shell({ children }: { children: ReactNode }) {
-  const { ready, user } = useAuth();
+  const { ready, user, logOut } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
 
@@ -32,21 +33,22 @@ export default function Shell({ children }: { children: ReactNode }) {
   }, [blocked, ready, user, pathname, router]);
 
   const active = (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href));
-  // 읽는 중에는 "동화 만들기" 탭을 켜 둔다
+  // 읽는 중에는 "새 동화" 탭을 켜 둔다
   const isMenuActive = (href: string) =>
     active(href) || (href === "/create" && (pathname.startsWith("/read") || pathname.startsWith("/card")));
 
   return (
     <div className="flex min-h-dvh flex-col">
       <header className="sticky top-0 z-20 border-b border-line bg-paper/95 backdrop-blur">
-        <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4 md:h-16 md:px-8">
-          <Link href="/" className="flex items-center gap-2 text-ink">
-            <Icon name="moon" size={20} className="text-accent-text" />
-            <span className="story text-lg">우리 아이 동화</span>
+        {/* 왼쪽 빈칸 · 가운데 로고 · 오른쪽 끝 메뉴 */}
+        <div className="grid h-[72px] grid-cols-[1fr_auto_1fr] items-center px-4 md:h-20 md:px-8">
+          <div aria-hidden />
+          <Link href="/" aria-label="픽토리 홈">
+            <Logo />
           </Link>
 
           {user ? (
-            <nav className="hidden items-center gap-1 md:flex" aria-label="주 메뉴">
+            <nav className="hidden items-center justify-end gap-1 md:flex" aria-label="주 메뉴">
               {MENU.map((m) => (
                 <Link
                   key={m.href}
@@ -59,13 +61,24 @@ export default function Shell({ children }: { children: ReactNode }) {
                   {m.label}
                 </Link>
               ))}
+              <button
+                onClick={() => {
+                  logOut();
+                  router.replace("/");
+                }}
+                className="calm ml-2 inline-flex h-9 items-center rounded-lg border-l border-line pl-4 pr-3 text-[15px] text-ink-2 hover:text-ink"
+              >
+                로그아웃
+              </button>
             </nav>
           ) : (
-            ready && (
-              <Link href="/login" className="calm text-[15px] text-ink-2 hover:text-ink">
-                로그인
-              </Link>
-            )
+            <div className="flex justify-end">
+              {ready && (
+                <Link href="/login" className="calm text-[15px] text-ink-2 hover:text-ink">
+                  로그인
+                </Link>
+              )}
+            </div>
           )}
         </div>
       </header>

@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 const PATHS: Record<string, ReactNode> = {
   home: <path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z" />,
   plus: <path d="M12 5v14M5 12h14" />,
+  close: <path d="M18 6 6 18M6 6l12 12" />,
   book: <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />,
   sliders: <path d="M21 4h-7M10 4H3M21 12h-9M8 12H3M21 20h-5M12 20H3M14 2v4M8 10v4M16 18v4" />,
   pet: <path d="M7 10c-3-4 1-7 4-4l1 1 1-1c3-3 7 0 4 4 2 2 3 4 3 7 0 4-3 5-8 5s-8-1-8-5c0-3 1-5 3-7ZM9 15h.01M15 15h.01M10 18c1 1 3 1 4 0" />,
