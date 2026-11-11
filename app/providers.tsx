@@ -10,6 +10,7 @@ import { parseLibrary, type SavedStory } from "@/lib/library";
 import { readRaw, removeKey, useStored, writeRaw } from "@/lib/localStore";
 import { DEFAULT_SETTINGS, parseSettings, type Settings } from "@/lib/settings";
 import { useNarration } from "./useNarration";
+import { usePet } from "./usePet";
 import { useStory } from "./useStory";
 
 // ───────── 로그인 ─────────
@@ -62,11 +63,13 @@ export function useAuth() {
 
 type StoryHook = ReturnType<typeof useStory>;
 type NarrationHook = ReturnType<typeof useNarration>;
+type PetHook = ReturnType<typeof usePet>;
 
 interface AppValue {
   user: string;
   s: StoryHook;
   n: NarrationHook;
+  pet: PetHook;
   library: SavedStory[];
   settings: Settings;
   setSettings: (next: Settings) => void;
@@ -93,6 +96,8 @@ function StoryProvider({ user, children }: { user: string; children: ReactNode }
   const settingsRaw = useStored(settingsKey);
   const library = useMemo(() => parseLibrary(libRaw), [libRaw]);
   const settings = useMemo(() => parseSettings(settingsRaw), [settingsRaw]);
+  const pet = usePet(user, library);
+  const markPetCare = pet.markCare;
 
   // 부모 카드가 만들어지면 그 동화를 서재에 한 번 저장한다.
   const savedCard = useRef<unknown>(null);
@@ -115,7 +120,8 @@ function StoryProvider({ user, children }: { user: string; children: ReactNode }
       memo: "",
     };
     writeRaw(libKey, JSON.stringify([entry, ...parseLibrary(readRaw(libKey))]));
-  }, [s.step, s.card, s.req, s.title, s.scenes, s.chosen, libKey]);
+    markPetCare();
+  }, [s.step, s.card, s.req, s.title, s.scenes, s.chosen, libKey, markPetCare]);
 
   const saveMemo = useCallback(
     (text: string) => {
@@ -126,8 +132,9 @@ function StoryProvider({ user, children }: { user: string; children: ReactNode }
         list[i] = { ...list[i], memo: text.trim() };
         writeRaw(libKey, JSON.stringify(list));
       }
+      if (text.trim()) markPetCare();
     },
-    [s, libKey],
+    [s, libKey, markPetCare],
   );
 
   const deleteStory = useCallback(
@@ -138,13 +145,14 @@ function StoryProvider({ user, children }: { user: string; children: ReactNode }
   const clearMyData = useCallback(() => {
     removeKey(libKey);
     removeKey(`story-choice:lastMemo:${user}`);
+    removeKey(`story-choice:pet:${user}`);
     s.saveMemo("");
     s.reset();
   }, [libKey, user, s]);
 
   const setSettings = useCallback((next: Settings) => writeRaw(settingsKey, JSON.stringify(next)), [settingsKey]);
 
-  const value: AppValue = { user, s, n, library, settings: settings ?? DEFAULT_SETTINGS, setSettings, saveMemo, deleteStory, clearMyData };
+  const value: AppValue = { user, s, n, pet, library, settings: settings ?? DEFAULT_SETTINGS, setSettings, saveMemo, deleteStory, clearMyData };
   return <AppCtx.Provider value={value}>{children}</AppCtx.Provider>;
 }
 

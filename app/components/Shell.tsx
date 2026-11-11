@@ -14,6 +14,7 @@ const MENU: { href: string; label: string; icon: IconName }[] = [
   { href: "/", label: "홈", icon: "home" },
   { href: "/create", label: "동화 만들기", icon: "plus" },
   { href: "/library", label: "내 서재", icon: "book" },
+  { href: "/pet", label: "마음 친구", icon: "pet" },
   { href: "/settings", label: "설정", icon: "sliders" },
 ];
 
@@ -76,7 +77,7 @@ export default function Shell({ children }: { children: ReactNode }) {
       {user && (
         <nav
           aria-label="주 메뉴"
-          className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-4 border-t border-line bg-surface/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden"
+          className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-5 border-t border-line bg-surface/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden"
         >
           {MENU.map((m) => {
             const on = isMenuActive(m.href);

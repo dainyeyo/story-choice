@@ -3,8 +3,10 @@
 import Link from "next/link";
 import { useApp, useAuth } from "./providers";
 import Icon from "./components/Icon";
+import PetAvatar from "./components/PetAvatar";
 import SceneArt from "./components/SceneArt";
 import { btnPrimary, noteCls, PageHeader } from "./components/ui";
+import { localDateKey, petStage } from "@/lib/pet";
 
 const STEPS = [
   { title: "아이의 마음을 고릅니다", text: "치과가 무서워, 동생이 생겼어. 요즘 아이를 힘들게 하는 일을 고르거나 직접 적습니다." },
@@ -68,7 +70,7 @@ function LoggedOutHome() {
 }
 
 function LoggedInHome() {
-  const { user, s, library } = useApp();
+  const { user, s, library, pet } = useApp();
   const recent = library.slice(0, 4);
   const fmt = (t: number) => new Date(t).toLocaleDateString("ko-KR", { month: "long", day: "numeric" });
 
@@ -78,6 +80,16 @@ function LoggedInHome() {
 
       <div className="mt-8 grid gap-10 md:grid-cols-[2fr_3fr] md:gap-16">
         <section className="space-y-4">
+          <Link href="/pet" className="calm flex items-center gap-4 rounded-2xl border border-line bg-surface p-4 hover:bg-sunk/60">
+            <PetAvatar stage={petStage(pet.state.careDates.length).index} mood={pet.state.moods[localDateKey()]} className="size-20 shrink-0" />
+            <span className="min-w-0 flex-1">
+              <span className="block text-sm text-ink-3">나의 마음 친구</span>
+              <span className="story mt-1 block text-xl text-ink">{petStage(pet.state.careDates.length).name}</span>
+              <span className="mt-1 block text-sm text-ink-2">함께한 지 {pet.state.careDates.length}일 · 만나러 가기</span>
+            </span>
+            <Icon name="right" className="text-ink-3" />
+          </Link>
+
           {s.step === "story" && (
             <div className="space-y-3 rounded-2xl border border-line bg-surface p-5">
               <p className="text-sm text-ink-3">읽던 동화</p>
