@@ -61,10 +61,15 @@ function find(tree, predicate) {
   }
 }
 
-function setup() {
+function setup({ savedMemo = '' } = {}) {
   const story = hookRuntime(), page = hookRuntime();
   const navigations = [], deleted = [], drawings = [];
-  const store = { useStored: () => '', readRaw: () => '', writeRaw: () => {}, removeKey: key => deleted.push(key) };
+  const store = {
+    useStored: () => '',
+    readRaw: key => key === 'story-choice:lastMemo:tester' ? savedMemo : '',
+    writeRaw: () => {},
+    removeKey: key => deleted.push(key),
+  };
   const { useStory } = loadTs('app/useStory.ts', {
     react: story.react,
     '@/lib/localStore': store,
@@ -135,7 +140,7 @@ test('creation waits for success before navigating and blocks duplicate submissi
     request = JSON.parse(init.body);
     return new Promise(done => { resolve = done; });
   };
-  const state = setup();
+  const state = setup({ savedMemo: '지난 동화의 메모' });
   const submit = find(state.render(), node => node.type === 'form').props.onSubmit;
   const pending = submit({ preventDefault() {} });
   await Promise.resolve();
@@ -147,6 +152,7 @@ test('creation waits for success before navigating and blocks duplicate submissi
   assert.equal(find(loading, node => node.type === 'canvas').props.ref.current, state.canvas);
   assert.deepEqual({ age: request.age, situation: request.situation, duration: request.durationMin, protagonist: request.protagonist, drawing: request.hasUserDrawing },
     { age: 7, situation: '밤에 혼자 자기 무서워', duration: 8, protagonist: '파란 토끼', drawing: true });
+  assert.equal(request.previousMemo, undefined, 'ordinary creation must not inherit the previous story memo');
   resolve(Response.json(segment));
   await pending;
   assert.deepEqual(state.navigations, ['/read']);

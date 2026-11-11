@@ -163,11 +163,11 @@ export function useStory(user = "guest") {
         situation,
         durationMin: input.durationMin,
         protagonist: input.protagonist?.trim() || undefined,
-        previousMemo: (previousMemo ?? savedMemo).trim() || undefined,
+        previousMemo: previousMemo?.trim() || undefined,
         recentContext: input.recentContext?.trim() || undefined,
       });
     },
-    [begin, savedMemo],
+    [begin],
   );
 
   const pick = useCallback(

@@ -10,7 +10,7 @@ import { MAX_AGE, MAX_DURATION, MIN_AGE, MIN_DURATION } from "@/lib/story/schema
 import { useApp } from "../providers";
 import Icon from "../components/Icon";
 import { WritingAnimation } from "../components/LoadingAnimation";
-import { btnPrimary, chipCls, errorCls, inputCls, Label, noteCls, Segmented } from "../components/ui";
+import { btnPrimary, chipCls, errorCls, inputCls, Label, Segmented } from "../components/ui";
 
 // 화면에만 보여 주는 추가 예시. PRESETS와 달리 폴백 동화가 없어서 AI 실패 시엔 직접 추가한 고민처럼 다뤄진다.
 // (PRESETS를 늘리면 폴백 데이터를 다시 만들어야 하므로 여기 따로 둔다)
@@ -455,13 +455,6 @@ export function CreateForm({ fresh = false }: { fresh?: boolean }) {
             </div>
           </div>
         </section>
-
-        {s.savedMemo && (
-          <p className={`${noteCls}`}>
-            지난 동화의 메모가 이번 동화에 이어져요
-            <span className="mt-1 block text-ink">“{s.savedMemo}”</span>
-          </p>
-        )}
 
         <div className="md:flex md:justify-center">
           <button type="submit" disabled={submitting} className={`${btnPrimary} md:w-64 disabled:opacity-50`}>

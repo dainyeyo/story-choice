@@ -31,15 +31,13 @@ function LoggedInHome() {
     ? resumableRead
       ? `읽던 동화 「${resumableTitle}」, 이어서 만들어 볼까요?`
       : "만들던 동화 설정을 이어서 작성해 볼까요?"
-    : s.savedMemo
-      ? "지난 대화 메모를 이어서, 새로운 이야기를 만들어 볼까요?"
-      : (
-          <>
-            아이의 마음에서 시작되는 이야기를
-            <br />
-            만들어 볼까요?
-          </>
-        );
+    : (
+        <>
+          아이의 마음에서 시작되는 이야기를
+          <br />
+          만들어 볼까요?
+        </>
+      );
 
   return (
     <main className="page-turn mx-auto w-full max-w-md px-4 pb-8 md:max-w-5xl md:px-8 md:pb-12">
@@ -53,12 +51,6 @@ function LoggedInHome() {
           <br />
           {message}
         </h1>
-
-        {s.savedMemo && !resumable && (
-          <p className="mx-auto mt-4 max-w-md rounded-xl bg-surface/70 px-4 py-3 text-[15px] text-ink-2">
-            지난 메모 <span className="text-ink">“{s.savedMemo}”</span>
-          </p>
-        )}
 
         <div className="mx-auto mt-6 flex max-w-sm flex-col gap-3">
           {resumable && (
