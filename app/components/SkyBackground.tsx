@@ -21,7 +21,7 @@ const PAPER_NOISE =
 
 function Hills({ tones, tree, house, window: win }: { tones: [string, string, string]; tree: string; house: string; window: string }) {
   return (
-    <svg className="absolute inset-x-0 bottom-0 h-[160px] w-full md:h-[200px]" viewBox="0 0 1040 200" preserveAspectRatio="none">
+    <svg className="absolute inset-x-0 bottom-0 h-[210px] w-full md:h-[270px]" viewBox="0 0 1040 200" preserveAspectRatio="none">
       <path d="M0 110 Q200 50 420 105 T820 95 T1040 85 V200 H0z" fill={tones[0]} />
       <path d="M0 150 Q240 100 500 145 T1040 130 V200 H0z" fill={tones[1]} />
       <path d="M0 188 Q260 150 540 180 T1040 172 V200 H0z" fill={tones[2]} />
@@ -60,7 +60,7 @@ export default function SkyBackground() {
       </svg>
 
       {/* 해와 달: 화면 아래 가운데를 중심으로 도는 궤도 위에 서로 반대편에 있다 */}
-      <div className="sky-orbit absolute left-1/2 top-full h-0 w-0">
+      <div className="sky-orbit absolute left-1/2 top-[88%] h-0 w-0">
         <div className="sky-body sky-moon absolute">
           <svg width="96" height="96" viewBox="-48 -48 96 96">
             <circle r="46" fill="#ffe9a8" opacity=".14" />
