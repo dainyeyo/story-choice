@@ -1,18 +1,58 @@
 "use client";
 
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { FONT_CLASS } from "@/lib/settings";
+import { TTS_VOICES } from "@/lib/tts";
 import { useApp, useAuth } from "../providers";
-import { btnSecondary, Card, PageHeader, Segmented } from "../components/ui";
+import Icon from "../components/Icon";
+import { btnSecondary, Card, errorCls, PageHeader, Segmented } from "../components/ui";
+
+const VOICE_PREVIEW = "옛날 옛적에, 작은 토끼가 살았어요. 우리 함께 동화 속으로 떠나 볼까요?";
 
 export default function SettingsPage() {
-  const { displayName, settings, setSettings, clearMyData } = useApp();
+  const { displayName, settings, setSettings, clearMyData, n } = useApp();
   const { logOut } = useAuth();
   const router = useRouter();
+  const { stop } = n;
+
+  useEffect(() => {
+    stop();
+    return stop;
+  }, [stop]);
 
   return (
     <main className="page-turn mx-auto w-full max-w-md space-y-8 px-4 py-8 md:max-w-2xl md:px-8 md:py-12">
       <PageHeader title="설정" sub={`${displayName} 보호자님`} />
+
+      <Card className="space-y-4">
+        <h2 className="story text-xl text-ink">동화 읽어주는 목소리</h2>
+        <p className="text-[15px] leading-7 text-ink-2">
+          동화에서 읽어주기를 누르면 선택한 목소리로 들려드려요. 선택은 자동으로 저장돼요.
+        </p>
+        <Segmented
+          label="낭독 목소리"
+          value={settings.ttsVoice}
+          onChange={(ttsVoice) => {
+            n.stop();
+            setSettings({ ...settings, ttsVoice });
+          }}
+          options={[
+            { value: "sunhi" as const, label: TTS_VOICES.sunhi.label },
+            { value: "hyunsu" as const, label: TTS_VOICES.hyunsu.label },
+          ]}
+          fullWidth
+        />
+        <button
+          type="button"
+          onClick={() => n.speaking ? n.stop() : void n.speak(VOICE_PREVIEW, settings.ttsVoice)}
+          className={`${btnSecondary} w-full`}
+        >
+          <Icon name={n.speaking ? "stop" : "volume"} size={18} />
+          {n.speaking ? "미리 듣기 멈춤" : "선택한 목소리 미리 듣기"}
+        </button>
+        {n.error && <p role="alert" className={errorCls}>{n.error}</p>}
+      </Card>
 
       <Card className="space-y-4">
         <h2 className="story text-xl text-ink">동화 글자 크기</h2>

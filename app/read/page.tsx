@@ -149,7 +149,10 @@ export default function ReadPage() {
                   <Segmented
                     label="낭독 목소리"
                     value={settings.ttsVoice}
-                    onChange={(ttsVoice) => setSettings({ ...settings, ttsVoice })}
+                    onChange={(ttsVoice) => {
+                      n.stop();
+                      setSettings({ ...settings, ttsVoice });
+                    }}
                     options={[
                       { value: "sunhi" as const, label: TTS_VOICES.sunhi.label },
                       { value: "hyunsu" as const, label: TTS_VOICES.hyunsu.label },
