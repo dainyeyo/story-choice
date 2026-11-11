@@ -20,12 +20,11 @@ export function DrawingAnimation() {
   return (
     <div className="flex aspect-[4/3] w-full flex-col items-center justify-center gap-3 rounded-xl bg-sunk text-accent-text" role="status">
       <svg viewBox="0 0 160 120" className="h-28 w-36" aria-hidden="true">
-        <rect x="19" y="17" width="122" height="86" rx="6" fill="#fffdf8" stroke="currentColor" strokeWidth="2.5" />
-        <circle cx="112" cy="39" r="9" fill="#f8d796" />
-        <path className="drawing-lines" d="M28 86 54 57l18 19 13-13 27 23H28Z" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" pathLength="100" />
-        <g className="drawing-pencil">
-          <path d="m80 75 24-38 7 4-24 38-10 5Z" fill="#f5b747" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
-          <path d="m77 84 3-9 7 4Z" fill="#fff7e8" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+        <path className="drawing-stroke" d="M30 76h90" fill="none" stroke="#d98c58" strokeWidth="10" strokeLinecap="round" pathLength="100" />
+        <g className="drawing-brush">
+          <path d="m32 67 24-36a5 5 0 0 1 8 5L40 72Z" fill="#d9a66d" stroke="#8d603f" strokeWidth="2" strokeLinejoin="round" />
+          <path d="m32 67 8 5-3 5-8-5Z" fill="#f1d3a5" stroke="#8d603f" strokeWidth="1.5" />
+          <path d="M29 72c-2 3-2 5-5 7 5 1 10 0 13-2Z" fill="#d98c58" />
         </g>
       </svg>
       <span className="story text-base text-ink-2">이 장면의 그림을 그리고 있어요</span>

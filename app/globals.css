@@ -282,8 +282,8 @@ body {
 .writing-line { stroke-dasharray: 100; stroke-dashoffset: 100; animation: writing-line 3s linear infinite; }
 .writing-line-2 { animation-name: writing-line-2; }
 .writing-line-3 { animation-name: writing-line-3; }
-.drawing-pencil { animation: drawing-pencil 3.5s ease-in-out infinite; }
-.drawing-lines { animation: reveal-lines 3.5s ease-in-out infinite; }
+.drawing-brush { animation: drawing-brush 3s linear infinite; }
+.drawing-stroke { stroke-dasharray: 100; stroke-dashoffset: 100; animation: drawing-stroke 3s linear infinite; }
 @keyframes writing-pencil {
   0% { transform: translate(-2px, -7px); }
   25%, 30% { transform: translate(22px, -7px); }
@@ -304,16 +304,17 @@ body {
   0%, 70% { stroke-dashoffset: 100; }
   95%, 100% { stroke-dashoffset: 0; }
 }
-@keyframes drawing-pencil {
-  0% { transform: translate(-46px, 2px); }
-  25% { transform: translate(-20px, -27px); }
-  45% { transform: translate(-2px, -8px); }
-  65% { transform: translate(11px, -21px); }
-  90%, 100% { transform: translate(38px, 2px); }
+@keyframes drawing-brush {
+  0% { transform: translateX(0); }
+  85%, 100% { transform: translateX(90px); }
 }
-@keyframes reveal-lines {
-  0% { stroke-dasharray: 0 100; }
-  90%, 100% { stroke-dasharray: 100 100; }
+@keyframes drawing-stroke {
+  0% { stroke-dashoffset: 100; }
+  85%, 100% { stroke-dashoffset: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .drawing-brush { animation: none; transform: translateX(90px); }
+  .drawing-stroke { animation: none; stroke-dashoffset: 0; }
 }
 
 /* ───────── 첫 화면(Landing) ─────────
