@@ -11,16 +11,18 @@ import { localDateKey, petStage } from "@/lib/pet";
 
 
 function LoggedInHome() {
-  const { user, s, library, pet } = useApp();
+  const { displayName, s, library, pet } = useApp();
   const recent = library.slice(0, 4);
   const fmt = (t: number) => new Date(t).toLocaleDateString("ko-KR", { month: "long", day: "numeric" });
   const careDays = pet.state.careDates.length;
   const stage = petStage(pet.state.growthDays);
   const reading = s.step === "story";
+  const resumable = reading || Boolean(s.draft);
+  const resumableTitle = reading ? s.title : s.draft?.title;
 
   // 상황에 맞는 한 줄 인사
-  const message = reading
-    ? `읽던 동화 「${s.title}」, 이어서 읽어 볼까요?`
+  const message = resumable
+    ? `읽던 동화 「${resumableTitle}」, 이어서 만들어 볼까요?`
     : s.savedMemo
       ? "지난 대화 메모를 이어서, 새로운 이야기를 만들어 볼까요?"
       : "아이의 마음에서 시작되는 이야기를 만들어 볼까요?";
@@ -30,27 +32,27 @@ function LoggedInHome() {
       {/* 첫 화면: 인사 + 새 동화 만들기까지만. 나머지는 스크롤을 내리면 올라오며 나타난다 */}
       <div className="flex min-h-[calc(100dvh-72px)] flex-col items-center justify-center pb-16 pt-8 md:min-h-[calc(100dvh-80px)] md:pt-12">
       <section className="px-2 text-center md:px-10">
-        <p className="text-base text-sky-ink-2 md:text-lg">{user} 보호자님</p>
+        <p className="text-base text-sky-ink-2 md:text-lg">{displayName} 보호자님</p>
         <h1 className="story mt-3 text-4xl leading-snug text-sky-ink md:text-5xl">
           오늘의 동화는
           <br />
           {message}
         </h1>
 
-        {s.savedMemo && !reading && (
+        {s.savedMemo && !resumable && (
           <p className="mx-auto mt-4 max-w-md rounded-xl bg-surface/70 px-4 py-3 text-[15px] text-ink-2">
             지난 메모 <span className="text-ink">“{s.savedMemo}”</span>
           </p>
         )}
 
         <div className="mx-auto mt-6 flex max-w-sm flex-col gap-3">
-          {reading && (
+          {resumable && (
             <Link href="/read" className={btnPrimary}>
-              이어서 읽기
+              이어 만들기
             </Link>
           )}
-          <Link href="/create" className={reading ? "calm text-[15px] text-sky-ink-2 underline hover:text-sky-ink" : btnPrimary}>
-            {reading ? (
+          <Link href="/create" className={resumable ? "calm text-[15px] text-sky-ink-2 underline hover:text-sky-ink" : btnPrimary}>
+            {resumable ? (
               "새 동화 만들기"
             ) : (
               <>

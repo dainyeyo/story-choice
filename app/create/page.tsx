@@ -27,7 +27,7 @@ export default function CreatePage() {
   const { s, user, library, pet } = useApp();
   const router = useRouter();
 
-  // 직접 추가한 고민 상황은 칩으로 남겨 두고, 이 기기에서 다시 고를 수 있게 한다
+  // 직접 추가한 고민 상황도 사용자 계정에 저장해 다시 고를 수 있게 한다.
   const customKey = `story-choice:situations:${user}`;
   const customRaw = useStored(customKey);
   const insightRaw = useStored(`story-choice:insight:${user}`);
@@ -209,7 +209,7 @@ export default function CreatePage() {
               <p className="mt-1 text-xs text-ink-3">{s.draft.scenes.length}쪽까지 읽음 · {new Date(s.draft.savedAt).toLocaleString("ko-KR", { month: "long", day: "numeric", hour: "numeric", minute: "2-digit" })} 저장</p>
             </div>
             <div className="flex shrink-0 gap-2">
-              <button type="button" onClick={() => { if (s.resumeDraft()) router.push("/read"); }} className="calm rounded-lg bg-ink px-4 py-2.5 text-sm font-medium text-paper hover:opacity-90">이어서 보기</button>
+              <button type="button" onClick={() => router.push("/read")} className="calm rounded-lg bg-ink px-4 py-2.5 text-sm font-medium text-paper hover:opacity-90">이어서 보기</button>
               <button type="button" onClick={s.clearDraft} className="calm rounded-lg border border-line bg-surface px-3 py-2.5 text-sm text-ink-2 hover:bg-sunk">삭제</button>
             </div>
           </div>

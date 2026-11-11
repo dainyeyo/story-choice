@@ -6,25 +6,40 @@ import { useAuth } from "../providers";
 import { btnPrimary, errorCls, inputCls, Label, Segmented } from "../components/ui";
 
 export default function LoginPage() {
-  const { logIn, signUp } = useAuth();
+  const { logIn, signUp, authError } = useAuth();
   const router = useRouter();
   const [mode, setMode] = useState<"login" | "signup">("login");
-  const [nick, setNick] = useState("");
-  const [pin, setPin] = useState("");
+  const [email, setEmail] = useState("");
+  const [nickname, setNickname] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const err = mode === "login" ? logIn(nick, pin) : signUp(nick, pin);
-    if (err) setError(err);
-    else router.replace("/");
+    setError("");
+    setNotice("");
+    setSubmitting(true);
+    try {
+      const result = mode === "login"
+        ? await logIn(email, password)
+        : await signUp(email, password, nickname);
+      if (result.error) setError(result.error);
+      else if (result.notice) setNotice(result.notice);
+      else router.replace("/");
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "로그인 요청을 완료하지 못했어요.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
     <main className="page-turn mx-auto w-full max-w-sm px-4 py-12 md:py-20">
       <h1 className="story text-center text-3xl font-bold text-sky-ink md:text-4xl">{mode === "login" ? "로그인" : "가입하기"}</h1>
       <p className="mt-2 text-center text-[15px] text-sky-ink-2">
-        {mode === "login" ? "지난 동화와 메모를 이어서 봅니다" : "닉네임과 숫자 4자리면 충분해요"}
+        {mode === "login" ? "저장한 동화와 마음 기록을 이어서 봅니다" : "계정을 만들고 여러 기기에서 기록을 이어가요"}
       </p>
 
       <div className="mt-8">
@@ -35,6 +50,7 @@ export default function LoginPage() {
           onChange={(m) => {
             setMode(m);
             setError("");
+            setNotice("");
           }}
           options={[
             { value: "login", label: "로그인" },
@@ -44,41 +60,53 @@ export default function LoginPage() {
       </div>
 
       <form onSubmit={submit} className="mt-6 space-y-4">
-        <label className="block space-y-1">
+        {mode === "signup" && <label className="block space-y-1">
           <Label onSky>보호자 닉네임</Label>
           <input
-            value={nick}
-            onChange={(e) => setNick(e.target.value)}
+            value={nickname}
+            onChange={(e) => setNickname(e.target.value)}
             maxLength={20}
-            autoComplete="username"
+            autoComplete="nickname"
             placeholder="예: 하윤맘"
+            className={inputCls}
+          />
+        </label>}
+        <label className="block space-y-1">
+          <Label onSky>보호자 이메일</Label>
+          <input
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            type="email"
+            autoComplete="email"
+            placeholder="parent@example.com"
             className={inputCls}
           />
         </label>
         <label className="block space-y-1">
-          <Label onSky>비밀번호 (숫자 4자리)</Label>
+          <Label onSky>비밀번호 (8자 이상)</Label>
           <input
-            value={pin}
-            onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 4))}
-            inputMode="numeric"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             type="password"
             autoComplete={mode === "login" ? "current-password" : "new-password"}
             className={inputCls}
           />
         </label>
 
+        {authError && <p role="alert" className={errorCls}>{authError}</p>}
         {error && (
           <p role="alert" className={errorCls}>
             {error}
           </p>
         )}
+        {notice && <p role="status" className="rounded-xl bg-sunk px-4 py-3 text-sm text-ink-2">{notice}</p>}
 
-        <button type="submit" className={btnPrimary}>
-          {mode === "login" ? "로그인" : "가입하고 시작"}
+        <button type="submit" disabled={submitting} className={btnPrimary}>
+          {submitting ? "연결 중…" : mode === "login" ? "로그인" : "가입하고 시작"}
         </button>
       </form>
 
-      <p className="mt-6 text-sm text-sky-ink-2">이 기기에 저장되는 간편 로그인입니다. 아이 이름 같은 개인정보는 적지 마세요.</p>
+      <p className="mt-6 text-sm text-sky-ink-2">이메일 인증은 보호자 계정에만 사용해요. 아이 이름이나 자세한 개인정보는 기록하지 마세요.</p>
     </main>
   );
 }

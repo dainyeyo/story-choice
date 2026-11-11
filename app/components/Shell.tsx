@@ -73,8 +73,7 @@ export default function Shell({ children }: { children: ReactNode }) {
                 ))}
                 <button
                   onClick={() => {
-                    logOut();
-                    router.replace("/");
+                    void logOut().catch((error) => console.error("[sign out]", error)).finally(() => router.replace("/"));
                   }}
                   className="calm ml-2 inline-flex h-9 items-center rounded-lg border-l border-chrome-line pl-4 pr-3 text-[15px] text-sky-ink-2 hover:text-sky-ink"
                 >

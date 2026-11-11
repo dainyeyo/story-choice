@@ -2,12 +2,12 @@
 
 // 앱 전체에서 공유하는 상태: 로그인, 동화 진행(useStory), 낭독(useNarration), 내 서재, 설정.
 //
-// 로그인은 "이 기기에 저장되는 간편 로그인"(닉네임 + 숫자 4자리)이다. 서버 계정이 아니므로 보안용이 아니다.
-// 진짜 계정(Supabase/Firebase 등)으로 바꿀 때는 AuthProvider 안의 signUp / logIn / logOut 세 함수만 교체하면 된다.
+// 계정 인증과 사용자 데이터 저장은 Supabase Auth 및 RLS가 적용된 Postgres를 사용한다.
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { parseLibrary, type SavedStory } from "@/lib/library";
-import { readRaw, removeKey, useStored, writeRaw } from "@/lib/localStore";
+import { clearUserData, clearUserDataMemory, hydrateUserData, readRaw, useStored, waitForUserDataWrites, writeRaw } from "@/lib/localStore";
+import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { DEFAULT_SETTINGS, parseSettings, type Settings } from "@/lib/settings";
 import { useNarration } from "./useNarration";
 import { usePet } from "./usePet";
@@ -15,40 +15,14 @@ import { useStory } from "./useStory";
 
 // ───────── 로그인 ─────────
 
-const USERS_KEY = "story-choice:users";
-const SESSION_KEY = "story-choice:session";
-
-// 데모용 단순 해시 (보안 용도가 아님)
-function hash(s: string) {
-  let h = 2166136261;
-  for (const c of s) {
-    h ^= c.charCodeAt(0);
-    h = Math.imul(h, 16777619);
-  }
-  return (h >>> 0).toString(16);
-}
-
-function readUsers(): Record<string, string> {
-  try {
-    return JSON.parse(readRaw(USERS_KEY) || "{}");
-  } catch {
-    return {};
-  }
-}
-
-function validate(nick: string, pin: string): string {
-  if (!nick.trim()) return "닉네임을 입력해 주세요.";
-  if (nick.trim().length > 20) return "닉네임은 20자 이하로 써 주세요.";
-  if (!/^\d{4}$/.test(pin)) return "비밀번호는 숫자 4자리예요.";
-  return "";
-}
-
 interface AuthValue {
-  ready: boolean; // 저장된 로그인 정보를 읽었는지
-  user: string | null; // 로그인한 닉네임
-  signUp: (nick: string, pin: string) => string; // 실패하면 에러 문장, 성공하면 ""
-  logIn: (nick: string, pin: string) => string;
-  logOut: () => void;
+  ready: boolean;
+  user: string | null;
+  displayName: string;
+  authError: string;
+  signUp: (email: string, password: string, nickname: string) => Promise<{ error: string; notice?: string }>;
+  logIn: (email: string, password: string) => Promise<{ error: string; notice?: string }>;
+  logOut: () => Promise<void>;
 }
 
 const AuthCtx = createContext<AuthValue | null>(null);
@@ -67,6 +41,7 @@ type PetHook = ReturnType<typeof usePet>;
 
 interface AppValue {
   user: string;
+  displayName: string;
   s: StoryHook;
   n: NarrationHook;
   pet: PetHook;
@@ -86,7 +61,7 @@ export function useApp() {
   return v;
 }
 
-function StoryProvider({ user, children }: { user: string; children: ReactNode }) {
+function StoryProvider({ user, displayName, children }: { user: string; displayName: string; children: ReactNode }) {
   const s = useStory(user);
   const n = useNarration();
 
@@ -145,54 +120,101 @@ function StoryProvider({ user, children }: { user: string; children: ReactNode }
   );
 
   const clearMyData = useCallback(() => {
-    removeKey(libKey);
-    removeKey(`story-choice:lastMemo:${user}`);
-    removeKey(`story-choice:pet:${user}`);
-    removeKey(`story-choice:draft:${user}`);
-    s.saveMemo("");
+    void clearUserData().catch((error) => console.error("[clear user data]", error));
     s.reset();
-  }, [libKey, user, s]);
+  }, [s]);
 
   const setSettings = useCallback((next: Settings) => writeRaw(settingsKey, JSON.stringify(next)), [settingsKey]);
 
-  const value: AppValue = { user, s, n, pet, library, settings: settings ?? DEFAULT_SETTINGS, setSettings, saveMemo, deleteStory, clearMyData };
+  const value: AppValue = { user, displayName, s, n, pet, library, settings: settings ?? DEFAULT_SETTINGS, setSettings, saveMemo, deleteStory, clearMyData };
   return <AppCtx.Provider value={value}>{children}</AppCtx.Provider>;
 }
 
 export function AppProviders({ children }: { children: ReactNode }) {
-  const session = useStored(SESSION_KEY);
-  const ready = session !== null;
-  const user = session || null;
+  const [user, setUser] = useState<string | null>(null);
+  const [displayName, setDisplayName] = useState("");
+  const [ready, setReady] = useState(false);
+  const [authError, setAuthError] = useState("");
 
-  const signUp = useCallback((nick: string, pin: string) => {
-    const err = validate(nick, pin);
-    if (err) return err;
-    const name = nick.trim();
-    const users = readUsers();
-    if (users[name]) return "이미 있는 닉네임이에요. 로그인해 주세요.";
-    writeRaw(USERS_KEY, JSON.stringify({ ...users, [name]: hash(`${name}:${pin}`) }));
-    writeRaw(SESSION_KEY, name);
-    return "";
+  const activateUser = useCallback(async (id: string, name: string) => {
+    await hydrateUserData(id);
+    setUser(id);
+    setDisplayName(name || "보호자");
+    setAuthError("");
   }, []);
 
-  const logIn = useCallback((nick: string, pin: string) => {
-    const err = validate(nick, pin);
-    if (err) return err;
-    const name = nick.trim();
-    if (readUsers()[name] !== hash(`${name}:${pin}`)) return "닉네임이나 비밀번호가 맞지 않아요.";
-    writeRaw(SESSION_KEY, name);
-    return "";
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      void (async () => {
+        const client = getSupabaseBrowserClient();
+        if (!client) {
+          setAuthError("Supabase 설정이 아직 연결되지 않았어요. 프로젝트 관리자에게 환경변수 설정을 요청해 주세요.");
+          setReady(true);
+          return;
+        }
+        try {
+          const { data, error } = await client.auth.getUser();
+          if (error && error.name !== "AuthSessionMissingError") throw error;
+          if (data.user) await activateUser(data.user.id, String(data.user.user_metadata?.nickname ?? data.user.email?.split("@")[0] ?? "보호자"));
+        } catch (error) {
+          setAuthError(error instanceof Error ? `계정 정보를 불러오지 못했어요: ${error.message}` : "계정 정보를 불러오지 못했어요.");
+        } finally {
+          setReady(true);
+        }
+      })();
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [activateUser]);
+
+  const signUp = useCallback(async (email: string, password: string, nickname: string) => {
+    const client = getSupabaseBrowserClient();
+    if (!client) return { error: "Supabase 설정이 아직 연결되지 않았어요." };
+    if (!email.trim()) return { error: "이메일을 입력해 주세요." };
+    if (password.length < 8) return { error: "비밀번호는 8자 이상이어야 해요." };
+    if (!nickname.trim()) return { error: "보호자 닉네임을 입력해 주세요." };
+    const { data, error } = await client.auth.signUp({
+      email: email.trim(),
+      password,
+      options: { data: { nickname: nickname.trim().slice(0, 20) } },
+    });
+    if (error) return { error: error.message };
+    if (data.user && data.session) {
+      try { await activateUser(data.user.id, nickname.trim()); }
+      catch { return { error: "계정은 만들어졌지만 DB를 불러오지 못했어요. 잠시 후 다시 로그인해 주세요." }; }
+      return { error: "" };
+    }
+    return { error: "", notice: "가입 확인 링크를 이메일로 보냈어요. 확인한 뒤 로그인해 주세요." };
+  }, [activateUser]);
+
+  const logIn = useCallback(async (email: string, password: string) => {
+    const client = getSupabaseBrowserClient();
+    if (!client) return { error: "Supabase 설정이 아직 연결되지 않았어요." };
+    const { data, error } = await client.auth.signInWithPassword({ email: email.trim(), password });
+    if (error) return { error: error.message };
+    try {
+      await activateUser(data.user.id, String(data.user.user_metadata?.nickname ?? data.user.email?.split("@")[0] ?? "보호자"));
+      return { error: "" };
+    } catch {
+      return { error: "DB를 불러오지 못했어요. 잠시 후 다시 시도해 주세요." };
+    }
+  }, [activateUser]);
+
+  const logOut = useCallback(async () => {
+    const client = getSupabaseBrowserClient();
+    await waitForUserDataWrites();
+    clearUserDataMemory();
+    setUser(null);
+    setDisplayName("");
+    if (client) await client.auth.signOut();
   }, []);
 
-  const logOut = useCallback(() => removeKey(SESSION_KEY), []);
-
-  const auth: AuthValue = { ready, user, signUp, logIn, logOut };
+  const auth: AuthValue = { ready, user, displayName, authError, signUp, logIn, logOut };
 
   return (
     <AuthCtx.Provider value={auth}>
       {/* 계정이 바뀌면 동화 진행 상태도 새로 시작하도록 key를 준다 */}
       {user ? (
-        <StoryProvider key={user} user={user}>
+        <StoryProvider key={user} user={user} displayName={displayName}>
           {children}
         </StoryProvider>
       ) : (

@@ -12,16 +12,17 @@ import { btnIcon, btnPrimary, btnSecondary, errorCls, noteCls, Segmented } from 
 export default function ReadPage() {
   const { s, n, settings } = useApp();
   const router = useRouter();
-  const [page, setPage] = useState(() => s.resumePage ?? 0);
+  const [page, setPage] = useState<number | null>(null);
+  const { step, resumeDraft, resumePage } = s;
 
   // 이 화면에 맞지 않는 단계면 알맞은 화면으로 보낸다
   useEffect(() => {
-    if (s.step === "card") router.replace("/card");
-    else if (s.step === "form") router.replace("/create");
-  }, [s.step, router]);
+    if (step === "card") router.replace("/card");
+    else if (step === "form" && !resumeDraft()) router.replace("/create");
+  }, [step, resumeDraft, router]);
 
   const last = Math.max(s.scenes.length - 1, 0);
-  const cur = Math.min(page, last);
+  const cur = Math.min(page ?? resumePage ?? 0, last);
   const atLast = cur === last;
 
   // 사용자가 버튼을 누른 순간에 읽기를 시작해야 브라우저가 소리를 허용한다.
@@ -68,10 +69,10 @@ export default function ReadPage() {
         <h1 className="story text-2xl text-sky-ink md:text-3xl">{s.title}</h1>
         <button
           type="button"
-          onClick={() => {
-            if (!s.saveDraft(cur)) return;
+          onClick={async () => {
+            if (!(await s.saveDraft(cur))) return;
             n.stop();
-            router.push("/create");
+            router.push("/");
           }}
           className="calm shrink-0 rounded-lg border border-line bg-surface px-3 py-2 text-sm text-ink-2 hover:bg-sunk"
         >

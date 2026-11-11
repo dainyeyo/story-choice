@@ -22,7 +22,7 @@
 // 서버는 상태를 저장하지 않는다. 이 훅이 장면·선택을 들고 있다가 매 요청에 같이 보낸다.
 
 import { useCallback, useState, useSyncExternalStore } from "react";
-import { removeKey, useStored } from "@/lib/localStore";
+import { readRaw, removeKey, useStored, writeRaw, writeRawAndWait } from "@/lib/localStore";
 import { useStoryImages } from "./useStoryImages";
 import type {
   ChosenChoice,
@@ -91,11 +91,7 @@ function subscribeMemo(cb: () => void) {
 }
 
 function loadMemo(user: string): string {
-  try {
-    return localStorage.getItem(memoKey(user)) ?? "";
-  } catch {
-    return "";
-  }
+  return readRaw(memoKey(user));
 }
 
 export function useStory(user = "guest") {
@@ -217,17 +213,13 @@ export function useStory(user = "guest") {
 
   const saveMemo = useCallback(
     (text: string) => {
-      try {
-        localStorage.setItem(memoKey(user), text.trim());
-        window.dispatchEvent(new Event(MEMO_EVENT));
-      } catch {
-        /* 저장에 실패해도 진행은 가능하다 */
-      }
+      writeRaw(memoKey(user), text.trim());
+      window.dispatchEvent(new Event(MEMO_EVENT));
     },
     [user],
   );
 
-  const saveDraft = useCallback((page: number) => {
+  const saveDraft = useCallback(async (page: number) => {
     if (!req || step !== "story") return false;
     const value: StoryDraft = {
       version: 1,
@@ -242,11 +234,10 @@ export function useStory(user = "guest") {
       page: Math.max(0, Math.min(page, scenes.length - 1)),
     };
     try {
-      localStorage.setItem(draftKey(user), JSON.stringify(value));
-      window.dispatchEvent(new Event("story-choice:store"));
+      await writeRawAndWait(draftKey(user), JSON.stringify(value));
       return true;
     } catch {
-      setError("저장 공간이 부족해요. 기기의 저장 공간을 확인해 주세요.");
+      setError("동화를 DB에 저장하지 못했어요. 연결 상태를 확인해 주세요.");
       return false;
     }
   }, [req, step, title, scenes, choice, chosen, isEnding, usedFallback, user]);
