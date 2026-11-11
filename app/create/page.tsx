@@ -377,7 +377,13 @@ export default function CreatePage() {
                   className={`size-8 rounded-full border-2 ${!eraser && color === value ? "border-ink ring-2 ring-accent ring-offset-2" : "border-white"}`}
                   style={{ backgroundColor: value }} />
               ))}
-              <button type="button" aria-pressed={eraser} onClick={() => setEraser(true)} className={`rounded-lg border px-3 py-1 text-sm ${eraser ? "border-accent bg-[#fdf0d2] text-ink" : "border-line bg-surface text-ink-2"}`}>지우개</button>
+              <button type="button" aria-label="지우개" title="지우개" aria-pressed={eraser} onClick={() => setEraser(true)} className={`flex size-8 items-center justify-center rounded-full border-2 ${eraser ? "border-ink bg-[#fdf0d2] text-ink ring-2 ring-accent ring-offset-2" : "border-line bg-surface text-ink-2"}`}>
+                <svg viewBox="0 0 24 24" className="size-[18px]" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M8.5 20 3.8 15.3a2 2 0 0 1 0-2.8l8.7-8.7a2 2 0 0 1 2.8 0l5 5a2 2 0 0 1 0 2.8L12 20" />
+                  <path d="M7 10.5 14.5 18" />
+                  <path d="M8.5 20H21" />
+                </svg>
+              </button>
             </div>
             <label className="flex w-40 items-center gap-2 text-sm text-ink-2">
               <span className="shrink-0">선 굵기</span>
