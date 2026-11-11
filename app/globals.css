@@ -38,64 +38,6 @@
   }
 }
 
-/* 데스크톱에서는 헤더 아래 남은 화면에 약 2:1 읽기 프레임을 고정한다.
-   브라우저 확대 시 본문 칸이 낮아지면 ResizeObserver가 쪽 수를 늘린다. */
-@media (min-width: 768px) {
-  .reader-main {
-    box-sizing: border-box;
-    height: calc(100dvh - 80px);
-    max-width: none;
-    overflow-x: hidden;
-    overflow-y: auto;
-    display: flex;
-    justify-content: center;
-  }
-  .reader-stage {
-    width: min(100%, 80rem, calc(200dvh - 160px - 8rem));
-    height: auto;
-    max-height: 100%;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
-  .reader-stage > * {
-    margin-block: 0;
-    flex-shrink: 0;
-  }
-  .reader-stage > .reader-book {
-    flex: none;
-    width: 100%;
-    aspect-ratio: 2 / 1;
-    min-height: 0;
-    grid-template-rows: minmax(0, 1fr);
-  }
-  .reader-art,
-  .reader-content {
-    min-height: 0;
-  }
-  .reader-art {
-    display: flex;
-    flex-direction: column;
-  }
-  .reader-art > :first-child {
-    flex: 1;
-    min-height: 0;
-    height: 0;
-  }
-  .reader-text {
-    min-height: 0;
-    overflow: hidden;
-    column-count: 1;
-    column-gap: 2rem;
-    column-fill: auto;
-  }
-  .reader-text > p {
-    orphans: 2;
-    widows: 2;
-  }
-}
-
 /* 픽토리 디자인 토큰
    방향: 취침 전 그림책. 종이와 램프 불빛. 바탕과 표면은 조용하게 두고, 색은 삽화와 주요 버튼에만 쓴다. */
 

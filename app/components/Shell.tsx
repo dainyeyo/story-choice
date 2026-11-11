@@ -4,7 +4,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState, type MouseEvent, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { useAuth } from "../providers";
 import Icon, { type IconName } from "./Icon";
 import Logo from "./Logo";
@@ -46,12 +46,6 @@ export default function Shell({ children }: { children: ReactNode }) {
 
   const menuHref = (href: string) => href === "/create/new" ? "/create/new?reset=1" : href;
 
-  const handleMenuClick = (event: MouseEvent<HTMLAnchorElement>, href: string) => {
-    if (href !== "/settings") return;
-    event.preventDefault();
-    setSettingsOpen(true);
-  };
-
   const active = (href: string) => {
     const route = href === "/create/new" ? "/create" : href;
     return route === "/" ? pathname === "/" : pathname.startsWith(route);
@@ -79,21 +73,27 @@ export default function Shell({ children }: { children: ReactNode }) {
                 aria-label="주 메뉴"
               >
                 {MENU.map((m) => (
-                  <Link
-                    key={m.href}
-                    href={menuHref(m.href)}
-                    onClick={(event) => handleMenuClick(event, m.href)}
-                    aria-current={isMenuActive(m.href) || (m.href === "/settings" && settingsOpen) ? "page" : undefined}
-                    aria-expanded={m.href === "/settings" ? settingsOpen : undefined}
-                    aria-controls={m.href === "/settings" ? "settings-dialog" : undefined}
-                    className={`calm inline-flex h-9 items-center whitespace-nowrap rounded-lg px-3 text-[15px] ${
-                      isMenuActive(m.href) || (m.href === "/settings" && settingsOpen)
-                        ? "bg-chrome-active font-medium text-sky-ink"
-                        : "text-sky-ink-2 hover:bg-chrome-hover hover:text-sky-ink"
-                    }`}
-                  >
-                    {m.label}
-                  </Link>
+                  m.href === "/settings" ? (
+                    <button
+                      key={m.href}
+                      type="button"
+                      onClick={() => setSettingsOpen(true)}
+                      aria-expanded={settingsOpen}
+                      aria-controls="settings-dialog"
+                      className={`calm inline-flex h-9 items-center whitespace-nowrap rounded-lg px-3 text-[15px] ${settingsOpen ? "bg-chrome-active font-medium text-sky-ink" : "text-sky-ink-2 hover:bg-chrome-hover hover:text-sky-ink"}`}
+                    >
+                      {m.label}
+                    </button>
+                  ) : (
+                    <Link
+                      key={m.href}
+                      href={menuHref(m.href)}
+                      aria-current={isMenuActive(m.href) ? "page" : undefined}
+                      className={`calm inline-flex h-9 items-center whitespace-nowrap rounded-lg px-3 text-[15px] ${isMenuActive(m.href) ? "bg-chrome-active font-medium text-sky-ink" : "text-sky-ink-2 hover:bg-chrome-hover hover:text-sky-ink"}`}
+                    >
+                      {m.label}
+                    </Link>
+                  )
                 ))}
                 <button
                   onClick={() => {
@@ -136,17 +136,30 @@ export default function Shell({ children }: { children: ReactNode }) {
         >
           {MENU.map((m) => {
             const on = isMenuActive(m.href);
+            const className = `calm flex h-14 flex-col items-center justify-center gap-1 text-xs ${
+              on || (m.href === "/settings" && settingsOpen) ? "font-medium text-nav-on" : "text-sky-ink-2"
+            }`;
+            if (m.href === "/settings") {
+              return (
+                <button
+                  key={m.href}
+                  type="button"
+                  onClick={() => setSettingsOpen(true)}
+                  aria-expanded={settingsOpen}
+                  aria-controls="settings-dialog"
+                  className={className}
+                >
+                  <Icon name={m.icon} size={20} />
+                  {m.label}
+                </button>
+              );
+            }
             return (
               <Link
                 key={m.href}
                 href={menuHref(m.href)}
-                onClick={(event) => handleMenuClick(event, m.href)}
                 aria-current={on ? "page" : undefined}
-                aria-expanded={m.href === "/settings" ? settingsOpen : undefined}
-                aria-controls={m.href === "/settings" ? "settings-dialog" : undefined}
-                className={`calm flex h-14 flex-col items-center justify-center gap-1 text-xs ${
-                  on || (m.href === "/settings" && settingsOpen) ? "font-medium text-nav-on" : "text-sky-ink-2"
-                }`}
+                className={className}
               >
                 <Icon name={m.icon} size={20} />
                 {m.label}
