@@ -30,9 +30,8 @@ export function LogoFull({ height = 80, className = "" }: { height?: number; cla
 
 export default function Logo() {
   return (
-    <span className="flex items-center gap-2 text-ink">
-      <LogoMark size={34} />
-      <span className="story text-xl tracking-wide">픽토리</span>
+    <span className="flex items-center">
+      <LogoFull height={44} className="h-9 w-auto md:h-11" />
       <span className="sr-only">Pictory, 아이의 그림이 하나의 이야기가 됩니다</span>
     </span>
   );
