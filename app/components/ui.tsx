@@ -13,8 +13,8 @@ export function Card({ children, className = "" }: { children: ReactNode; classN
 export function PageHeader({ title, sub }: { title: string; sub?: string }) {
   return (
     <header className="space-y-1">
-      <h1 className="story text-3xl leading-tight text-ink md:text-4xl">{title}</h1>
-      {sub && <p className="text-[15px] text-ink-2">{sub}</p>}
+      <h1 className="story text-3xl leading-tight text-sky-ink md:text-4xl">{title}</h1>
+      {sub && <p className="text-[15px] text-sky-ink-2">{sub}</p>}
     </header>
   );
 }

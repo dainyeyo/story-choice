@@ -117,13 +117,13 @@ function LoggedOutHome() {
   return (
     <main className="page-turn mx-auto w-full max-w-md px-4 pt-8 md:max-w-6xl md:px-8 md:pt-14">
       <section className="grid items-end gap-6 md:grid-cols-[1.2fr_1fr] md:gap-16">
-        <h1 className="story text-4xl leading-[1.2] text-ink md:text-5xl md:leading-[1.2]">
+        <h1 className="story text-4xl leading-[1.2] text-sky-ink md:text-5xl md:leading-[1.2]">
           아이의 그림이
           <br />
           하나의 이야기가 됩니다
         </h1>
         <div className="space-y-5">
-          <p className="text-[17px] leading-8 text-ink-2">
+          <p className="text-[17px] leading-8 text-sky-ink-2">
             만 4~7세 아이가 그린 주인공이 이야기 속에서 아이의 고민을 만나고, 아이는 주인공이 어떻게 할지 직접 고릅니다.
             부모님께는 그 선택을 바탕으로 한 대화 질문을 드립니다.
           </p>
@@ -139,10 +139,10 @@ function LoggedOutHome() {
 
       <ol className="mt-20 grid gap-8 md:mt-28 md:grid-cols-3 md:gap-10">
         {STEPS.map((s, i) => (
-          <li key={s.title} className="border-t border-ink/25 pt-4">
-            <p className="text-sm tabular-nums text-ink-3">{i + 1}</p>
-            <h2 className="story mt-2 text-xl text-ink">{s.title}</h2>
-            <p className="mt-2 text-[15px] leading-7 text-ink-2">{s.text}</p>
+          <li key={s.title} className="border-t border-white/25 pt-4">
+            <p className="text-sm tabular-nums text-sky-ink-2">{i + 1}</p>
+            <h2 className="story mt-2 text-xl text-sky-ink">{s.title}</h2>
+            <p className="mt-2 text-[15px] leading-7 text-sky-ink-2">{s.text}</p>
           </li>
         ))}
       </ol>

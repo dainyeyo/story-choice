@@ -97,7 +97,7 @@ export default function CreatePage() {
       )}
 
       <form onSubmit={submit} className="mt-8 grid gap-6 md:grid-cols-2">
-        <section className="space-y-4 rounded-2xl border border-line bg-[#f8ead2] p-5 md:p-7">
+        <section className="space-y-4 rounded-2xl border border-line bg-[#fbf2de] p-5 shadow-[0_8px_24px_rgba(0,0,20,0.4)] md:p-7">
           <h2 className="story text-xl text-ink">요즘 아이의 마음은</h2>
           <div className="flex flex-wrap gap-2">
             {EXAMPLES.map((p) => (
@@ -168,7 +168,7 @@ export default function CreatePage() {
           )}
         </section>
 
-        <section className="space-y-6 rounded-2xl border border-line bg-surface p-5 md:p-7">
+        <section className="space-y-6 rounded-2xl border border-line bg-[#fbf2de] p-5 shadow-[0_8px_24px_rgba(0,0,20,0.4)] md:p-7">
           <h2 className="story text-xl text-ink">동화 설정</h2>
 
           <div className="space-y-2">
