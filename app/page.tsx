@@ -6,7 +6,7 @@ import { useApp, useAuth } from "./providers";
 import Icon from "./components/Icon";
 import PetAvatar from "./components/PetAvatar";
 import SceneArt from "./components/SceneArt";
-import { btnPrimary, noteCls, PageHeader } from "./components/ui";
+import { btnPrimary } from "./components/ui";
 import { localDateKey, petStage } from "@/lib/pet";
 
 const STEPS = [
@@ -166,51 +166,69 @@ function LoggedInHome() {
   const { user, s, library, pet } = useApp();
   const recent = library.slice(0, 4);
   const fmt = (t: number) => new Date(t).toLocaleDateString("ko-KR", { month: "long", day: "numeric" });
+  const careDays = pet.state.careDates.length;
+  const stage = petStage(careDays);
+  const reading = s.step === "story";
+
+  // 상황에 맞는 한 줄 인사
+  const message = reading
+    ? `읽던 동화 「${s.title}」, 이어서 읽어 볼까요?`
+    : s.savedMemo
+      ? "지난 대화 메모를 이어서, 새로운 이야기를 만들어 볼까요?"
+      : "아이의 마음에서 시작되는 이야기를 만들어 볼까요?";
 
   return (
     <main className="page-turn mx-auto w-full max-w-md px-4 py-8 md:max-w-5xl md:px-8 md:py-12">
-      <PageHeader title="오늘의 동화" sub={`${user} 보호자님`} />
+      <section className="rounded-3xl bg-[#fff1d8] px-6 py-8 text-center md:px-10 md:py-12">
+        <p className="text-[15px] text-ink-2">{user} 보호자님, 안녕하세요</p>
+        <h1 className="story mt-2 text-3xl leading-snug text-ink md:text-4xl">
+          오늘의 동화는
+          <br />
+          {message}
+        </h1>
 
-      <div className="mt-8 grid gap-10 md:grid-cols-[2fr_3fr] md:gap-16">
-        <section className="space-y-4">
-          <Link href="/pet" className="calm flex items-center gap-4 rounded-2xl border border-line bg-surface p-4 hover:bg-sunk/60">
-            <PetAvatar stage={petStage(pet.state.careDates.length).index} mood={pet.state.moods[localDateKey()]} className="size-20 shrink-0" />
-            <span className="min-w-0 flex-1">
-              <span className="block text-sm text-ink-3">나의 마음 친구</span>
-              <span className="story mt-1 block text-xl text-ink">{petStage(pet.state.careDates.length).name}</span>
-              <span className="mt-1 block text-sm text-ink-2">함께한 지 {pet.state.careDates.length}일 · 만나러 가기</span>
-            </span>
-            <Icon name="right" className="text-ink-3" />
-          </Link>
+        {s.savedMemo && !reading && (
+          <p className="mx-auto mt-4 max-w-md rounded-xl bg-surface/70 px-4 py-3 text-[15px] text-ink-2">
+            지난 메모 <span className="text-ink">“{s.savedMemo}”</span>
+          </p>
+        )}
 
-          {s.step === "story" && (
-            <div className="space-y-3 rounded-2xl border border-line bg-surface p-5">
-              <p className="text-sm text-ink-3">읽던 동화</p>
-              <p className="story text-xl text-ink">{s.title}</p>
-              <Link href="/read" className={btnPrimary}>
-                이어서 읽기
-              </Link>
-            </div>
+        <div className="mx-auto mt-6 flex max-w-sm flex-col gap-3">
+          {reading && (
+            <Link href="/read" className={btnPrimary}>
+              이어서 읽기
+            </Link>
           )}
-
-          {s.savedMemo && (
-            <p className={noteCls}>
-              지난 메모가 다음 동화에 이어집니다
-              <span className="mt-1 block text-ink">“{s.savedMemo}”</span>
-            </p>
-          )}
-
-          <Link href="/create" className={s.step === "story" ? "calm text-[15px] text-ink-2 underline hover:text-ink" : btnPrimary}>
-            {s.step === "story" ? "새 동화 만들기" : (
+          <Link href="/create" className={reading ? "calm text-[15px] text-ink-2 underline hover:text-ink" : btnPrimary}>
+            {reading ? (
+              "새 동화 만들기"
+            ) : (
               <>
                 <Icon name="plus" size={18} />
                 새 동화 만들기
               </>
             )}
           </Link>
-        </section>
+        </div>
+      </section>
 
-        <section>
+      <div className="mt-8 grid gap-6 md:grid-cols-2 md:gap-8">
+        <Link
+          href="/pet"
+          className="calm flex flex-col rounded-2xl border border-line bg-surface p-5 hover:bg-sunk/60 md:p-6"
+        >
+          <span className="story text-xl text-ink">나의 마음 친구</span>
+          <span className="flex flex-1 flex-col items-center justify-center gap-2 py-4">
+            <PetAvatar stage={stage.index} mood={pet.state.moods[localDateKey()]} className="w-40" />
+            <span className="story text-xl text-ink">{stage.name}</span>
+            <span className="text-sm text-ink-2">함께한 지 {careDays}일</span>
+          </span>
+          <span className="inline-flex items-center justify-center gap-1 text-[15px] text-ink-2">
+            만나러 가기 <Icon name="right" size={16} />
+          </span>
+        </Link>
+
+        <section className="flex flex-col rounded-2xl border border-line bg-surface p-5 md:p-6">
           <div className="flex items-baseline justify-between pb-3">
             <h2 className="story text-xl text-ink">최근 동화</h2>
             {library.length > 0 && (
@@ -221,12 +239,15 @@ function LoggedInHome() {
           </div>
 
           {recent.length === 0 ? (
-            <p className="border-t border-line py-6 text-ink-2">아직 읽은 동화가 없어요. 첫 동화를 만들어 보세요.</p>
+            <p className="flex flex-1 items-center justify-center border-t border-line py-6 text-center text-ink-2">
+              아직 읽은 동화가 없어요.
+              <br />첫 동화를 만들어 보세요.
+            </p>
           ) : (
             <ul>
               {recent.map((r) => (
                 <li key={r.id} className="border-t border-line">
-                  <Link href="/library" className="calm block space-y-1 py-4 hover:bg-sunk/60">
+                  <Link href="/library" className="calm block space-y-1 py-3 hover:bg-sunk/60">
                     <p className="story text-lg text-ink">{r.title}</p>
                     <p className="text-sm text-ink-3">
                       {r.situation} · 만 {r.age}세 · {fmt(r.createdAt)}
