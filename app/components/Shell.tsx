@@ -40,7 +40,7 @@ export default function Shell({ children }: { children: ReactNode }) {
     <div className="flex min-h-dvh flex-col">
       <header className="sticky top-0 z-20 border-b border-line bg-paper/95 backdrop-blur">
         {/* 왼쪽 빈칸 · 가운데 로고 · 오른쪽 끝 메뉴 */}
-        <div className="grid h-14 grid-cols-[1fr_auto_1fr] items-center px-4 md:h-16 md:px-8">
+        <div className="grid h-20 grid-cols-[1fr_auto_1fr] items-center px-4 md:h-24 md:px-8">
           <div aria-hidden />
           <Link href="/" aria-label="픽토리 홈">
             <Logo />
