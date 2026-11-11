@@ -21,6 +21,7 @@ export default function SettingsPage() {
           value={settings.fontSize}
           onChange={(fontSize) => setSettings({ ...settings, fontSize })}
           options={[
+            { value: "sm" as const, label: "작게" },
             { value: "md" as const, label: "보통" },
             { value: "lg" as const, label: "크게" },
             { value: "xl" as const, label: "아주 크게" },
