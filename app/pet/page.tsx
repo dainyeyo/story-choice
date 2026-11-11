@@ -106,8 +106,7 @@ export default function PetPage() {
 
   return (
     <main className="page-turn mx-auto w-full max-w-md px-4 py-8 md:max-w-4xl md:px-8 md:py-12">
-      <div className="flex items-center justify-between gap-3">
-        <p className="story text-lg leading-snug text-sky-ink md:text-xl">동화를 읽고 마음을 나눌수록 천천히 자라요</p>
+      <div className="flex items-center justify-end gap-3">
         <button type="button" onClick={() => setTestOpen((open) => !open)} className="calm shrink-0 rounded-lg border border-dashed border-line bg-surface px-3 py-2 text-sm text-ink-2 hover:bg-sunk">
           {testOpen ? "테스트 닫기" : "날짜 테스트"}
         </button>
