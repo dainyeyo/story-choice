@@ -3,6 +3,7 @@ from io import BytesIO
 import os
 
 import torch
+from transformers import BitsAndBytesConfig, Qwen3ForCausalLM
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import Response
 from PIL import Image
@@ -18,9 +19,23 @@ def load_model():
     global pipe
     if not torch.cuda.is_available():
         raise RuntimeError("CUDA GPU is required for local image generation")
-    pipe = Flux2KleinPipeline.from_pretrained(
-        MODEL_ID, torch_dtype=torch.bfloat16, device_map="cuda"
+    # The community NF4 repo currently omits the text-encoder weights despite
+    # its model card describing them. Load the official encoder directly in NF4.
+    text_encoder = Qwen3ForCausalLM.from_pretrained(
+        "black-forest-labs/FLUX.2-klein-4B",
+        subfolder="text_encoder",
+        torch_dtype=torch.bfloat16,
+        quantization_config=BitsAndBytesConfig(
+            load_in_4bit=True,
+            bnb_4bit_quant_type="nf4",
+            bnb_4bit_use_double_quant=True,
+            bnb_4bit_compute_dtype=torch.bfloat16,
+        ),
+        device_map="cuda",
     )
+    pipe = Flux2KleinPipeline.from_pretrained(
+        MODEL_ID, text_encoder=text_encoder, torch_dtype=torch.bfloat16
+    ).to("cuda")
     pipe.vae.enable_tiling()
 
 
