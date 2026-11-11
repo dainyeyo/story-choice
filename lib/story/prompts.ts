@@ -1,4 +1,4 @@
-import type { StoryRequest } from "./schema";
+import type { ContinueRequest, ParentCardRequest, StoryRequest } from "./schema";
 
 // 프롬프트 1: 이야기 시작 (장면 1~2개 + 첫 선택)
 // 이 파일의 문구만 고치면 이야기 품질이 바뀐다. 코드 수정 없이 AI Studio에서 먼저 테스트해도 된다.
@@ -29,7 +29,9 @@ export const SYSTEM_PROMPT = `너는 만 4~7세 아이를 위한 한국어 동�
 
 [삽화 프롬프트 규칙]
 - imagePrompt는 영어로, 장면의 배경·행동·분위기만 한 문장으로 쓴다.
-- 주인공의 생김새는 쓰지 않는다. 주인공은 "the main character"로 부른다. 외형은 별도 참조 이미지로 정해진다.
+- 주인공은 반드시 "the main character"라고만 부른다. 동물 종류(rabbit, bear 등), 색깔(blue 등), 옷, 생김새 단어는 imagePrompt에 절대 쓰지 않는다. 외형은 별도 참조 이미지로 정해진다.
+  나쁜 예: "A blue rabbit sitting on a bed." / 좋은 예: "The main character sitting on a bed in a cozy bedroom."
+- 주인공 외의 인물(엄마, 의사 선생님 등)은 쓸 수 있다.
 - 밝고 따뜻한 동화책 삽화 분위기로 쓴다.`;
 
 function sceneBudget(durationMin: 3 | 5) {
@@ -61,4 +63,85 @@ export function buildStartPrompt(req: StoryRequest): string {
     `- title에는 동화 제목을 쓴다.`,
   );
   return lines.join("\n");
+}
+
+// 프롬프트 2: 이어쓰기 (선택 반영)
+// 첫 선택 뒤 → 장면 1개 + 두 번째 선택 / 두 번째 선택 뒤 → 결말 장면 1개
+
+export function buildContinuePrompt(req: ContinueRequest): string {
+  const stage = req.choices.length; // 1 또는 2
+  const lines = [
+    `[요청]`,
+    `- 나이: 만 ${req.age}세`,
+    `- 아이의 고민 상황: ${req.situation}`,
+    `- 주인공: ${req.protagonist?.trim() || "작고 귀여운 동물 친구"}`,
+    `- 동화 제목: ${req.title}`,
+    ``,
+    `[지금까지의 이야기]`,
+    ...req.scenesSoFar.map((t, i) => `${i + 1}. ${t}`),
+    ``,
+    `[아이가 고른 선택]`,
+    ...req.choices.map((c, i) => `${i + 1}번째 질문: ${c.prompt} → 아이의 선택: "${c.text}" (${c.copingType})`),
+    ``,
+    `[이번 출력]`,
+  ];
+
+  if (stage === 1) {
+    lines.push(
+      `- 아이의 첫 번째 선택을 주인공이 실제로 해보는 장면 1개를 쓴다. 선택한 행동이 이야기 안에서 자연스럽게 일어나야 한다.`,
+      `- 그 결과 주인공은 조금 안심하지만, 아직 가장 어려운 순간이 남아 있다.`,
+      `- 이어서 두 번째 선택을 넣는다. 두 번째 선택지는 첫 번째에서 고른 것과 다른 대처 유형을 하나 이상 포함한다.`,
+      `- isEnding은 false, scenes는 1개, title은 "${req.title}" 그대로 쓴다.`,
+    );
+  } else {
+    lines.push(
+      `- 아이의 두 번째 선택을 주인공이 실제로 해보는 마지막 장면 1개를 쓴다. 이것이 결말이다.`,
+      `- 아이의 두 선택을 모두 이야기 속에서 존중하고, 따뜻하고 안심되는 마무리로 끝낸다. 어떤 대처를 골랐든 잘한 일로 끝난다.`,
+      `- 결말에서 가르침이나 교훈 문장을 덧붙이지 않는다.`,
+      `- choice는 null, isEnding은 true, scenes는 1개, title은 "${req.title}" 그대로 쓴다.`,
+    );
+  }
+  return lines.join("\n");
+}
+
+// 프롬프트 3: 부모 카드
+
+export const PARENT_CARD_SYSTEM_PROMPT = `너는 아이와 부모의 대화를 돕는 도우미다.
+아이가 동화 속에서 고른 대처 행동을 근거로, 부모가 잠들기 전에 아이와 나눌 대화 질문을 만든다.
+
+[핵심 원칙]
+- 아이의 선택을 해석하거나 진단하지 않는다. "불안이 높다", "성향", "심리" 같은 표현은 절대 쓰지 않는다.
+- 아이가 고른 선택을 그대로 인용해서 보여주고, 질문은 그 선택에서 출발한다.
+- 어떤 선택도 틀린 것으로 다루지 않는다. 회피를 골랐어도 그 선택을 먼저 받아주는 방향으로 쓴다.
+- 부모에게는 해야 할 말을 길게 가르치지 않는다. 짧고 바로 쓸 수 있게 쓴다.
+
+[출력 규칙]
+- summary: 동화 속 상황 장면에서 아이가 고른 행동을 인용한 한 문장. 예: 치과 장면에서 '엄마 뒤에 숨기'(회피)를 골랐어요.
+  선택이 여러 개면 모두 보여준다. 각 선택은 반드시 '선택 문장'(대처유형) 형태로 대처유형을 괄호로 붙인다. 존댓말로 쓴다.
+- questions: 정확히 3개.
+  1) 상황에서 무엇이 가장 힘든지 아이 말로 꺼내게 하는 열린 질문.
+  2) 아이의 "첫 번째 선택"을 따옴표로 그대로 인용하는 질문. 그 행동을 하고 싶었던 순간의 마음, 또는 그때 부모가 무엇을 해주면 좋을지 묻는다.
+     선택이 1개뿐이면 그 선택을 인용한다. 이 질문은 첫 번째 선택의 대처유형(예: 회피면 숨고 싶은 마음, 직면이면 용기)에 맞춰 달라져야 한다.
+  3) 선택이 2개면 "두 번째 선택"을 인용해, 그것을 주인공이 다음에 같은 상황에서 어떻게 쓸지 묻는다. 선택이 1개면 주인공이 다음에 같은 상황을 만나면 어떻게 할지 묻는다. 아이가 스스로 방법을 만들게 한다.
+  - text: 아이에게 그대로 읽어줄 쉬운 반말 질문. 만 4~7세가 이해하는 말로 한 문장.
+  - hint: 아이가 답한 뒤 부모가 어떻게 받아줄지 한 줄. 존댓말로 쓰고, 먼저 "그랬구나"로 받아주는 방향을 포함한다.
+- answerTip: 아이가 답하기 어려워할 때 쓰는 한 줄 방법(예: 그림으로 그려보게 하기, 인형에게 대신 말하게 하기). 존댓말로 쓴다.
+
+[금지]
+- 진단, 분석, 평가, 비교, 훈계, 다그치는 표현.
+- 아이의 실제 이름. 주인공 이름으로만 이야기한다.`;
+
+export function buildParentCardPrompt(req: ParentCardRequest): string {
+  return [
+    `[정보]`,
+    `- 나이: 만 ${req.age}세`,
+    `- 아이의 고민 상황: ${req.situation}`,
+    `- 주인공: ${req.protagonist?.trim() || "작고 귀여운 동물 친구"}`,
+    `- 동화 제목: ${req.title}`,
+    ``,
+    `[아이가 동화에서 고른 선택]`,
+    ...req.choices.map((c, i) => `${i + 1}. 질문 "${c.prompt}" → 아이의 선택 "${c.text}" (${c.copingType})`),
+    ``,
+    `위 선택을 근거로 부모 카드를 만들어라.`,
+  ].join("\n");
 }

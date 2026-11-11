@@ -94,3 +94,70 @@ export function isStorySegment(v: unknown): v is StorySegment {
     )
   );
 }
+
+// ───────── 이어쓰기 ─────────
+
+export interface ChosenChoice {
+  prompt: string; // 아이가 받은 질문
+  text: string; // 아이가 고른 선택지 문장
+  copingType: CopingType;
+}
+
+// POST /api/story/continue 요청
+// 프론트가 지금까지의 장면 본문과 아이가 고른 선택을 모두 보내준다 (서버는 상태를 저장하지 않는다).
+export interface ContinueRequest extends StoryRequest {
+  title: string;
+  scenesSoFar: string[]; // 지금까지 장면 본문(text)
+  choices: ChosenChoice[]; // 지금까지 고른 선택 (1개 또는 2개)
+}
+
+// ───────── 부모 카드 ─────────
+
+export interface ParentCardQuestion {
+  text: string; // 부모가 아이에게 던질 질문
+  hint: string; // 아이가 답했을 때 부모가 어떻게 받아줄지 한 줄
+}
+
+export interface ParentCard {
+  summary: string; // "치과 장면에서 '엄마 뒤에 숨기'(회피)를 골랐어요." 형태
+  questions: ParentCardQuestion[]; // 항상 3개
+  answerTip: string; // 아이 답을 받는 방법 한 줄
+}
+
+// POST /api/story/parent-card 요청
+export interface ParentCardRequest {
+  age: number;
+  situation: string;
+  protagonist?: string;
+  title: string;
+  choices: ChosenChoice[]; // 아이가 고른 선택 전부
+}
+
+export const parentCardJsonSchema = {
+  type: "object",
+  properties: {
+    summary: { type: "string" },
+    questions: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: { text: { type: "string" }, hint: { type: "string" } },
+        required: ["text", "hint"],
+      },
+    },
+    answerTip: { type: "string" },
+  },
+  required: ["summary", "questions", "answerTip"],
+} as const;
+
+export function isParentCard(v: unknown): v is ParentCard {
+  if (!v || typeof v !== "object") return false;
+  const c = v as ParentCard;
+  return (
+    typeof c.summary === "string" &&
+    typeof c.answerTip === "string" &&
+    Array.isArray(c.questions) &&
+    c.questions.length === 3 &&
+    c.questions.every((q) => typeof q?.text === "string" && typeof q?.hint === "string")
+  );
+}
