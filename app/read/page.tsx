@@ -67,7 +67,7 @@ export default function ReadPage() {
   if (s.step !== "story") return null;
 
   return (
-    <main className="page-turn mx-auto w-full max-w-md space-y-6 px-4 py-6 md:max-w-5xl md:space-y-8 md:px-8 md:py-10">
+    <main className="page-turn mx-auto w-full max-w-md space-y-6 px-4 py-6 md:max-w-6xl md:space-y-8 md:px-8 md:py-10">
       <div className="reader-stage space-y-6">
       {s.error && (
         <p role="alert" className={errorCls}>
@@ -92,7 +92,17 @@ export default function ReadPage() {
         </button>
       </div>
 
-      <article className="reader-book relative grid gap-6 book-page overflow-hidden rounded-2xl border p-4 md:grid-cols-2 md:gap-10 md:p-8">
+      <div className="grid grid-cols-[1.75rem_minmax(0,1fr)_1.75rem] items-center gap-1.5 md:grid-cols-[2.5rem_minmax(0,1fr)_2.5rem] md:gap-3">
+      <button
+        type="button"
+        onClick={() => reading.index > 0 ? reading.turn(-1) : go(cur - 1, true)}
+        disabled={cur === 0 && reading.index === 0}
+        aria-label="이전 쪽"
+        className={`${btnIcon} h-24 w-full md:h-32`}
+      >
+        <Icon name="left" />
+      </button>
+      <article className="reader-book relative grid min-w-0 gap-6 book-page overflow-hidden rounded-2xl border p-4 md:grid-cols-2 md:gap-8 md:p-6">
         {/* 책갈피: 이 서비스의 표시. 읽는 카드에서만 쓴다 */}
         <span
           aria-hidden
@@ -110,7 +120,34 @@ export default function ReadPage() {
         </div>
 
         <div className="reader-content flex min-w-0 flex-col gap-4 px-1 py-2 md:px-0 md:py-2 md:pr-3">
-          <StoryText text={s.scenes[cur]} fontSize={settings.fontSize} textRef={reading.textRef} />
+          <StoryText
+            text={s.scenes[cur]}
+            fontSize={settings.fontSize}
+            textRef={reading.textRef}
+            actions={n.available && (
+              <span className="float-right ml-3 inline-flex gap-2 whitespace-normal align-middle leading-none">
+                <button
+                  type="button"
+                  onClick={() => n.speaking ? n.stop() : void n.speak(s.scenes[cur], settings.ttsVoice)}
+                  aria-label={n.speaking ? "낭독 멈춤" : "읽어주기"}
+                  title={n.speaking ? "낭독 멈춤" : "읽어주기"}
+                  aria-pressed={n.speaking}
+                  className={btnIcon}
+                >
+                  <Icon name={n.speaking ? "stop" : "volume"} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSettingsOpen(true)}
+                  aria-label="낭독 설정 열기"
+                  title="낭독 설정"
+                  className={btnIcon}
+                >
+                  <Icon name="sliders" />
+                </button>
+              </span>
+            )}
+          />
 
           <div className="reader-controls shrink-0 space-y-3">
             <div className="flex items-center gap-3">
@@ -125,43 +162,7 @@ export default function ReadPage() {
               </span>
             </div>
 
-            <div className="flex items-center justify-between gap-2">
-              <button onClick={() => reading.index > 0 ? reading.turn(-1) : go(cur - 1, true)} disabled={cur === 0 && reading.index === 0} aria-label="이전 쪽" className={btnIcon}>
-                <Icon name="left" />
-              </button>
-
-              {n.available ? (
-                n.speaking ? (
-                  <button onClick={n.stop} className={`${btnSecondary} min-w-0 flex-1`}>
-                    <Icon name="stop" size={16} />
-                    멈춤
-                  </button>
-                ) : (
-                  <button onClick={() => void n.speak(s.scenes[cur], settings.ttsVoice)} className={`${btnSecondary} min-w-0 flex-1`}>
-                    <Icon name="volume" />
-                    읽어주기
-                  </button>
-                )
-              ) : (
-                <span className="flex-1 text-center text-sm text-ink-3">이 기기에서는 낭독을 쓸 수 없어요</span>
-              )}
-
-              {n.available && (
-                <button
-                  type="button"
-                  onClick={() => setSettingsOpen(true)}
-                  aria-label="낭독 설정 열기"
-                  title="낭독 설정"
-                  className={btnIcon}
-                >
-                  <Icon name="sliders" />
-                </button>
-              )}
-
-              <button onClick={() => !atSceneEnd ? reading.turn(1) : go(cur + 1)} disabled={atLast && atSceneEnd} aria-label="다음 쪽" className={btnIcon}>
-                <Icon name="right" />
-              </button>
-            </div>
+            {!n.available && <p className="text-right text-sm text-ink-3">이 기기에서는 낭독을 쓸 수 없어요</p>}
 
             {atLast && s.choice && !s.isEnding && (
               <section
@@ -217,6 +218,16 @@ export default function ReadPage() {
           </div>
         </div>
       </article>
+      <button
+        type="button"
+        onClick={() => !atSceneEnd ? reading.turn(1) : go(cur + 1)}
+        disabled={atLast && atSceneEnd}
+        aria-label="다음 쪽"
+        className={`${btnIcon} h-24 w-full md:h-32`}
+      >
+        <Icon name="right" />
+      </button>
+      </div>
       </div>
 
       {atLast && reading.ready && atSceneEnd && s.isEnding && (
