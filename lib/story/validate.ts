@@ -3,6 +3,8 @@ import {
   type ChosenChoice,
   type ContinueRequest,
   type ParentCardRequest,
+  MAX_AGE,
+  MIN_AGE,
   type StoryRequest,
 } from "./schema";
 
@@ -16,7 +18,7 @@ function str(v: unknown, max: number): string {
 
 function parseCommon(b: Obj): { age: number; situation: string; protagonist?: string } | string {
   const age = Number(b.age);
-  if (!Number.isInteger(age) || age < 4 || age > 7) return "age는 4~7 사이 정수여야 합니다.";
+  if (!Number.isInteger(age) || age < MIN_AGE || age > MAX_AGE) return `age는 ${MIN_AGE}~${MAX_AGE} 사이 정수여야 합니다.`;
 
   const situation = typeof b.situation === "string" ? b.situation.trim() : "";
   if (!situation) return "situation(고민 상황)이 필요합니다.";

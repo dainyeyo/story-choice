@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useStored, writeRaw } from "@/lib/localStore";
 import { PRESETS } from "@/lib/story/presets";
+import { MAX_AGE, MIN_AGE } from "@/lib/story/schema";
 import { useApp } from "../providers";
 import Icon from "../components/Icon";
 import { btnPrimary, chipCls, errorCls, inputCls, Label, noteCls, PageHeader, Segmented } from "../components/ui";
@@ -168,7 +169,10 @@ export default function CreatePage() {
                 label="아이 나이"
                 value={age}
                 onChange={setAge}
-                options={[4, 5, 6, 7].map((a) => ({ value: a, label: `${a}세` }))}
+                options={Array.from({ length: MAX_AGE - MIN_AGE + 1 }, (_, i) => MIN_AGE + i).map((a) => ({
+                  value: a,
+                  label: a === MIN_AGE ? `~${a}세` : a === MAX_AGE ? `${a}세~` : `${a}세`, // 칸이 좁아 양 끝은 짧게
+                }))}
               />
             </div>
           </div>

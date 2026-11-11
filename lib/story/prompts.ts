@@ -1,10 +1,11 @@
-import type { ContinueRequest, ParentCardRequest, StoryRequest } from "./schema";
+import { ageLabel, type ContinueRequest, type ParentCardRequest, type StoryRequest } from "./schema";
 
 // 프롬프트 1: 이야기 시작 (장면 1~2개 + 첫 선택)
 // 이 파일의 문구만 고치면 이야기 품질이 바뀐다. 코드 수정 없이 AI Studio에서 먼저 테스트해도 된다.
 
-export const SYSTEM_PROMPT = `너는 만 4~7세 아이를 위한 한국어 동화 작가다.
+export const SYSTEM_PROMPT = `너는 어린아이(주로 만 4~7세)를 위한 한국어 동화 작가다.
 아이가 겪는 두려움이나 고민을 주인공이 대신 겪고, 스스로 대처 방법을 골라보게 하는 짧은 동화를 쓴다.
+요청의 나이에 맞춰 수준을 조절한다. "3세 이하"면 더 짧고 쉬운 문장과 반복을 늘리고, "8세 이상"이면 어휘와 사건을 조금 더 풍부하게 쓴다.
 
 [문장 규칙]
 - 쉬운 우리말, 짧은 문장. 한 문장은 20자 안팎. 의성어·의태어를 적절히 쓴다.
@@ -63,7 +64,7 @@ export function buildStartPrompt(req: StoryRequest): string {
   const { startScenes, label, perScene } = sceneBudget(req.durationMin);
   const lines = [
     `[요청]`,
-    `- 나이: 만 ${req.age}세`,
+    `- 나이: 만 ${ageLabel(req.age)}`,
     `- 아이의 고민 상황: ${req.situation}`,
     `- 주인공: ${req.protagonist?.trim() || "작고 귀여운 동물 친구"}`,
     `- 이야기 길이: ${label}`,
@@ -96,7 +97,7 @@ export function buildContinuePrompt(req: ContinueRequest): string {
   const { midScenes, endScenes, perScene } = sceneBudget(req.durationMin);
   const lines = [
     `[요청]`,
-    `- 나이: 만 ${req.age}세`,
+    `- 나이: 만 ${ageLabel(req.age)}`,
     `- 아이의 고민 상황: ${req.situation}`,
     `- 주인공: ${req.protagonist?.trim() || "작고 귀여운 동물 친구"}`,
     `- 동화 제목: ${req.title}`,
@@ -159,7 +160,7 @@ export const PARENT_CARD_SYSTEM_PROMPT = `너는 아이와 부모의 대화를 �
 export function buildParentCardPrompt(req: ParentCardRequest): string {
   return [
     `[정보]`,
-    `- 나이: 만 ${req.age}세`,
+    `- 나이: 만 ${ageLabel(req.age)}`,
     `- 아이의 고민 상황: ${req.situation}`,
     `- 주인공: ${req.protagonist?.trim() || "작고 귀여운 동물 친구"}`,
     `- 동화 제목: ${req.title}`,
