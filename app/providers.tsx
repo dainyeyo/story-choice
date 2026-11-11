@@ -6,7 +6,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { parseLibrary, type SavedStory } from "@/lib/library";
-import { clearUserData, clearUserDataMemory, hydrateUserData, readRaw, useStored, waitForUserDataWrites, writeRaw } from "@/lib/localStore";
+import { clearUserData, clearUserDataMemory, hydrateLocalUserData, hydrateUserData, readRaw, useStored, waitForUserDataWrites, writeRaw } from "@/lib/localStore";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { DEFAULT_SETTINGS, parseSettings, type Settings } from "@/lib/settings";
 import { useNarration } from "./useNarration";
@@ -15,13 +15,25 @@ import { useStory } from "./useStory";
 
 // ───────── 로그인 ─────────
 
+const ADMIN_ID = "admin123";
+const ADMIN_PASSWORD = "admin123";
+const ADMIN_USER_ID = "local-admin";
+const ADMIN_SESSION_KEY = "story-choice:admin-session";
+const ACCOUNT_DOMAIN = "accounts.pictory.app";
+const ACCOUNT_ID_PATTERN = /^[a-z0-9][a-z0-9_-]{3,19}$/;
+
+function accountEmail(idOrEmail: string) {
+  const value = idOrEmail.trim().toLowerCase();
+  return value.includes("@") ? value : `${value}@${ACCOUNT_DOMAIN}`;
+}
+
 interface AuthValue {
   ready: boolean;
   user: string | null;
   displayName: string;
   authError: string;
-  signUp: (email: string, password: string, nickname: string) => Promise<{ error: string; notice?: string }>;
-  logIn: (email: string, password: string) => Promise<{ error: string; notice?: string }>;
+  signUp: (accountId: string, password: string, nickname: string) => Promise<{ error: string; notice?: string }>;
+  logIn: (accountIdOrEmail: string, password: string) => Promise<{ error: string; notice?: string }>;
   logOut: () => Promise<void>;
 }
 
@@ -143,9 +155,22 @@ export function AppProviders({ children }: { children: ReactNode }) {
     setAuthError("");
   }, []);
 
+  const activateAdmin = useCallback(() => {
+    hydrateLocalUserData(ADMIN_USER_ID);
+    localStorage.setItem(ADMIN_SESSION_KEY, "1");
+    setUser(ADMIN_USER_ID);
+    setDisplayName("관리자");
+    setAuthError("");
+  }, []);
+
   useEffect(() => {
     const timer = window.setTimeout(() => {
       void (async () => {
+        if (localStorage.getItem(ADMIN_SESSION_KEY) === "1") {
+          activateAdmin();
+          setReady(true);
+          return;
+        }
         const client = getSupabaseBrowserClient();
         if (!client) {
           setAuthError("Supabase 설정이 아직 연결되지 않았어요. 프로젝트 관리자에게 환경변수 설정을 요청해 주세요.");
@@ -164,32 +189,51 @@ export function AppProviders({ children }: { children: ReactNode }) {
       })();
     }, 0);
     return () => window.clearTimeout(timer);
-  }, [activateUser]);
+  }, [activateAdmin, activateUser]);
 
-  const signUp = useCallback(async (email: string, password: string, nickname: string) => {
+  const signUp = useCallback(async (accountId: string, password: string, nickname: string) => {
     const client = getSupabaseBrowserClient();
     if (!client) return { error: "Supabase 설정이 아직 연결되지 않았어요." };
-    if (!email.trim()) return { error: "이메일을 입력해 주세요." };
+    const normalizedId = accountId.trim().toLowerCase();
+    if (!ACCOUNT_ID_PATTERN.test(normalizedId)) return { error: "아이디는 영문 소문자나 숫자로 시작해 4~20자로 만들어 주세요. _와 -도 쓸 수 있어요." };
+    if (normalizedId === ADMIN_ID) return { error: "이미 사용 중인 아이디예요." };
     if (password.length < 8) return { error: "비밀번호는 8자 이상이어야 해요." };
     if (!nickname.trim()) return { error: "보호자 닉네임을 입력해 주세요." };
     const { data, error } = await client.auth.signUp({
-      email: email.trim(),
+      // Supabase Auth 내부 식별자일 뿐이며 실제 이메일 발송에는 사용하지 않는다.
+      email: accountEmail(normalizedId),
       password,
-      options: { data: { nickname: nickname.trim().slice(0, 20) } },
+      options: {
+        data: { nickname: nickname.trim().slice(0, 20), accountId: normalizedId },
+      },
     });
-    if (error) return { error: error.message };
+    if (error) {
+      const lower = error.message.toLowerCase();
+      const message = lower.includes("already") || lower.includes("registered")
+        ? "이미 사용 중인 아이디예요."
+        : lower.includes("email rate limit exceeded")
+          ? "Supabase에서 이메일 인증이 아직 켜져 있어요. Authentication 설정에서 Confirm email을 꺼 주세요."
+          : error.message;
+      return { error: message };
+    }
     if (data.user && data.session) {
       try { await activateUser(data.user.id, nickname.trim()); }
       catch { return { error: "계정은 만들어졌지만 DB를 불러오지 못했어요. 잠시 후 다시 로그인해 주세요." }; }
       return { error: "" };
     }
-    return { error: "", notice: "가입 확인 링크를 이메일로 보냈어요. 확인한 뒤 로그인해 주세요." };
+    return { error: "가입은 요청됐지만 바로 로그인되지 않았어요. Supabase에서 Confirm email을 꺼 주세요." };
   }, [activateUser]);
 
-  const logIn = useCallback(async (email: string, password: string) => {
+  const logIn = useCallback(async (accountIdOrEmail: string, password: string) => {
+    const identifier = accountIdOrEmail.trim().toLowerCase();
+    if (identifier === ADMIN_ID) {
+      if (password !== ADMIN_PASSWORD) return { error: "관리자 아이디 또는 비밀번호가 맞지 않아요." };
+      activateAdmin();
+      return { error: "" };
+    }
     const client = getSupabaseBrowserClient();
     if (!client) return { error: "Supabase 설정이 아직 연결되지 않았어요." };
-    const { data, error } = await client.auth.signInWithPassword({ email: email.trim(), password });
+    const { data, error } = await client.auth.signInWithPassword({ email: accountEmail(identifier), password });
     if (error) return { error: error.message };
     try {
       await activateUser(data.user.id, String(data.user.user_metadata?.nickname ?? data.user.email?.split("@")[0] ?? "보호자"));
@@ -197,12 +241,13 @@ export function AppProviders({ children }: { children: ReactNode }) {
     } catch {
       return { error: "DB를 불러오지 못했어요. 잠시 후 다시 시도해 주세요." };
     }
-  }, [activateUser]);
+  }, [activateAdmin, activateUser]);
 
   const logOut = useCallback(async () => {
     const client = getSupabaseBrowserClient();
     await waitForUserDataWrites();
     clearUserDataMemory();
+    localStorage.removeItem(ADMIN_SESSION_KEY);
     setUser(null);
     setDisplayName("");
     if (client) await client.auth.signOut();

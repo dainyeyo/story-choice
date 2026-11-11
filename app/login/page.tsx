@@ -9,7 +9,7 @@ export default function LoginPage() {
   const { logIn, signUp, authError } = useAuth();
   const router = useRouter();
   const [mode, setMode] = useState<"login" | "signup">("login");
-  const [email, setEmail] = useState("");
+  const [accountId, setAccountId] = useState("");
   const [nickname, setNickname] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -23,8 +23,8 @@ export default function LoginPage() {
     setSubmitting(true);
     try {
       const result = mode === "login"
-        ? await logIn(email, password)
-        : await signUp(email, password, nickname);
+        ? await logIn(accountId, password)
+        : await signUp(accountId, password, nickname);
       if (result.error) setError(result.error);
       else if (result.notice) setNotice(result.notice);
       else router.replace("/");
@@ -72,13 +72,16 @@ export default function LoginPage() {
           />
         </label>}
         <label className="block space-y-1">
-          <Label onSky>보호자 이메일</Label>
+          <Label onSky>아이디</Label>
           <input
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            type="email"
-            autoComplete="email"
-            placeholder="parent@example.com"
+            value={accountId}
+            onChange={(e) => setAccountId(e.target.value)}
+            type="text"
+            autoComplete="username"
+            autoCapitalize="none"
+            spellCheck={false}
+            maxLength={mode === "login" ? 80 : 20}
+            placeholder={mode === "login" ? "아이디" : "영문 소문자·숫자 4~20자"}
             className={inputCls}
           />
         </label>
@@ -106,7 +109,7 @@ export default function LoginPage() {
         </button>
       </form>
 
-      <p className="mt-6 text-sm text-sky-ink-2">이메일 인증은 보호자 계정에만 사용해요. 아이 이름이나 자세한 개인정보는 기록하지 마세요.</p>
+      <p className="mt-6 text-sm text-sky-ink-2">아이디와 비밀번호로 다른 기기에서도 기록을 이어갈 수 있어요. 아이 이름이나 자세한 개인정보는 기록하지 마세요.</p>
     </main>
   );
 }

@@ -9,7 +9,9 @@ import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 const EVT = "story-choice:store";
 const values = new Map<string, string>();
 let activeUserId: string | null = null;
+let localOnly = false;
 const pendingWrites = new Map<string, Promise<unknown>>();
+const LOCAL_PREFIX = "story-choice:local-user:";
 
 function subscribe(cb: () => void) {
   window.addEventListener(EVT, cb);
@@ -26,6 +28,10 @@ export function readRaw(key: string): string {
 
 function persistRaw(key: string, value: string): Promise<void> {
   if (!activeUserId) return Promise.resolve();
+  if (localOnly) {
+    localStorage.setItem(`${LOCAL_PREFIX}${activeUserId}:${key}`, value);
+    return Promise.resolve();
+  }
   const client = getSupabaseBrowserClient();
   if (!client) return Promise.reject(new Error("Supabase 설정을 확인해 주세요."));
   let jsonValue: unknown = value;
@@ -64,6 +70,10 @@ export function removeKey(key: string) {
   values.delete(key);
   window.dispatchEvent(new Event(EVT));
   if (!activeUserId) return;
+  if (localOnly) {
+    localStorage.removeItem(`${LOCAL_PREFIX}${activeUserId}:${key}`);
+    return;
+  }
   const client = getSupabaseBrowserClient();
   if (!client) return;
   const id = activeUserId;
@@ -113,18 +123,40 @@ export async function hydrateUserData(userId: string) {
   }
 
   activeUserId = userId;
+  localOnly = false;
   values.clear();
   for (const row of rows) values.set(row.key, typeof row.value === "string" ? row.value : JSON.stringify(row.value));
   window.dispatchEvent(new Event(EVT));
   window.dispatchEvent(new Event("story-choice:memo"));
 }
 
+/** Supabase 권한이 없는 시연용 로컬 계정의 데이터를 이 브라우저에서만 불러온다. */
+export function hydrateLocalUserData(userId: string) {
+  activeUserId = userId;
+  localOnly = true;
+  values.clear();
+  const prefix = `${LOCAL_PREFIX}${userId}:`;
+  for (let index = 0; index < localStorage.length; index += 1) {
+    const storedKey = localStorage.key(index);
+    if (storedKey?.startsWith(prefix)) values.set(storedKey.slice(prefix.length), localStorage.getItem(storedKey) ?? "");
+  }
+  window.dispatchEvent(new Event(EVT));
+  window.dispatchEvent(new Event("story-choice:memo"));
+}
+
 export async function clearUserData() {
-  const client = getSupabaseBrowserClient();
   const id = activeUserId;
   values.clear();
   window.dispatchEvent(new Event(EVT));
   window.dispatchEvent(new Event("story-choice:memo"));
+  if (localOnly && id) {
+    const prefix = `${LOCAL_PREFIX}${id}:`;
+    const keys = Array.from({ length: localStorage.length }, (_, index) => localStorage.key(index))
+      .filter((key): key is string => Boolean(key?.startsWith(prefix)));
+    for (const key of keys) localStorage.removeItem(key);
+    return;
+  }
+  const client = getSupabaseBrowserClient();
   if (!client || !id) return;
   await Promise.allSettled(pendingWrites.values());
   const { error } = await client.from("user_data").delete().eq("user_id", id);
@@ -133,6 +165,7 @@ export async function clearUserData() {
 
 export function clearUserDataMemory() {
   activeUserId = null;
+  localOnly = false;
   values.clear();
   pendingWrites.clear();
   window.dispatchEvent(new Event(EVT));
