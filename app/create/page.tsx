@@ -8,7 +8,7 @@ import { PRESETS } from "@/lib/story/presets";
 import { MAX_AGE, MAX_DURATION, MIN_AGE, MIN_DURATION } from "@/lib/story/schema";
 import { useApp } from "../providers";
 import Icon from "../components/Icon";
-import { btnPrimary, chipCls, errorCls, inputCls, Label, noteCls, PageHeader, Segmented } from "../components/ui";
+import { btnPrimary, chipCls, errorCls, inputCls, Label, noteCls, Segmented } from "../components/ui";
 
 // 화면에만 보여 주는 추가 예시. PRESETS와 달리 폴백 동화가 없어서 AI 실패 시엔 직접 추가한 고민처럼 다뤄진다.
 // (PRESETS를 늘리면 폴백 데이터를 다시 만들어야 하므로 여기 따로 둔다)
@@ -206,15 +206,13 @@ export default function CreatePage() {
 
   return (
     <main className="page-turn mx-auto w-full max-w-md px-4 py-8 md:max-w-5xl md:px-8 md:py-12">
-      <PageHeader title="새 동화" sub="아이의 마음을 고르면 오늘의 동화가 만들어져요" />
-
       {error && (
-        <p role="alert" className={`${errorCls} mt-6`}>
+        <p role="alert" className={errorCls}>
           {error}
         </p>
       )}
 
-      <form onSubmit={submit} className="mt-8 space-y-6">
+      <form onSubmit={submit} className={`space-y-6 ${error ? "mt-6" : ""}`}>
         <div className="grid gap-8 rounded-2xl border border-line bg-[#fbf2de] p-5 shadow-[0_6px_20px_rgba(20,15,40,0.28)] md:grid-cols-2 md:gap-10 md:p-7">
         <section className="space-y-4">
           <h2 className="story text-xl text-ink">요즘 아이의 마음은</h2>
