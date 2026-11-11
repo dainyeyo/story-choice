@@ -63,7 +63,7 @@ export default function ReadPage() {
       )}
       {s.usedFallback && <FallbackNote />}
 
-      <h1 className="story text-2xl text-ink md:text-3xl">{s.title}</h1>
+      <h1 className="story text-2xl text-sky-ink md:text-3xl">{s.title}</h1>
 
       <article className="relative grid gap-6 rounded-2xl border border-line bg-surface p-4 shadow-[0_1px_2px_rgba(59,47,37,0.05)] md:grid-cols-2 md:gap-10 md:p-8">
         {/* 책갈피: 이 서비스의 표시. 읽는 카드에서만 쓴다 */}
@@ -141,7 +141,7 @@ export default function ReadPage() {
 
       {atLast && s.choice && !s.isEnding && (
         <section className="mx-auto w-full max-w-3xl space-y-4">
-          <p className="story text-center text-xl text-ink md:text-2xl">{s.choice.prompt}</p>
+          <p className="story text-center text-xl text-sky-ink md:text-2xl">{s.choice.prompt}</p>
           <div className="grid gap-3 md:grid-cols-2">
             {s.choice.options.map((o) => (
               <button
@@ -163,7 +163,7 @@ export default function ReadPage() {
 
       {atLast && s.isEnding && (
         <section className="mx-auto w-full max-w-sm space-y-4 text-center">
-          <p className="story text-2xl text-ink">끝</p>
+          <p className="story text-2xl text-sky-ink">끝</p>
           <button
             onClick={() => {
               n.stop();

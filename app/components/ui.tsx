@@ -19,8 +19,9 @@ export function PageHeader({ title, sub }: { title: string; sub?: string }) {
   );
 }
 
-export function Label({ children }: { children: ReactNode }) {
-  return <span className="text-sm font-medium text-ink">{children}</span>;
+// onSky: 카드 안이 아니라 밤하늘/종이 배경 위에 바로 놓일 때 쓴다 (다크 모드에서 흰 글씨)
+export function Label({ children, onSky = false }: { children: ReactNode; onSky?: boolean }) {
+  return <span className={`text-sm font-medium ${onSky ? "text-sky-ink" : "text-ink"}`}>{children}</span>;
 }
 
 export const btnPrimary =

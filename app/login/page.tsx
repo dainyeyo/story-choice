@@ -22,8 +22,8 @@ export default function LoginPage() {
 
   return (
     <main className="page-turn mx-auto w-full max-w-sm px-4 py-12 md:py-20">
-      <h1 className="story text-center text-3xl font-bold text-ink md:text-4xl">{mode === "login" ? "로그인" : "가입하기"}</h1>
-      <p className="mt-2 text-center text-[15px] text-ink-2">
+      <h1 className="story text-center text-3xl font-bold text-sky-ink md:text-4xl">{mode === "login" ? "로그인" : "가입하기"}</h1>
+      <p className="mt-2 text-center text-[15px] text-sky-ink-2">
         {mode === "login" ? "지난 동화와 메모를 이어서 봅니다" : "닉네임과 숫자 4자리면 충분해요"}
       </p>
 
@@ -44,7 +44,7 @@ export default function LoginPage() {
 
       <form onSubmit={submit} className="mt-6 space-y-4">
         <label className="block space-y-1">
-          <Label>보호자 닉네임</Label>
+          <Label onSky>보호자 닉네임</Label>
           <input
             value={nick}
             onChange={(e) => setNick(e.target.value)}
@@ -55,7 +55,7 @@ export default function LoginPage() {
           />
         </label>
         <label className="block space-y-1">
-          <Label>비밀번호 (숫자 4자리)</Label>
+          <Label onSky>비밀번호 (숫자 4자리)</Label>
           <input
             value={pin}
             onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 4))}
@@ -77,7 +77,7 @@ export default function LoginPage() {
         </button>
       </form>
 
-      <p className="mt-6 text-sm text-ink-3">이 기기에 저장되는 간편 로그인입니다. 아이 이름 같은 개인정보는 적지 마세요.</p>
+      <p className="mt-6 text-sm text-sky-ink-2">이 기기에 저장되는 간편 로그인입니다. 아이 이름 같은 개인정보는 적지 마세요.</p>
     </main>
   );
 }
