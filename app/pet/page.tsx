@@ -55,7 +55,7 @@ export default function PetPage() {
   };
 
   return (
-    <main className="rise mx-auto w-full max-w-md px-4 py-8 md:max-w-4xl md:px-8 md:py-12">
+    <main className="page-turn mx-auto w-full max-w-md px-4 py-8 md:max-w-4xl md:px-8 md:py-12">
       <PageHeader title="나의 마음 친구" sub="동화를 읽고 마음을 나눌수록 천천히 자라요" />
       <div className="mt-8 grid gap-6 md:grid-cols-[3fr_2fr] md:gap-10">
         <section className="overflow-hidden rounded-[28px] border border-line bg-[#fff1d8]">

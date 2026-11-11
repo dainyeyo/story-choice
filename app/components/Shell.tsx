@@ -41,8 +41,8 @@ export default function Shell({ children }: { children: ReactNode }) {
     <div className="flex min-h-dvh flex-col">
       <header className="sticky top-0 z-20 border-b border-line bg-paper/95 backdrop-blur">
         {/* 왼쪽 빈칸 · 가운데 로고 · 오른쪽 끝 메뉴 */}
-        <div className="grid h-[72px] grid-cols-[1fr_auto_1fr] items-center px-4 md:h-20 md:px-8">
-          <div aria-hidden />
+        <div className="grid h-[72px] grid-cols-[1fr_auto_1fr] items-center px-4 md:h-20 md:grid-cols-[auto_1fr] md:px-8 lg:grid-cols-[1fr_auto_1fr]">
+          <div aria-hidden className="md:hidden lg:block" />
           <Link href="/" aria-label="픽토리 홈">
             <Logo />
           </Link>
@@ -54,7 +54,7 @@ export default function Shell({ children }: { children: ReactNode }) {
                   key={m.href}
                   href={m.href}
                   aria-current={isMenuActive(m.href) ? "page" : undefined}
-                  className={`calm inline-flex h-9 items-center rounded-lg px-3 text-[15px] ${
+                  className={`calm inline-flex h-9 items-center whitespace-nowrap rounded-lg px-3 text-[15px] ${
                     isMenuActive(m.href) ? "bg-sunk font-medium text-ink" : "text-ink-2 hover:bg-sunk hover:text-ink"
                   }`}
                 >
