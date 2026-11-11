@@ -8,6 +8,20 @@ import { useApp } from "../providers";
 import Icon from "../components/Icon";
 import { btnPrimary, chipCls, errorCls, inputCls, Label, noteCls, PageHeader, Segmented } from "../components/ui";
 
+// 화면에만 보여 주는 추가 예시. PRESETS와 달리 폴백 동화가 없어서 AI 실패 시엔 직접 추가한 고민처럼 다뤄진다.
+// (PRESETS를 늘리면 폴백 데이터를 다시 만들어야 하므로 여기 따로 둔다)
+const MORE_EXAMPLES = [
+  "밤에 혼자 자기 무서워",
+  "친구랑 다퉜어",
+  "양치하기 싫어",
+  "채소 먹기 싫어",
+  "엄마랑 떨어지기 싫어",
+  "화가 나면 소리 질러",
+  "장난감 나누기 싫어",
+  "이사를 가요",
+] as const;
+const EXAMPLES: readonly string[] = [...PRESETS, ...MORE_EXAMPLES];
+
 export default function CreatePage() {
   const { s, user } = useApp();
   const router = useRouter();
@@ -37,7 +51,7 @@ export default function CreatePage() {
   const addCustom = () => {
     const t = draft.trim();
     if (!t) return;
-    if (!(PRESETS as readonly string[]).includes(t) && !custom.includes(t)) saveCustom([...custom, t].slice(-8));
+    if (!EXAMPLES.includes(t) && !custom.includes(t)) saveCustom([...custom, t].slice(-8));
     setSituation(t);
     setDraft("");
     setAdding(false);
@@ -76,7 +90,7 @@ export default function CreatePage() {
         <section className="space-y-4">
           <h2 className="story text-xl text-ink">요즘 아이의 마음은</h2>
           <div className="flex flex-wrap gap-2">
-            {PRESETS.map((p) => (
+            {EXAMPLES.map((p) => (
               <button key={p} type="button" onClick={() => setSituation(p)} className={chipCls(situation === p)}>
                 {p}
               </button>
@@ -129,7 +143,7 @@ export default function CreatePage() {
                 maxLength={100}
                 autoFocus
                 aria-label="추가할 고민"
-                placeholder="예: 밤에 혼자 자기 무서워 (아이 이름은 적지 마세요)"
+                placeholder="예: 머리 감기 싫어 (아이 이름은 적지 마세요)"
                 className="calm h-10 min-w-0 flex-1 rounded-lg border border-line bg-surface px-3 text-base text-ink placeholder:text-ink-3 focus:border-accent-text"
               />
               <button
