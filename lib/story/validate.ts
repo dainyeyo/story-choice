@@ -61,6 +61,7 @@ export function parseStoryRequest(raw: unknown): StoryRequest | string {
     ...common,
     durationMin,
     characterBible: str(b.characterBible, 4000) || undefined,
+    supportingCast: str(b.supportingCast, 2000) || undefined,
     hasUserDrawing: b.hasUserDrawing === true,
     previousMemo: str(b.previousMemo, 200) || undefined,
     recentContext: str(b.recentContext, 600) || undefined,

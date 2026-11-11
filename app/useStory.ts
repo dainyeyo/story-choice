@@ -102,7 +102,7 @@ export function useStory(user = "guest") {
       setReq(next);
       const seg = await run(() => api<StorySegment>("", next), "form");
       if (!seg) return;
-      setReq({ ...next, characterBible: seg.characterBible });
+      setReq({ ...next, characterBible: seg.characterBible, supportingCast: seg.supportingCast });
       appendImages(seg, next.protagonist);
       setTitle(seg.title);
       setScenes(seg.scenes.map((s) => s.text));
@@ -144,7 +144,13 @@ export function useStory(user = "guest") {
         "story",
       );
       if (!seg) return;
-      appendImages({ ...seg, characterBible: req.characterBible || seg.characterBible }, req.protagonist);
+      // 조연 설정은 처음 정한 것을 유지하고, 새 인물이 덧붙었을 때만 갱신한다.
+      const supportingCast =
+        seg.supportingCast && (!req.supportingCast || seg.supportingCast.startsWith(req.supportingCast))
+          ? seg.supportingCast
+          : req.supportingCast || seg.supportingCast;
+      if (supportingCast !== req.supportingCast) setReq({ ...req, supportingCast });
+      appendImages({ ...seg, characterBible: req.characterBible || seg.characterBible, supportingCast }, req.protagonist);
       setChosen(nextChosen);
       setScenes((prev) => [...prev, ...seg.scenes.map((s) => s.text)]);
       setChoice(seg.choice);

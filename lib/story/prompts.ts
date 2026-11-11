@@ -44,11 +44,12 @@ export const SYSTEM_PROMPT = `너는 어린아이(주로 만 4~7세)를 위한 �
 - 본문에 주인공이 숨는다, 떤다, 운다, 껴안는다, 덮는다 같은 행동이 있으면 imagePrompt에 반드시 그 행동을 그대로 넣는다.
 - 주인공은 반드시 "the main character"라고만 부른다. 동물 종류(rabbit, bear 등), 색깔(blue 등), 옷, 생김새 단어는 imagePrompt에 절대 쓰지 않는다. 외형은 별도 참조 이미지로 정해진다.
   나쁜 예: "A blue rabbit sitting on a bed." / 좋은 예: "The main character sitting on a bed in a cozy bedroom."
-- 주인공 외의 인물(엄마, 의사 선생님 등)은 쓸 수 있다.
+- 주인공 외의 인물(엄마, 의사 선생님 등)은 쓸 수 있다. 조연을 쓸 때는 supportingCast에 정한 이름과 성별·나이를 매번 그대로 붙인다. 예: "Mina, the main character's little sister (a 4-year-old girl with two pigtails)". 장면마다 성별·나이·생김새가 바뀌면 안 된다.
 - 밝고 따뜻한 동화책 삽화 분위기로 쓴다.
 
 [삽화 원칙]
 - characterBible에 반복 등장 인물의 이름·종류·얼굴·체형·색·옷·소품을 영어로 확정한다. 전달받은 설정이 있으면 글자 그대로 반환한다.
+- supportingCast에는 주인공을 뺀 반복 등장 인물(가족·친구·선생님·동물 등) 모두를 영어로 한 명씩 확정한다: 이름, 주인공과의 관계, 성별(boy/girl/man/woman 또는 동물 종), 나이, 머리 모양과 색, 옷 색, 특징 소품. 예: "Mina: the main character's little sister, a 4-year-old girl, short black bob hair, yellow dress. Mom: a woman in her 30s, long brown ponytail, green cardigan." 본문의 성별·호칭(누나·형·언니·오빠·동생 등)과 반드시 맞춘다. 주인공은 넣지 않는다. 전달받은 설정이 있으면 글자 그대로 반환하고, 새 인물이 처음 나올 때만 끝에 덧붙인다.
 - 원본 그림이 있다고 명시되면 주인공의 외형은 'the protagonist is visually defined by reference image 0'로만 정의한다. 종·얼굴·색을 새로 추론하지 않는다. 친구 외형만 구체적으로 정한다.
 - imagePrompt는 바로 옆 text의 정확한 한 순간만 묘사한다. 본문에 없는 인물·행동·장소·소품을 추가하지 않는다. 본문과 충돌하면 본문을 따른다.
 - 한 장면의 수채화 삽화이며 글자·말풍선·콜라주는 넣지 않는다.`;
@@ -102,6 +103,7 @@ export function buildStartPrompt(req: StoryRequest): string {
     `- 아이의 고민 상황: ${req.situation}`,
     `- 주인공: ${req.protagonist?.trim() || "작고 귀여운 동물 친구"}`,
     `- 고정 캐릭터 설정: ${"characterBible" in req && req.characterBible || "첫 장면에서 확정"}`,
+    `- 고정 조연 설정(supportingCast): ${"supportingCast" in req && req.supportingCast || "첫 장면에서 확정"}`,
     `- 원본 주인공 그림: ${"hasUserDrawing" in req && req.hasUserDrawing ? "있음. 주인공의 종과 외형을 추론하지 않는다" : "없음"}`,
     `- 이야기 길이: ${label}`,
   ];
@@ -144,6 +146,7 @@ export function buildContinuePrompt(req: ContinueRequest): string {
     `- 아이의 고민 상황: ${req.situation}`,
     `- 주인공: ${req.protagonist?.trim() || "작고 귀여운 동물 친구"}`,
     `- 고정 캐릭터 설정: ${"characterBible" in req && req.characterBible || "첫 장면에서 확정"}`,
+    `- 고정 조연 설정(supportingCast): ${"supportingCast" in req && req.supportingCast || "첫 장면에서 확정"}`,
     `- 원본 주인공 그림: ${"hasUserDrawing" in req && req.hasUserDrawing ? "있음. 주인공의 종과 외형을 추론하지 않는다" : "없음"}`,
     `- 동화 제목: ${req.title}`,
     ``,
@@ -209,6 +212,7 @@ export function buildParentCardPrompt(req: ParentCardRequest): string {
     `- 아이의 고민 상황: ${req.situation}`,
     `- 주인공: ${req.protagonist?.trim() || "작고 귀여운 동물 친구"}`,
     `- 고정 캐릭터 설정: ${"characterBible" in req && req.characterBible || "첫 장면에서 확정"}`,
+    `- 고정 조연 설정(supportingCast): ${"supportingCast" in req && req.supportingCast || "첫 장면에서 확정"}`,
     `- 원본 주인공 그림: ${"hasUserDrawing" in req && req.hasUserDrawing ? "있음. 주인공의 종과 외형을 추론하지 않는다" : "없음"}`,
     `- 동화 제목: ${req.title}`,
     ``,
