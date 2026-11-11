@@ -34,7 +34,8 @@ import type {
 export type Step = "form" | "loading" | "story" | "card";
 export type StartInput = Omit<StoryRequest, "previousMemo">;
 
-const MEMO_KEY = "story-choice:lastMemo";
+// 부모 메모는 사용자(로그인 계정)마다 따로 저장한다.
+const memoKey = (user: string) => `story-choice:lastMemo:${user}`;
 const MEMO_EVENT = "story-choice:memo";
 
 async function api<T>(path: string, body: unknown): Promise<T> {
@@ -57,15 +58,15 @@ function subscribeMemo(cb: () => void) {
   };
 }
 
-function loadMemo(): string {
+function loadMemo(user: string): string {
   try {
-    return localStorage.getItem(MEMO_KEY) ?? "";
+    return localStorage.getItem(memoKey(user)) ?? "";
   } catch {
     return "";
   }
 }
 
-export function useStory() {
+export function useStory(user = "guest") {
   const [step, setStep] = useState<Step>("form");
   const [error, setError] = useState("");
   const [usedFallback, setUsedFallback] = useState(false);
@@ -78,7 +79,7 @@ export function useStory() {
   const [isEnding, setIsEnding] = useState(false);
   const [card, setCard] = useState<ParentCard | null>(null);
 
-  const savedMemo = useSyncExternalStore(subscribeMemo, loadMemo, () => "");
+  const savedMemo = useSyncExternalStore(subscribeMemo, () => loadMemo(user), () => "");
 
   // 로딩 화면을 띄우고 호출한다. 실패하면 에러 문장을 남기고 backTo 화면으로 돌아간다.
   const run = useCallback(async <T,>(fn: () => Promise<T>, backTo: Step): Promise<T | undefined> => {
@@ -165,14 +166,17 @@ export function useStory() {
     setStep("card");
   }, [req, title, chosen, run]);
 
-  const saveMemo = useCallback((text: string) => {
-    try {
-      localStorage.setItem(MEMO_KEY, text.trim());
-      window.dispatchEvent(new Event(MEMO_EVENT));
-    } catch {
-      /* 저장에 실패해도 진행은 가능하다 */
-    }
-  }, []);
+  const saveMemo = useCallback(
+    (text: string) => {
+      try {
+        localStorage.setItem(memoKey(user), text.trim());
+        window.dispatchEvent(new Event(MEMO_EVENT));
+      } catch {
+        /* 저장에 실패해도 진행은 가능하다 */
+      }
+    },
+    [user],
+  );
 
   // 같은 입력으로 다음 동화를 시작한다. memo를 안 주면 저장된 메모를 쓴다.
   const nextStory = useCallback(
@@ -191,6 +195,7 @@ export function useStory() {
   return {
     step,
     error,
+    req,
     title,
     scenes,
     choice,
