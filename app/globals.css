@@ -19,7 +19,7 @@
   --color-accent-hover: #e08e00;
   --color-accent-text: #92400e; /* 밝은 면 위의 강조 글씨 */
   --color-danger: #b42318;
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-story), "Malgun Gothic", sans-serif;
   --font-mono: var(--font-geist-mono);
 }
 
@@ -30,7 +30,7 @@ html {
 body {
   background: #fff7e8;
   color: #3b2f25;
-  font-family: system-ui, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  font-family: var(--font-story), "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
   /* 한글은 단어 중간에서 줄을 바꾸지 않는다 */
   word-break: keep-all;
   overflow-wrap: break-word;
