@@ -34,7 +34,7 @@ export default function Reveal({ children, delay = 0, className = "" }: { childr
         transitionTimingFunction: "cubic-bezier(0.22, 1.2, 0.36, 1)",
       }}
       className={`transition-[opacity,transform,filter] duration-[900ms] will-change-transform motion-reduce:translate-y-0 motion-reduce:scale-100 motion-reduce:opacity-100 motion-reduce:blur-none motion-reduce:transition-none ${
-        shown ? "translate-y-0 scale-100 opacity-100 blur-0" : "translate-y-48 scale-90 opacity-0 blur-md"
+        shown ? "translate-y-0 scale-100 opacity-100 blur-0" : "translate-y-24 scale-95 opacity-0 blur-0"
       } ${className}`}
     >
       {children}

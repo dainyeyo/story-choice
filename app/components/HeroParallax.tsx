@@ -1,40 +1,94 @@
 "use client";
 
-// 스크롤을 내리면 첫 화면 문구가 위로 빨려 올라가며 작아지고 흐려진다.
-// 아래 내용이 치고 올라오는 Reveal과 맞물려 "훅 내려가는" 느낌을 만든다.
+// 첫 화면에서 잠깐 멈춰 있다가, 스크롤(휠·터치·키보드)을 한 번 하면
+// 아래 영역(targetId)으로 빠르게 쑥 내려간다. 올라갈 때도 첫 화면으로 쑥 돌아온다.
+// 움직임을 줄이는 설정이면 평소처럼 스크롤된다.
 
 import { useEffect, useRef, type ReactNode } from "react";
 
-export default function HeroParallax({ children }: { children: ReactNode }) {
+const DURATION = 750;
+const easeInOutExpo = (t: number) => (t === 0 ? 0 : t === 1 ? 1 : t < 0.5 ? Math.pow(2, 20 * t - 10) / 2 : (2 - Math.pow(2, -20 * t + 10)) / 2);
+
+export default function HeroParallax({ children, targetId }: { children: ReactNode; targetId: string }) {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-    let raf = 0;
-    const update = () => {
-      raf = 0;
-      const p = Math.min(Math.max(window.scrollY / (window.innerHeight * 0.55), 0), 1);
-      el.style.transform = `translate3d(0, ${-p * 140}px, 0) scale(${1 - p * 0.12})`;
-      el.style.opacity = String(1 - p * 1.1 > 0 ? 1 - p * 1.1 : 0);
-      el.style.filter = p > 0.02 ? `blur(${p * 8}px)` : "none";
+    let animating = false;
+    const targetY = () => {
+      const t = document.getElementById(targetId);
+      return t ? Math.max(t.getBoundingClientRect().top + window.scrollY - 72, 0) : 0;
     };
-    const onScroll = () => {
-      if (!raf) raf = requestAnimationFrame(update);
-    };
-    update();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      if (raf) cancelAnimationFrame(raf);
-    };
-  }, []);
 
-  return (
-    <div ref={ref} className="will-change-transform">
-      {children}
-    </div>
-  );
+    const go = (to: number) => {
+      animating = true;
+      const from = window.scrollY;
+      const start = performance.now();
+      const step = (now: number) => {
+        const p = Math.min((now - start) / DURATION, 1);
+        window.scrollTo(0, from + (to - from) * easeInOutExpo(p));
+        if (p < 1) requestAnimationFrame(step);
+        else animating = false;
+      };
+      requestAnimationFrame(step);
+    };
+
+    // dir: 1 = 아래로, -1 = 위로. 스냅했으면 true
+    const trigger = (dir: number) => {
+      const y = window.scrollY;
+      const t = targetY();
+      if (dir > 0 && y < t - 8) {
+        go(t);
+        return true;
+      }
+      if (dir < 0 && y > 0 && y <= t + 8) {
+        go(0);
+        return true;
+      }
+      return false;
+    };
+
+    const onWheel = (e: WheelEvent) => {
+      if (animating) return e.preventDefault();
+      if (Math.abs(e.deltaY) < 4) return;
+      if (trigger(e.deltaY > 0 ? 1 : -1)) e.preventDefault();
+    };
+
+    let touchY = 0;
+    const onTouchStart = (e: TouchEvent) => {
+      touchY = e.touches[0].clientY;
+    };
+    const onTouchMove = (e: TouchEvent) => {
+      if (animating) return e.preventDefault();
+      const d = touchY - e.touches[0].clientY;
+      if (Math.abs(d) < 24) return;
+      if (trigger(d > 0 ? 1 : -1)) {
+        e.preventDefault();
+        touchY = e.touches[0].clientY;
+      }
+    };
+
+    const onKey = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement | null)?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+      const down = e.key === "ArrowDown" || e.key === "PageDown" || (e.key === " " && !e.shiftKey);
+      const up = e.key === "ArrowUp" || e.key === "PageUp" || (e.key === " " && e.shiftKey);
+      if (!down && !up) return;
+      if (animating || trigger(down ? 1 : -1)) e.preventDefault();
+    };
+
+    window.addEventListener("wheel", onWheel, { passive: false });
+    window.addEventListener("touchstart", onTouchStart, { passive: true });
+    window.addEventListener("touchmove", onTouchMove, { passive: false });
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("wheel", onWheel);
+      window.removeEventListener("touchstart", onTouchStart);
+      window.removeEventListener("touchmove", onTouchMove);
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [targetId]);
+
+  return <div ref={ref}>{children}</div>;
 }
