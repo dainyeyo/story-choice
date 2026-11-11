@@ -88,4 +88,5 @@ export const COPING_NAME: Record<string, string> = {
   스스로진정: "스스로 진정하기",
   회피: "피하기",
   직면: "맞서기",
+  직접입력: "직접 쓰기",
 };

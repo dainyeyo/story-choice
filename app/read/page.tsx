@@ -3,16 +3,18 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { FONT_CLASS } from "@/lib/settings";
+import { CUSTOM_COPING } from "@/lib/story/schema";
 import { useApp } from "../providers";
 import Icon from "../components/Icon";
 import SceneArt from "../components/SceneArt";
 import { DrawingAnimation, WritingAnimation } from "../components/LoadingAnimation";
-import { btnIcon, btnPrimary, btnSecondary, errorCls, noteCls, Segmented } from "../components/ui";
+import { btnIcon, btnPrimary, btnSecondary, errorCls, inputCls, noteCls, Segmented } from "../components/ui";
 
 export default function ReadPage() {
   const { s, n, settings } = useApp();
   const router = useRouter();
   const [page, setPage] = useState(() => s.resumePage ?? 0);
+  const [custom, setCustom] = useState("");
 
   // 이 화면에 맞지 않는 단계면 알맞은 화면으로 보낸다
   useEffect(() => {
@@ -175,6 +177,30 @@ export default function ReadPage() {
               </button>
             ))}
           </div>
+          <form
+            className="flex gap-2"
+            onSubmit={(e) => {
+              e.preventDefault();
+              const text = custom.trim();
+              if (!text) return;
+              n.stop();
+              setPage(s.scenes.length);
+              setCustom("");
+              void s.pick({ text, copingType: CUSTOM_COPING });
+            }}
+          >
+            <input
+              value={custom}
+              onChange={(e) => setCustom(e.target.value)}
+              maxLength={60}
+              aria-label="직접 입력"
+              placeholder="내가 생각한 방법을 직접 써 볼래요"
+              className={`${inputCls} min-w-0 flex-1`}
+            />
+            <button type="submit" disabled={!custom.trim()} className={`${btnSecondary} shrink-0 disabled:opacity-40`}>
+              이렇게 할래요
+            </button>
+          </form>
         </section>
       )}
 

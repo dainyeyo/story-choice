@@ -1,5 +1,5 @@
 import type { SavedStory } from "@/lib/library";
-import { COPING_TYPES, type ChosenChoice } from "@/lib/story/schema";
+import { CHOSEN_COPING_TYPES, type ChosenChoice } from "@/lib/story/schema";
 import { localDateKey, type PetMood } from "@/lib/pet";
 
 export interface InsightStorySignal {
@@ -134,7 +134,7 @@ export function parseParentInsightRequest(raw: unknown): ParentInsightRequest | 
     for (const rawChoice of entry.choices) {
       const choice = (rawChoice ?? {}) as Obj;
       const copingType = choice.copingType as ChosenChoice["copingType"];
-      if (!COPING_TYPES.includes(copingType)) return "대처 유형이 올바르지 않습니다.";
+      if (!CHOSEN_COPING_TYPES.includes(copingType)) return "대처 유형이 올바르지 않습니다.";
       choices.push({ prompt: text(choice.prompt, 100), text: text(choice.text, 60), copingType });
     }
     const date = text(entry.date, 10);

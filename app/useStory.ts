@@ -171,7 +171,7 @@ export function useStory(user = "guest") {
   );
 
   const pick = useCallback(
-    async (option: StoryChoiceOption) => {
+    async (option: Pick<StoryChoiceOption, "text"> & { copingType: ChosenChoice["copingType"] }) => {
       if (!req || !choice) return;
       const nextChosen = [...chosen, { prompt: choice.prompt, text: option.text, copingType: option.copingType }];
       const seg = await run(

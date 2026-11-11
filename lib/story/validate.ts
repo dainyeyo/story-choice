@@ -1,5 +1,5 @@
 import {
-  COPING_TYPES,
+  CHOSEN_COPING_TYPES,
   type ChosenChoice,
   type ContinueRequest,
   type ParentCardRequest,
@@ -37,7 +37,7 @@ function parseChoices(v: unknown, allowed: number[]): ChosenChoice[] | string {
     const prompt = str(o.prompt, 100);
     const text = str(o.text, 60);
     const copingType = o.copingType as ChosenChoice["copingType"];
-    if (!prompt || !text || !COPING_TYPES.includes(copingType)) return "choices 항목 형식이 올바르지 않습니다.";
+    if (!prompt || !text || !CHOSEN_COPING_TYPES.includes(copingType)) return "choices 항목 형식이 올바르지 않습니다.";
     out.push({ prompt, text, copingType });
   }
   return out;
