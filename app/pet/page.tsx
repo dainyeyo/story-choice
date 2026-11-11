@@ -5,7 +5,7 @@ import { useApp } from "../providers";
 import Icon from "../components/Icon";
 import PetAvatar from "../components/PetAvatar";
 import { btnSecondary, PageHeader } from "../components/ui";
-import { localDateKey, nextPetStage, petStage, PET_STAGES, type PetMood } from "@/lib/pet";
+import { localDateKey, nextPetStage, petStage, type PetMood } from "@/lib/pet";
 
 const MOODS: { value: PetMood; emoji: string }[] = [
   { value: "기쁨", emoji: "☀️" }, { value: "평온", emoji: "🌿" }, { value: "속상", emoji: "🌧️" },
@@ -126,26 +126,6 @@ export default function PetPage() {
         </div>
       </section>
 
-      <section className="mt-10">
-        <div>
-          <h2 className="story text-2xl text-ink">알몽은 이렇게 자라요</h2>
-          <p className="mt-1 text-[15px] text-ink-2">마음을 나누며 같은 친구가 조금씩 달라져요</p>
-        </div>
-        <ol className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">
-          {PET_STAGES.map((petStageItem, index) => {
-            const current = index === stage.index;
-            const met = index <= stage.index;
-            return (
-              <li key={petStageItem.name} className={`relative rounded-2xl border p-3 text-center ${current ? "border-accent bg-[#fdf0d2]" : "border-line bg-surface"}`}>
-                {current && <span className="absolute right-2 top-2 rounded-full bg-accent px-2 py-0.5 text-[10px] font-medium text-ink">지금</span>}
-                <PetAvatar stage={index} className={`mx-auto w-full ${met ? "" : "opacity-75"}`} />
-                <h3 className="story -mt-3 text-lg text-ink">{petStageItem.name}</h3>
-                <p className="mt-1 text-xs leading-5 text-ink-2">{petStageItem.message}</p>
-              </li>
-            );
-          })}
-        </ol>
-      </section>
     </main>
   );
 }
