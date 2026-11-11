@@ -30,6 +30,7 @@ export default function LoginPage() {
       <div className="mt-8">
         <Segmented
           label="로그인 방식"
+          fullWidth
           value={mode}
           onChange={(m) => {
             setMode(m);
