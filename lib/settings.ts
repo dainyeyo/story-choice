@@ -12,10 +12,10 @@ export const DEFAULT_SETTINGS: Settings = { fontSize: "md", ttsVoice: DEFAULT_TT
 
 // Tailwind가 클래스를 찾을 수 있게 전체 문자열로 적는다.
 export const FONT_CLASS: Record<FontSize, string> = {
-  sm: "text-base leading-[1.85] md:text-lg md:leading-[1.9]",
-  md: "text-xl leading-[1.8] md:text-xl md:leading-[1.9]",
-  lg: "text-2xl leading-[1.7] md:text-2xl md:leading-[1.8]",
-  xl: "text-[1.7rem] leading-[1.65] md:text-3xl md:leading-[1.75]",
+  sm: "text-base leading-[1.8] md:text-lg md:leading-[1.85]",
+  md: "text-xl leading-[1.8] md:text-xl md:leading-[1.85]",
+  lg: "text-2xl leading-[1.8] md:text-2xl md:leading-[1.85]",
+  xl: "text-[1.7rem] leading-[1.8] md:text-3xl md:leading-[1.85]",
 };
 
 export function parseSettings(raw: string | null): Settings {
