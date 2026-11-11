@@ -274,14 +274,14 @@ body {
   background-size: 500% 200%;
 }
 
-.pet-sprite-blink {
-  opacity: 0;
-  animation: pet-blink 3.6s steps(1, end) infinite;
+.pet-sprite-animated {
+  background-position: var(--pet-x) var(--pet-rest-y);
+  animation: pet-blink 2.8s step-end infinite;
 }
 
 @keyframes pet-blink {
-  0%, 87%, 100% { opacity: 0; }
-  88%, 94% { opacity: 1; }
+  0%, 81%, 100% { background-position: var(--pet-x) var(--pet-rest-y); }
+  82%, 92% { background-position: var(--pet-x) var(--pet-blink-y); }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -293,7 +293,7 @@ body {
     transition-duration: 0.01ms !important;
   }
 
-  .pet-sprite-blink {
+  .pet-sprite-animated {
     animation: none !important;
   }
 }
