@@ -243,3 +243,28 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* 책과 그림 위를 연필이 움직이며 선을 완성한다. */
+.writing-pencil { animation: writing-pencil 3s ease-in-out infinite; }
+.writing-lines { animation: reveal-lines 3s ease-in-out infinite; }
+.drawing-pencil { animation: drawing-pencil 3.5s ease-in-out infinite; }
+.drawing-lines { animation: reveal-lines 3.5s ease-in-out infinite; }
+@keyframes writing-pencil {
+  0% { transform: translate(0, -7px); }
+  30% { transform: translate(20px, -7px); }
+  40% { transform: translate(0, 1px); }
+  65% { transform: translate(17px, 1px); }
+  75% { transform: translate(0, 9px); }
+  95%, 100% { transform: translate(20px, 9px); }
+}
+@keyframes drawing-pencil {
+  0% { transform: translate(-46px, 2px); }
+  25% { transform: translate(-20px, -27px); }
+  45% { transform: translate(-2px, -8px); }
+  65% { transform: translate(11px, -21px); }
+  90%, 100% { transform: translate(38px, 2px); }
+}
+@keyframes reveal-lines {
+  0% { stroke-dasharray: 0 100; }
+  90%, 100% { stroke-dasharray: 100 100; }
+}
