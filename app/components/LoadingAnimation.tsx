@@ -3,7 +3,11 @@ export function WritingAnimation() {
     <svg viewBox="0 0 120 90" className="h-20 w-28 text-accent-text" aria-hidden="true">
       <path d="M60 26C48 18 29 18 14 23v45c17-5 33-4 46 5 13-9 29-10 46-5V23c-15-5-34-5-46 3Z" fill="#fff7e8" stroke="currentColor" strokeWidth="2.5" strokeLinejoin="round" />
       <path d="M60 26v47M21 32c10-2 20-1 29 2M21 40c10-2 20-1 29 2M21 48c10-2 20-1 29 2" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" opacity=".45" />
-      <path className="writing-lines" d="M68 35h24M68 43h20M68 51h24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" pathLength="100" />
+      <g fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+        <path className="writing-line writing-line-1" d="M68 35h24" pathLength="100" />
+        <path className="writing-line writing-line-2" d="M68 43h20" pathLength="100" />
+        <path className="writing-line writing-line-3" d="M68 51h24" pathLength="100" />
+      </g>
       <g className="writing-pencil">
         <path d="m72 35 15-24 5 3-15 24-7 4Z" fill="#f5b747" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
         <path d="m70 42 2-7 5 3Z" fill="#fff7e8" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />

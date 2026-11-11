@@ -74,8 +74,11 @@ export default function ReadPage() {
         />
 
         <div className="md:self-center">
-          <SceneArt index={cur} imageUrl={s.images[cur]?.url} title={s.title} />
-          {s.images[cur]?.loading && <p role="status" className="mt-2 text-sm text-ink-3">이 장면의 그림을 그리고 있어요.</p>}
+          {s.images[cur]?.loading ? (
+            <DrawingAnimation />
+          ) : (
+            <SceneArt index={cur} imageUrl={s.images[cur]?.url} title={s.title} />
+          )}
           {s.images[cur]?.error && <p role="alert" className={`${errorCls} mt-2`}>그림을 만들지 못했어요. {s.images[cur].error}</p>}
           {s.images[cur]?.backgroundSource === "local-fallback" && <p className="mt-2 text-sm text-ink-3">그림 생성 서비스가 바빠 기본 배경을 사용했어요.</p>}
         </div>
