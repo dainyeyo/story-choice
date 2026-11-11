@@ -722,12 +722,11 @@ html[data-theme="light"] .pet-speech { color: #3b2f25; }
 html[data-theme="light"] .pet-bar { background: rgba(255, 255, 255, .7); }
 html[data-theme="light"] .pet-bar-text { color: #3d5f2e; }
 html[data-theme="light"] .pet-shadow { background: rgba(40, 90, 30, .22); }
-html[data-theme="light"] .pet-dock { gap: 8px; padding: 0; background: transparent; border: 0; backdrop-filter: none; }
-html[data-theme="light"] .pet-act { width: 70px; color: #244a1a; }
-html[data-theme="light"] .pet-act-btn { width: 70px; height: 70px; border-radius: 50%; background: #fff; box-shadow: 0 6px 0 rgba(60, 110, 40, .35); }
-html[data-theme="light"] .pet-act:hover:not(:disabled) .pet-act-btn { background: #fff; transform: translateY(-2px); }
-html[data-theme="light"] .pet-act-label { margin-top: 8px; font-size: 15px; }
-html[data-theme="light"] .pet-act-sub { color: #3d5f2e; }
+/* 아래 버튼 줄은 밤 버전과 같은 모양을 쓰고, 낮 배경에서 읽히도록 색만 바꾼다 */
+html[data-theme="light"] .pet-dock { background: rgba(255, 255, 255, .55); border-color: rgba(255, 255, 255, .85); box-shadow: 0 6px 20px rgba(60, 110, 40, .12); }
+html[data-theme="light"] .pet-act { color: #3b2f25; }
+html[data-theme="light"] .pet-act:hover:not(:disabled) .pet-act-btn { background: rgba(255, 255, 255, .7); }
+html[data-theme="light"] .pet-act-sub { color: #7a4a10; }
 html[data-theme="light"] .pet-act-btn svg { stroke: #5a3e28; }
 html[data-theme="light"] .pet-pop { background: #fff; border: 0; box-shadow: 0 8px 24px rgba(60, 110, 40, .3); }
 html[data-theme="light"] .pet-pop button { background: #f6f1e4; }
@@ -737,9 +736,6 @@ html[data-theme="light"] .pet-text-link { color: #6b5a3f; }
   .pet-act { width: 112px; }
   .pet-act-btn { width: 72px; height: 62px; }
   .pet-act-label { font-size: 14px; }
-  html[data-theme="light"] .pet-dock { gap: 22px; padding: 0; }
-  html[data-theme="light"] .pet-act { width: 104px; }
-  html[data-theme="light"] .pet-act-btn { width: 104px; height: 104px; }
 }
 
 
