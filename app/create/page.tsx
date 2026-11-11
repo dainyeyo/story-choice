@@ -326,20 +326,21 @@ export default function CreatePage() {
                     value={durationText}
                     onChange={(e) => setDurationText(e.target.value.replace(/[^0-9]/g, "").slice(0, 2))}
                     aria-label="동화 길이(분)"
-                    className={`${inputCls} text-center tabular-nums`}
+                    className={`${inputCls} h-12 py-0 text-center tabular-nums`}
                   />
                   </span>
                   <span className="text-[15px] text-ink">분</span>
                 </label>
               )}
             </div>
-            {lengthMode === "custom" ? (
-              <p className="text-[13px] text-ink-3">{MIN_DURATION}~{MAX_DURATION}분 사이로 적어 주세요</p>
-            ) : (
-              <p className="text-[13px] text-ink-3">
+            <div className="grid text-[13px] text-ink-3">
+              <p className={`col-start-1 row-start-1 ${lengthMode === "custom" ? "invisible" : ""}`} aria-hidden={lengthMode === "custom"}>
                 AI가 이야기에 맞춰 길이를 정해요. 최대 {MAX_DURATION}분까지 걸릴 수 있어요.
               </p>
-            )}
+              <p className={`col-start-1 row-start-1 ${lengthMode === "auto" ? "invisible" : ""}`} aria-hidden={lengthMode === "auto"}>
+                {MIN_DURATION}~{MAX_DURATION}분 사이로 적어 주세요
+              </p>
+            </div>
           </div>
 
         </section>
@@ -361,6 +362,7 @@ export default function CreatePage() {
               <span className="block text-sm text-ink">주인공을 그려 보세요 (선택)</span>
               <p className="mt-1 text-sm text-ink-3">손가락이나 마우스로 자유롭게 그려 주세요.</p>
             </div>
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
             <div className="flex flex-wrap items-center gap-2" role="group" aria-label="그림 색상">
               {[["#47372f", "갈색"], ["#e66558", "빨강"], ["#f5a623", "주황"], ["#e7c53b", "노랑"], ["#63a873", "초록"], ["#5c8ec7", "파랑"], ["#a47bc0", "보라"]].map(([value, name]) => (
                 <button key={value} type="button" aria-label={name} aria-pressed={!eraser && color === value} onClick={() => { setColor(value); setEraser(false); }}
@@ -368,20 +370,21 @@ export default function CreatePage() {
                   style={{ backgroundColor: value }} />
               ))}
               <button type="button" aria-pressed={eraser} onClick={() => setEraser(true)} className={`rounded-lg border px-3 py-1 text-sm ${eraser ? "border-accent bg-[#fdf0d2] text-ink" : "border-line bg-surface text-ink-2"}`}>지우개</button>
-              <button type="button" onClick={clearSketch} disabled={!hasSketch} className="ml-auto text-sm text-ink-2 underline underline-offset-4 disabled:opacity-40">다시 그리기</button>
             </div>
-            <label className="flex max-w-xs items-center gap-3 text-sm text-ink-2">
+            <label className="flex w-40 items-center gap-2 text-sm text-ink-2">
               <span className="shrink-0">선 굵기</span>
               <input type="range" min="4" max="40" step="2" value={brushSize} onChange={(e) => setBrushSize(Number(e.target.value))} className="min-w-0 flex-1 accent-amber-600" />
               <span className="w-6 text-right tabular-nums">{brushSize}</span>
             </label>
-            <div className="flex flex-wrap gap-2" aria-label="그림 작업 기록">
+            <div className="flex flex-wrap items-center gap-2 sm:ml-auto" role="group" aria-label="그림 작업 기록">
               <button type="button" onClick={() => restoreHistory(-1)} disabled={historyPosition.index <= 0} className="rounded-lg border border-line bg-surface px-3 py-1.5 text-sm text-ink-2 disabled:opacity-40">↶ 되돌리기</button>
               <button type="button" onClick={() => restoreHistory(1)} disabled={historyPosition.index < 0 || historyPosition.index >= historyPosition.length - 1} className="rounded-lg border border-line bg-surface px-3 py-1.5 text-sm text-ink-2 disabled:opacity-40">↷ 다시 실행</button>
             </div>
+              <button type="button" onClick={clearSketch} disabled={!hasSketch} className="text-sm text-ink-2 underline underline-offset-4 disabled:opacity-40">다시 그리기</button>
+            </div>
             <div className="sketchbook">
               <div className="sketchbook-binding" aria-hidden="true">
-                {Array.from({ length: 12 }, (_, i) => <span key={i} />)}
+                {Array.from({ length: 24 }, (_, i) => <span key={i} />)}
               </div>
             <canvas ref={canvasRef} width={1200} height={800} aria-label="주인공 그림판" onPointerDown={startStroke} onPointerMove={moveStroke}
               onPointerUp={(e) => endStroke(e.pointerId)}
