@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useStored, writeRaw } from "@/lib/localStore";
 import { PRESETS } from "@/lib/story/presets";
-import { MAX_AGE, MIN_AGE } from "@/lib/story/schema";
+import { MAX_AGE, MAX_DURATION, MIN_AGE, MIN_DURATION } from "@/lib/story/schema";
 import { useApp } from "../providers";
 import Icon from "../components/Icon";
 import { btnPrimary, chipCls, errorCls, inputCls, Label, noteCls, PageHeader, Segmented } from "../components/ui";
@@ -43,7 +43,8 @@ export default function CreatePage() {
 
   const [age, setAge] = useState(5);
   const [situation, setSituation] = useState("");
-  const [durationMin, setDurationMin] = useState<3 | 5>(5);
+  const [lengthMode, setLengthMode] = useState<"auto" | "custom">("auto"); // 고르지 않으면 AI가 정한다
+  const [durationMin, setDurationMin] = useState(5);
   const [protagonist, setProtagonist] = useState("");
   const [localError, setLocalError] = useState("");
 
@@ -71,7 +72,7 @@ export default function CreatePage() {
       return;
     }
     setLocalError("");
-    void s.start({ age, situation, durationMin, protagonist }); // 로딩은 /read 화면에서 보여준다
+    void s.start({ age, situation, durationMin: lengthMode === "custom" ? durationMin : undefined, protagonist }); // 로딩은 /read 화면에서 보여준다
     router.push("/read");
   };
 
@@ -87,8 +88,8 @@ export default function CreatePage() {
         </p>
       )}
 
-      <form onSubmit={submit} className="mt-8 grid gap-10 md:grid-cols-[3fr_2fr] md:gap-16">
-        <section className="space-y-4">
+      <form onSubmit={submit} className="mt-8 grid gap-6 md:grid-cols-2">
+        <section className="space-y-4 rounded-2xl border border-line bg-surface p-5 md:p-7">
           <h2 className="story text-xl text-ink">요즘 아이의 마음은</h2>
           <div className="flex flex-wrap gap-2">
             {EXAMPLES.map((p) => (
@@ -159,7 +160,7 @@ export default function CreatePage() {
           )}
         </section>
 
-        <section className="space-y-6">
+        <section className="space-y-6 rounded-2xl border border-line bg-surface p-5 md:p-7">
           <h2 className="story text-xl text-ink">동화 설정</h2>
 
           <div className="space-y-2">
@@ -182,14 +183,31 @@ export default function CreatePage() {
             <div>
               <Segmented
                 label="동화 길이"
-                value={durationMin}
-                onChange={setDurationMin}
+                value={lengthMode}
+                onChange={setLengthMode}
                 options={[
-                  { value: 3 as const, label: "3분" },
-                  { value: 5 as const, label: "5분" },
+                  { value: "auto" as const, label: "자동" },
+                  { value: "custom" as const, label: "직접 정하기" },
                 ]}
               />
             </div>
+            {lengthMode === "custom" ? (
+              <div className="flex items-center gap-3 pt-1">
+                <input
+                  type="range"
+                  min={MIN_DURATION}
+                  max={MAX_DURATION}
+                  step={1}
+                  value={durationMin}
+                  onChange={(e) => setDurationMin(Number(e.target.value))}
+                  aria-label="동화 길이(분)"
+                  className="h-10 min-w-0 flex-1 accent-accent"
+                />
+                <span className="w-12 shrink-0 text-right text-[15px] text-ink tabular-nums">{durationMin}분</span>
+              </div>
+            ) : (
+              <p className="text-[13px] text-ink-3">AI가 이야기에 맞춰 길이를 정해요. 최대 {MAX_DURATION}분까지 걸릴 수 있어요.</p>
+            )}
           </div>
 
           <label className="block space-y-2">
@@ -212,7 +230,7 @@ export default function CreatePage() {
           </p>
         )}
 
-        <div className="md:col-span-2 md:flex md:justify-end">
+        <div className="md:col-span-2 md:flex md:justify-center">
           <button type="submit" className={`${btnPrimary} md:w-64`}>
             동화 만들기
           </button>

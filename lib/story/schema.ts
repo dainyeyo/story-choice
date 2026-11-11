@@ -37,10 +37,14 @@ export function ageLabel(age: number): string {
   return `${age}세`;
 }
 
+// 동화 길이(분). 고르지 않으면 AI가 정하되 MAX_DURATION분을 넘지 않는다.
+export const MIN_DURATION = 1;
+export const MAX_DURATION = 10;
+
 export interface StoryRequest {
   age: number; // MIN_AGE~MAX_AGE (양 끝은 "이하"/"이상" 구간)
   situation: string; // 고민 상황 (최대 200자)
-  durationMin: 3 | 5;
+  durationMin?: number; // MIN_DURATION~MAX_DURATION분. 없으면 AI가 이야기에 맞춰 정한다(최대 MAX_DURATION분)
   protagonist?: string; // 주인공 묘사. 예: "파란 토끼" (이름·개인정보 금지)
   previousMemo?: string; // 이전 동화에서 부모가 남긴 메모
 }

@@ -4,7 +4,9 @@ import {
   type ContinueRequest,
   type ParentCardRequest,
   MAX_AGE,
+  MAX_DURATION,
   MIN_AGE,
+  MIN_DURATION,
   type StoryRequest,
 } from "./schema";
 
@@ -47,8 +49,13 @@ export function parseStoryRequest(raw: unknown): StoryRequest | string {
   const common = parseCommon(b);
   if (typeof common === "string") return common;
 
-  const durationMin = Number(b.durationMin);
-  if (durationMin !== 3 && durationMin !== 5) return "durationMin은 3 또는 5여야 합니다.";
+  // 비어 있으면 자동(AI가 정함). 값이 있으면 MIN_DURATION~MAX_DURATION 정수여야 한다.
+  let durationMin: number | undefined;
+  if (b.durationMin != null && b.durationMin !== "" && b.durationMin !== "auto") {
+    durationMin = Number(b.durationMin);
+    if (!Number.isInteger(durationMin) || durationMin < MIN_DURATION || durationMin > MAX_DURATION)
+      return `durationMin은 ${MIN_DURATION}~${MAX_DURATION} 사이 정수이거나 비어 있어야 합니다.`;
+  }
 
   return { ...common, durationMin, previousMemo: str(b.previousMemo, 200) || undefined };
 }

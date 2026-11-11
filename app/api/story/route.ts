@@ -4,7 +4,7 @@ import { fallbackStart } from "@/lib/story/fallback";
 import { parseStoryRequest } from "@/lib/story/validate";
 
 // POST /api/story  — 이야기 시작 (장면 + 첫 선택)
-// body: { age, situation, durationMin, protagonist?, previousMemo? }
+// body: { age, situation, durationMin?(1~10, 없으면 자동), protagonist?, previousMemo? }
 // 응답: StorySegment (lib/story/schema.ts)
 
 export const maxDuration = 60;

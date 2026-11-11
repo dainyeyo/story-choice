@@ -4,7 +4,7 @@ import { fallbackContinue } from "@/lib/story/fallback";
 import { parseContinueRequest } from "@/lib/story/validate";
 
 // POST /api/story/continue  — 아이의 선택을 반영해 이야기 이어쓰기
-// body: { age, situation, durationMin, protagonist?, previousMemo?, title, scenesSoFar: string[], choices: ChosenChoice[] }
+// body: { age, situation, durationMin?(1~10, 없으면 자동), protagonist?, previousMemo?, title, scenesSoFar: string[], choices: ChosenChoice[] }
 //  - choices가 1개면: 장면 2~3개 + 두 번째 선택을 돌려준다
 //  - choices가 2개면: 결말 장면 2~3개를 돌려준다 (choice: null, isEnding: true)
 // 응답: StorySegment (lib/story/schema.ts)
