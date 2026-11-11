@@ -13,13 +13,13 @@ const PUBLIC = ["/", "/login"];
 
 const MENU: { href: string; label: string; icon: IconName }[] = [
   { href: "/", label: "홈", icon: "home" },
-  { href: "/create", label: "동화 만들기", icon: "plus" },
+  { href: "/create", label: "새 동화", icon: "plus" },
   { href: "/library", label: "내 서재", icon: "book" },
   { href: "/settings", label: "설정", icon: "sliders" },
 ];
 
 export default function Shell({ children }: { children: ReactNode }) {
-  const { ready, user } = useAuth();
+  const { ready, user, logOut } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
 
@@ -32,7 +32,7 @@ export default function Shell({ children }: { children: ReactNode }) {
   }, [blocked, ready, user, pathname, router]);
 
   const active = (href: string) => (href === "/" ? pathname === "/" : pathname.startsWith(href));
-  // 읽는 중에는 "동화 만들기" 탭을 켜 둔다
+  // 읽는 중에는 "새 동화" 탭을 켜 둔다
   const isMenuActive = (href: string) =>
     active(href) || (href === "/create" && (pathname.startsWith("/read") || pathname.startsWith("/card")));
 
@@ -60,6 +60,15 @@ export default function Shell({ children }: { children: ReactNode }) {
                   {m.label}
                 </Link>
               ))}
+              <button
+                onClick={() => {
+                  logOut();
+                  router.replace("/");
+                }}
+                className="calm ml-2 inline-flex h-9 items-center rounded-lg border-l border-line pl-4 pr-3 text-[15px] text-ink-2 hover:text-ink"
+              >
+                로그아웃
+              </button>
             </nav>
           ) : (
             <div className="flex justify-end">
