@@ -1,15 +1,29 @@
 // 삽화 자리. 이미지 담당이 여기에 장면 그림(<img>)을 넣는다. index는 현재 쪽 번호.
-// 그림이 준비되기 전에는 이모지가 들어간 자리표시 카드를 보여준다.
+// 그림이 준비되기 전에는 달과 언덕만 그린 단순한 밤 풍경을 보여준다.
 
-const EMOJIS = ["🌙", "🌳", "🐰", "⭐", "🏡", "🦋", "🌈", "🍀", "☁️"];
+const MOON_X = [292, 112, 232];
 
-export default function SceneArt({ index }: { index: number }) {
+export default function SceneArt({ index = 0, className = "" }: { index?: number; className?: string }) {
+  const moonX = MOON_X[index % MOON_X.length];
   return (
-    <div
-      className="flex aspect-[4/3] w-full items-center justify-center rounded-3xl bg-gradient-to-br from-amber-100 via-rose-100 to-sky-100 text-7xl shadow-inner"
+    <svg
+      viewBox="0 0 400 300"
+      className={`block aspect-[4/3] w-full rounded-xl ${className}`}
       aria-hidden
+      preserveAspectRatio="xMidYMid slice"
     >
-      {EMOJIS[index % EMOJIS.length]}
-    </div>
+      <rect width="400" height="300" fill="#f3dcb4" />
+      <circle cx={moonX} cy="86" r="34" fill="#fffdf8" />
+      <g fill="#fffdf8" opacity="0.8">
+        <circle cx="56" cy="52" r="2" />
+        <circle cx="132" cy="96" r="1.5" />
+        <circle cx="206" cy="44" r="2" />
+        <circle cx="352" cy="148" r="1.5" />
+        <circle cx="88" cy="150" r="1.5" />
+      </g>
+      <path d="M0 214c70-34 130-30 200-8s140 18 200-12v106H0z" fill="#e8bd78" />
+      <path d="M0 244c80-26 150-20 220 0s120 12 180-8v64H0z" fill="#d49a4c" />
+      <path d="M0 276c90-14 170-8 250 4s100 4 150-4v24H0z" fill="#b9803a" />
+    </svg>
   );
 }

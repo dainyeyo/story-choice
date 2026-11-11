@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useApp } from "../providers";
-import { bigBtn, Card, inputCls, softBtn } from "../components/ui";
+import Icon from "../components/Icon";
+import { btnPrimary, btnSecondary, Card, inputCls, Label, PageHeader } from "../components/ui";
 
 // 부모 전용 화면. 아이가 바로 넘겨 보지 않도록 간단한 확인 문제를 둔다.
 export default function CardPage() {
@@ -13,6 +14,7 @@ export default function CardPage() {
 
   const [unlocked, setUnlocked] = useState(false);
   const [answer, setAnswer] = useState("");
+  const [wrong, setWrong] = useState(false);
   const [memo, setMemo] = useState("");
   const [memoSaved, setMemoSaved] = useState(false);
 
@@ -23,13 +25,13 @@ export default function CardPage() {
 
   if (s.step === "loading") {
     return (
-      <main className="mx-auto w-full max-w-md px-4 py-10">
-        <Card className="space-y-3 py-16 text-center">
-          <div className="animate-bounce text-5xl">💬</div>
-          <p aria-live="polite" className="font-[family-name:var(--font-story)] text-xl text-amber-800">
-            대화 카드를 만들고 있어요…
+      <main className="rise mx-auto w-full max-w-md px-4 py-16">
+        <div className="flex flex-col items-center gap-4 rounded-2xl border border-line bg-surface px-6 py-20 text-center">
+          <Icon name="book" size={32} className="text-accent-text" />
+          <p aria-live="polite" className="story text-xl text-ink">
+            대화 카드를 만들고 있어요
           </p>
-        </Card>
+        </div>
       </main>
     );
   }
@@ -38,62 +40,78 @@ export default function CardPage() {
 
   if (!unlocked) {
     return (
-      <main className="mx-auto flex w-full max-w-md flex-col gap-4 px-4 py-8">
-        <Card className="space-y-4 text-center">
-          <div className="text-5xl">👨‍👩‍👧</div>
-          <h1 className="font-[family-name:var(--font-story)] text-2xl text-amber-800">부모님께 넘겨 주세요</h1>
-          <p className="text-stone-600">아이의 선택을 바탕으로 한 대화 질문이 준비됐어요. 아래 문제를 풀면 열려요.</p>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              if (answer.trim() === "12") setUnlocked(true);
-              else setAnswer("");
-            }}
-            className="space-y-3"
-          >
-            <label className="block text-lg font-bold text-amber-900">
-              7 + 5 = ?
-              <input
-                value={answer}
-                onChange={(e) => setAnswer(e.target.value.replace(/\D/g, ""))}
-                inputMode="numeric"
-                className={`${inputCls} mt-2 text-center`}
-              />
-            </label>
-            <button type="submit" className={bigBtn}>
-              열기
-            </button>
-          </form>
-        </Card>
+      <main className="rise mx-auto w-full max-w-sm px-4 py-12 md:py-20">
+        <span className="flex size-12 items-center justify-center rounded-xl bg-sunk text-ink-2">
+          <Icon name="lock" size={22} />
+        </span>
+        <h1 className="story mt-6 text-3xl text-ink">부모님께 넘겨 주세요</h1>
+        <p className="mt-2 text-[15px] leading-7 text-ink-2">
+          아이의 선택을 바탕으로 한 대화 질문이 준비됐어요. 아래 문제를 풀면 열립니다.
+        </p>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (answer.trim() === "12") setUnlocked(true);
+            else {
+              setAnswer("");
+              setWrong(true);
+            }
+          }}
+          className="mt-6 space-y-4"
+        >
+          <label className="block space-y-1">
+            <Label>7 + 5</Label>
+            <input
+              value={answer}
+              onChange={(e) => {
+                setAnswer(e.target.value.replace(/\D/g, ""));
+                setWrong(false);
+              }}
+              inputMode="numeric"
+              aria-invalid={wrong}
+              className={inputCls}
+            />
+          </label>
+          {wrong && (
+            <p role="alert" className="text-sm text-danger">
+              다시 한 번 풀어 주세요
+            </p>
+          )}
+          <button type="submit" className={btnPrimary}>
+            열기
+          </button>
+        </form>
       </main>
     );
   }
 
   return (
-    <main className="mx-auto flex w-full max-w-md flex-col gap-4 px-4 py-6 md:max-w-2xl md:px-8 md:py-10">
-      <Card className="space-y-2">
-        <h1 className="font-[family-name:var(--font-story)] text-xl text-amber-800">💬 오늘의 대화 카드</h1>
-        <p className="leading-relaxed text-stone-700">{s.card.summary}</p>
-      </Card>
+    <main className="rise mx-auto w-full max-w-md px-4 py-8 md:max-w-2xl md:px-8 md:py-12">
+      <PageHeader title="오늘의 대화 카드" />
+      <p className="mt-4 text-lg leading-8 text-ink-2">{s.card.summary}</p>
 
-      <ol className="space-y-3">
+      <ol className="mt-8 border-t border-line">
         {s.card.questions.map((q, i) => (
-          <li key={i}>
-            <Card>
-              <p className="text-lg font-bold text-stone-800">
-                {i + 1}. “{q.text}”
-              </p>
-              <p className="mt-1 text-sm text-stone-600">→ {q.hint}</p>
-            </Card>
+          <li key={i} className="flex gap-4 border-b border-line py-5">
+            <span className="flex size-8 shrink-0 items-center justify-center rounded-full border border-line text-sm tabular-nums text-ink-2">
+              {i + 1}
+            </span>
+            <div className="space-y-1">
+              <p className="story text-xl leading-8 text-ink">“{q.text}”</p>
+              <p className="text-[15px] leading-7 text-ink-2">{q.hint}</p>
+            </div>
           </li>
         ))}
       </ol>
 
-      <p className="rounded-2xl bg-sky-50 p-3 text-sm text-sky-900 ring-1 ring-sky-200">💡 {s.card.answerTip}</p>
+      <div className="mt-6 rounded-xl bg-sunk px-4 py-4">
+        <p className="text-sm text-ink-3">아이의 답을 받는 방법</p>
+        <p className="mt-1 text-[15px] leading-7 text-ink">{s.card.answerTip}</p>
+      </div>
 
-      <Card className="space-y-3">
-        <label className="block">
-          <span className="font-semibold text-amber-900">아이가 뭐라고 했나요? (한 줄 메모)</span>
+      <Card className="mt-8 space-y-4">
+        <label className="block space-y-2">
+          <Label>아이가 뭐라고 했나요? 한 줄 메모</Label>
           <input
             value={memo}
             onChange={(e) => {
@@ -102,19 +120,26 @@ export default function CardPage() {
             }}
             maxLength={200}
             placeholder="예: 윙 소리가 무섭대요"
-            className={`${inputCls} mt-1`}
+            className={inputCls}
           />
         </label>
-        <div className="flex gap-2">
+        <div className="flex flex-col gap-3 md:flex-row">
           <button
             onClick={() => {
               saveMemo(memo);
               setMemoSaved(true);
             }}
             disabled={!memo.trim()}
-            className={softBtn}
+            className={btnSecondary}
           >
-            메모 저장
+            {memoSaved ? (
+              <>
+                <Icon name="check" size={18} />
+                저장됨
+              </>
+            ) : (
+              "메모 저장"
+            )}
           </button>
           <button
             onClick={() => {
@@ -123,17 +148,19 @@ export default function CardPage() {
               router.push("/read");
             }}
             disabled={!memo.trim() && !s.savedMemo}
-            className="flex-1 rounded-2xl bg-amber-500 px-4 py-3 font-bold text-white disabled:opacity-40"
+            className={`${btnPrimary} md:flex-1`}
           >
-            메모 이어서 다음 동화
+            메모를 이어서 다음 동화
           </button>
         </div>
-        {memoSaved && <p className="text-sm text-green-700">저장했어요 ✔ 내 서재에서 다시 볼 수 있어요.</p>}
+        {memoSaved && <p className="text-sm text-ink-3">내 서재에서 다시 볼 수 있어요</p>}
       </Card>
 
-      <Link href="/library" className="text-center text-sm text-amber-800 underline">
-        내 서재로 가기
-      </Link>
+      <p className="mt-6 text-center">
+        <Link href="/library" className="calm text-[15px] text-ink-2 underline hover:text-ink">
+          내 서재로 가기
+        </Link>
+      </p>
     </main>
   );
 }

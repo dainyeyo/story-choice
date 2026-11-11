@@ -1,15 +1,24 @@
 @import "tailwindcss";
 
-/* 아이 동화책 느낌: 항상 밝은 따뜻한 배경 (다크 모드 없음) */
+/* 우리 아이 동화 디자인 토큰
+   방향: 취침 전 그림책. 종이와 램프 불빛. 바탕과 표면은 조용하게 두고, 색은 삽화와 주요 버튼에만 쓴다. */
+
 :root {
   color-scheme: light;
-  --background: #fff7e8;
-  --foreground: #3b2f25;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-paper: #fff7e8; /* 페이지 바탕 */
+  --color-surface: #fffdf8; /* 카드, 입력칸 */
+  --color-sunk: #f5ecda; /* 눌린 면: 활성 메뉴, 선택, 호버 */
+  --color-ink: #3b2f25; /* 본문 */
+  --color-ink-2: #65574a; /* 보조 글씨 */
+  --color-ink-3: #7d6d5d; /* 메타 글씨 (본문에는 쓰지 않는다) */
+  --color-line: rgb(59 47 37 / 0.12);
+  --color-accent: #f59e0b; /* 주요 행동, 선택 */
+  --color-accent-hover: #e08e00;
+  --color-accent-text: #92400e; /* 밝은 면 위의 강조 글씨 */
+  --color-danger: #b42318;
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -19,7 +28,65 @@ html {
 }
 
 body {
-  background: linear-gradient(180deg, #fff7e8 0%, #ffeede 100%) fixed;
-  color: var(--foreground);
+  background: #fff7e8;
+  color: #3b2f25;
   font-family: system-ui, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  /* 한글은 단어 중간에서 줄을 바꾸지 않는다 */
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+/* 동화 제목과 본문에 쓰는 손글씨 느낌 한글 폰트 */
+@utility story {
+  font-family: var(--font-story), "Malgun Gothic", serif;
+}
+
+/* 색, 배경, 테두리, 투명도, 이동만 부드럽게. 곡선은 하나로 통일 */
+@utility calm {
+  transition:
+    color 150ms cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 150ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 150ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 150ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 150ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* 화면이 열릴 때 한 번만 살짝 올라온다 */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@utility rise {
+  animation: rise 400ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* 불러오는 중에만 쓴다 */
+@keyframes soft {
+  50% {
+    opacity: 0.35;
+  }
+}
+@utility soft-pulse {
+  animation: soft 1.4s ease-in-out infinite;
+}
+
+:focus-visible {
+  outline: 2px solid #92400e;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

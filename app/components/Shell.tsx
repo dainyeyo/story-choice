@@ -6,14 +6,15 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, type ReactNode } from "react";
 import { useAuth } from "../providers";
+import Icon, { type IconName } from "./Icon";
 
 const PUBLIC = ["/", "/login"];
 
-const MENU = [
-  { href: "/", label: "홈", icon: "🏠" },
-  { href: "/create", label: "동화 만들기", icon: "✨" },
-  { href: "/library", label: "내 서재", icon: "📚" },
-  { href: "/settings", label: "설정", icon: "⚙️" },
+const MENU: { href: string; label: string; icon: IconName }[] = [
+  { href: "/", label: "홈", icon: "home" },
+  { href: "/create", label: "동화 만들기", icon: "plus" },
+  { href: "/library", label: "내 서재", icon: "book" },
+  { href: "/settings", label: "설정", icon: "sliders" },
 ];
 
 export default function Shell({ children }: { children: ReactNode }) {
@@ -36,10 +37,11 @@ export default function Shell({ children }: { children: ReactNode }) {
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <header className="sticky top-0 z-20 border-b border-amber-200/60 bg-[#fff7e8]/90 backdrop-blur">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3 md:px-8">
-          <Link href="/" className="font-[family-name:var(--font-story)] text-xl text-amber-800">
-            🌙 우리 아이 동화
+      <header className="sticky top-0 z-20 border-b border-line bg-paper/95 backdrop-blur">
+        <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4 md:h-16 md:px-8">
+          <Link href="/" className="flex items-center gap-2 text-ink">
+            <Icon name="moon" size={20} className="text-accent-text" />
+            <span className="story text-lg">우리 아이 동화</span>
           </Link>
 
           {user ? (
@@ -48,8 +50,9 @@ export default function Shell({ children }: { children: ReactNode }) {
                 <Link
                   key={m.href}
                   href={m.href}
-                  className={`rounded-full px-4 py-2 text-base ${
-                    isMenuActive(m.href) ? "bg-amber-500 font-bold text-white" : "text-amber-900 hover:bg-amber-100"
+                  aria-current={isMenuActive(m.href) ? "page" : undefined}
+                  className={`calm inline-flex h-9 items-center rounded-lg px-3 text-[15px] ${
+                    isMenuActive(m.href) ? "bg-sunk font-medium text-ink" : "text-ink-2 hover:bg-sunk hover:text-ink"
                   }`}
                 >
                   {m.label}
@@ -58,7 +61,7 @@ export default function Shell({ children }: { children: ReactNode }) {
             </nav>
           ) : (
             ready && (
-              <Link href="/login" className="rounded-full bg-amber-500 px-4 py-2 text-sm font-bold text-white">
+              <Link href="/login" className="calm text-[15px] text-ink-2 hover:text-ink">
                 로그인
               </Link>
             )
@@ -66,31 +69,31 @@ export default function Shell({ children }: { children: ReactNode }) {
         </div>
       </header>
 
-      <div className={`flex-1 ${user ? "pb-24 md:pb-8" : "pb-8"}`}>
-        {!ready || blocked ? (
-          <p className="mt-24 text-center text-amber-800/60">불러오는 중…</p>
-        ) : (
-          children
-        )}
+      <div className={`flex-1 ${user ? "pb-20 md:pb-12" : "pb-12"}`}>
+        {!ready || blocked ? <p className="mt-24 text-center text-ink-3">불러오는 중</p> : children}
       </div>
 
       {user && (
         <nav
           aria-label="주 메뉴"
-          className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-4 border-t border-amber-200 bg-[#fffaf0]/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden"
+          className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-4 border-t border-line bg-surface/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden"
         >
-          {MENU.map((m) => (
-            <Link
-              key={m.href}
-              href={m.href}
-              className={`flex flex-col items-center gap-0.5 py-2 text-xs ${
-                isMenuActive(m.href) ? "font-bold text-amber-700" : "text-stone-500"
-              }`}
-            >
-              <span className="text-xl">{m.icon}</span>
-              {m.label}
-            </Link>
-          ))}
+          {MENU.map((m) => {
+            const on = isMenuActive(m.href);
+            return (
+              <Link
+                key={m.href}
+                href={m.href}
+                aria-current={on ? "page" : undefined}
+                className={`calm flex h-14 flex-col items-center justify-center gap-1 text-xs ${
+                  on ? "font-medium text-accent-text" : "text-ink-3"
+                }`}
+              >
+                <Icon name={m.icon} size={20} />
+                {m.label}
+              </Link>
+            );
+          })}
         </nav>
       )}
     </div>

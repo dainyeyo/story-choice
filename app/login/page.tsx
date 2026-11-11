@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../providers";
-import { bigBtn, Card, inputCls } from "../components/ui";
+import { btnPrimary, errorCls, inputCls, Label, Segmented } from "../components/ui";
 
 export default function LoginPage() {
   const { logIn, signUp } = useAuth();
@@ -21,71 +21,63 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="mx-auto flex w-full max-w-md flex-col gap-4 px-4 py-8">
-      <div className="space-y-1 text-center">
-        <div className="text-5xl">🌙</div>
-        <h1 className="font-[family-name:var(--font-story)] text-3xl text-amber-800">
-          {mode === "login" ? "다시 만나서 반가워요" : "처음이시군요!"}
-        </h1>
+    <main className="rise mx-auto w-full max-w-sm px-4 py-12 md:py-20">
+      <h1 className="story text-3xl text-ink md:text-4xl">{mode === "login" ? "로그인" : "가입하기"}</h1>
+      <p className="mt-2 text-[15px] text-ink-2">
+        {mode === "login" ? "지난 동화와 메모를 이어서 봅니다" : "닉네임과 숫자 4자리면 충분해요"}
+      </p>
+
+      <div className="mt-8">
+        <Segmented
+          label="로그인 방식"
+          value={mode}
+          onChange={(m) => {
+            setMode(m);
+            setError("");
+          }}
+          options={[
+            { value: "login", label: "로그인" },
+            { value: "signup", label: "가입하기" },
+          ]}
+        />
       </div>
 
-      <Card>
-        <div className="mb-4 grid grid-cols-2 gap-2 rounded-2xl bg-amber-50 p-1">
-          {(["login", "signup"] as const).map((m) => (
-            <button
-              key={m}
-              type="button"
-              onClick={() => {
-                setMode(m);
-                setError("");
-              }}
-              className={`rounded-xl py-2 font-bold ${mode === m ? "bg-amber-500 text-white" : "text-amber-800"}`}
-            >
-              {m === "login" ? "로그인" : "회원가입"}
-            </button>
-          ))}
-        </div>
+      <form onSubmit={submit} className="mt-6 space-y-4">
+        <label className="block space-y-1">
+          <Label>보호자 닉네임</Label>
+          <input
+            value={nick}
+            onChange={(e) => setNick(e.target.value)}
+            maxLength={20}
+            autoComplete="username"
+            placeholder="예: 하윤맘"
+            className={inputCls}
+          />
+        </label>
+        <label className="block space-y-1">
+          <Label>비밀번호 (숫자 4자리)</Label>
+          <input
+            value={pin}
+            onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 4))}
+            inputMode="numeric"
+            type="password"
+            autoComplete={mode === "login" ? "current-password" : "new-password"}
+            className={inputCls}
+          />
+        </label>
 
-        <form onSubmit={submit} className="space-y-3">
-          <label className="block">
-            <span className="font-semibold text-amber-900">보호자 닉네임</span>
-            <input
-              value={nick}
-              onChange={(e) => setNick(e.target.value)}
-              maxLength={20}
-              autoComplete="username"
-              placeholder="예: 하윤맘"
-              className={`${inputCls} mt-1`}
-            />
-          </label>
-          <label className="block">
-            <span className="font-semibold text-amber-900">비밀번호 (숫자 4자리)</span>
-            <input
-              value={pin}
-              onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 4))}
-              inputMode="numeric"
-              type="password"
-              autoComplete={mode === "login" ? "current-password" : "new-password"}
-              placeholder="••••"
-              className={`${inputCls} mt-1`}
-            />
-          </label>
+        {error && (
+          <p role="alert" className={errorCls}>
+            {error}
+          </p>
+        )}
 
-          {error && (
-            <p role="alert" className="rounded-2xl bg-red-50 p-3 text-sm text-red-700 ring-1 ring-red-200">
-              {error}
-            </p>
-          )}
+        <button type="submit" className={btnPrimary}>
+          {mode === "login" ? "로그인" : "가입하고 시작"}
+        </button>
+      </form>
 
-          <button type="submit" className={bigBtn}>
-            {mode === "login" ? "로그인" : "가입하고 시작하기"}
-          </button>
-        </form>
-      </Card>
-
-      <p className="text-center text-xs text-stone-500">
-        이 기기에 저장되는 간편 로그인이에요. 아이 이름 같은 개인정보는 쓰지 마세요.
-      </p>
+      <p className="mt-6 text-sm text-ink-3">이 기기에 저장되는 간편 로그인입니다. 아이 이름 같은 개인정보는 적지 마세요.</p>
     </main>
   );
 }

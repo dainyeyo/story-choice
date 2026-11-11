@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { PRESETS } from "@/lib/story/presets";
 import { useApp } from "../providers";
-import { bigBtn, Card, chip, inputCls, Title } from "../components/ui";
+import { btnPrimary, chipCls, errorCls, inputCls, Label, noteCls, PageHeader, Segmented } from "../components/ui";
 
 export default function CreatePage() {
   const { s } = useApp();
@@ -30,21 +30,21 @@ export default function CreatePage() {
   const error = localError || s.error;
 
   return (
-    <main className="mx-auto flex w-full max-w-md flex-col gap-4 px-4 py-6 md:max-w-4xl md:gap-6 md:px-8 md:py-10">
-      <Title sub="아이의 마음을 알려주시면 오늘의 동화를 만들어요">새 동화 만들기</Title>
+    <main className="rise mx-auto w-full max-w-md px-4 py-8 md:max-w-5xl md:px-8 md:py-12">
+      <PageHeader title="새 동화" sub="아이의 마음을 고르면 오늘의 동화가 만들어져요" />
 
       {error && (
-        <p role="alert" className="rounded-2xl bg-red-50 p-3 text-center text-red-700 ring-1 ring-red-200">
+        <p role="alert" className={`${errorCls} mt-6`}>
           {error}
         </p>
       )}
 
-      <form onSubmit={submit} className="flex flex-col gap-4 md:grid md:grid-cols-2 md:gap-6">
-        <Card className="space-y-3">
-          <h2 className="font-[family-name:var(--font-story)] text-xl text-amber-800">요즘 아이의 마음은?</h2>
+      <form onSubmit={submit} className="mt-8 grid gap-10 md:grid-cols-[3fr_2fr] md:gap-16">
+        <section className="space-y-4">
+          <h2 className="story text-xl text-ink">요즘 아이의 마음은</h2>
           <div className="flex flex-wrap gap-2">
             {PRESETS.map((p) => (
-              <button key={p} type="button" onClick={() => setSituation(p)} className={chip(situation === p)}>
+              <button key={p} type="button" onClick={() => setSituation(p)} className={chipCls(situation === p)}>
                 {p}
               </button>
             ))}
@@ -54,63 +54,67 @@ export default function CreatePage() {
             onChange={(e) => setSituation(e.target.value)}
             maxLength={200}
             rows={4}
-            placeholder="직접 써도 좋아요 (200자 이하, 아이 이름은 쓰지 마세요)"
+            aria-label="고민 상황 직접 입력"
+            placeholder="직접 적어도 좋아요 (200자 이하, 아이 이름은 적지 마세요)"
             className={inputCls}
           />
-        </Card>
+        </section>
 
-        <Card className="space-y-4">
-          <div className="flex items-center justify-between gap-3">
-            <span className="font-semibold text-amber-900">나이</span>
-            <div className="flex gap-2">
-              {[4, 5, 6, 7].map((a) => (
-                <button
-                  key={a}
-                  type="button"
-                  onClick={() => setAge(a)}
-                  className={`h-11 w-11 rounded-full text-base font-bold ring-1 ${
-                    age === a ? "bg-amber-500 text-white ring-amber-500" : "bg-amber-50 text-amber-900 ring-amber-200"
-                  }`}
-                >
-                  {a}
-                </button>
-              ))}
+        <section className="space-y-6">
+          <h2 className="story text-xl text-ink">동화 설정</h2>
+
+          <div className="space-y-2">
+            <Label>아이 나이</Label>
+            <div>
+              <Segmented
+                label="아이 나이"
+                value={age}
+                onChange={setAge}
+                options={[4, 5, 6, 7].map((a) => ({ value: a, label: `${a}세` }))}
+              />
             </div>
           </div>
 
-          <div className="flex items-center justify-between gap-3">
-            <span className="font-semibold text-amber-900">길이</span>
-            <div className="flex gap-2">
-              {([3, 5] as const).map((m) => (
-                <button key={m} type="button" onClick={() => setDurationMin(m)} className={chip(durationMin === m)}>
-                  {m}분
-                </button>
-              ))}
+          <div className="space-y-2">
+            <Label>길이</Label>
+            <div>
+              <Segmented
+                label="동화 길이"
+                value={durationMin}
+                onChange={setDurationMin}
+                options={[
+                  { value: 3 as const, label: "3분" },
+                  { value: 5 as const, label: "5분" },
+                ]}
+              />
             </div>
           </div>
 
-          <label className="block">
-            <span className="font-semibold text-amber-900">주인공</span>
+          <label className="block space-y-2">
+            <Label>주인공</Label>
             <input
               value={protagonist}
               onChange={(e) => setProtagonist(e.target.value)}
               maxLength={50}
               placeholder="예: 파란 토끼 (비워도 돼요)"
-              className={`${inputCls} mt-1`}
+              className={inputCls}
             />
             {/* 이미지 담당: 그림 업로드/캐릭터 변환 UI는 이 아래에 붙인다 */}
           </label>
-        </Card>
+        </section>
 
         {s.savedMemo && (
-          <p className="rounded-2xl bg-yellow-50 p-3 text-sm text-amber-900 ring-1 ring-yellow-200 md:col-span-2">
-            📝 지난 동화의 메모가 있어요: “{s.savedMemo}” — 이번 동화에 이어져요.
+          <p className={`${noteCls} md:col-span-2`}>
+            지난 동화의 메모가 이번 동화에 이어져요
+            <span className="mt-1 block text-ink">“{s.savedMemo}”</span>
           </p>
         )}
 
-        <button type="submit" className={`${bigBtn} md:col-span-2 md:mx-auto md:max-w-md`}>
-          동화 만들기 ✨
-        </button>
+        <div className="md:col-span-2 md:flex md:justify-end">
+          <button type="submit" className={`${btnPrimary} md:w-64`}>
+            동화 만들기
+          </button>
+        </div>
       </form>
     </main>
   );

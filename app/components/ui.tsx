@@ -1,38 +1,88 @@
 import type { ReactNode } from "react";
 
-// 화면 공통 조각들
+// 화면 공통 조각들. 반경은 크기에 따라: 입력·버튼 12, 카드 16, 안쪽 항목 8.
 
 export function Card({ children, className = "" }: { children: ReactNode; className?: string }) {
-  return <div className={`rounded-3xl bg-white/90 p-5 shadow-md ring-1 ring-amber-200/60 ${className}`}>{children}</div>;
-}
-
-export function Title({ children, sub }: { children: ReactNode; sub?: string }) {
   return (
-    <div className="text-center">
-      <h1 className="font-[family-name:var(--font-story)] text-3xl text-amber-800">{children}</h1>
-      {sub && <p className="mt-1 text-sm text-amber-800/70">{sub}</p>}
+    <div className={`rounded-2xl border border-line bg-surface p-5 shadow-[0_1px_2px_rgba(59,47,37,0.05)] ${className}`}>
+      {children}
     </div>
   );
 }
 
-export const bigBtn =
-  "block w-full rounded-2xl bg-amber-500 px-5 py-4 text-center text-lg font-bold text-white shadow-md transition active:scale-[0.98] disabled:opacity-40";
+export function PageHeader({ title, sub }: { title: string; sub?: string }) {
+  return (
+    <header className="space-y-1">
+      <h1 className="story text-3xl leading-tight text-ink md:text-4xl">{title}</h1>
+      {sub && <p className="text-[15px] text-ink-2">{sub}</p>}
+    </header>
+  );
+}
 
-export const softBtn =
-  "rounded-2xl bg-amber-100 px-4 py-3 font-bold text-amber-800 transition active:scale-[0.98] disabled:opacity-40";
+export function Label({ children }: { children: ReactNode }) {
+  return <span className="text-sm font-medium text-ink">{children}</span>;
+}
+
+export const btnPrimary =
+  "calm inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-accent px-5 text-base font-medium text-ink hover:bg-accent-hover active:translate-y-px disabled:opacity-40";
+
+export const btnSecondary =
+  "calm inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-line bg-surface px-4 text-base text-ink hover:bg-sunk active:translate-y-px disabled:opacity-40";
+
+export const btnIcon =
+  "calm inline-flex h-10 w-10 items-center justify-center rounded-xl border border-line bg-surface text-ink-2 hover:bg-sunk hover:text-ink disabled:opacity-40";
 
 export const inputCls =
-  "w-full rounded-2xl bg-amber-50 p-3 text-base ring-1 ring-amber-200 focus:outline-none focus:ring-2 focus:ring-amber-400";
+  "calm w-full rounded-xl border border-line bg-surface px-3 py-3 text-base text-ink placeholder:text-ink-3 focus:border-accent-text";
 
-export function chip(active: boolean) {
-  return `rounded-full px-4 py-2 text-base ring-1 transition ${
-    active ? "bg-amber-500 text-white ring-amber-500" : "bg-amber-50 text-amber-900 ring-amber-200"
+export const noteCls = "rounded-xl bg-sunk px-4 py-3 text-[15px] text-ink-2";
+
+export const errorCls = "rounded-xl border border-danger/30 bg-[#fdf1ef] px-4 py-3 text-[15px] text-danger";
+
+export function chipCls(active: boolean) {
+  return `calm h-10 rounded-lg border px-3 text-[15px] ${
+    active ? "border-accent bg-[#fdf0d2] text-ink" : "border-line bg-surface text-ink-2 hover:bg-sunk"
   }`;
 }
 
-export const COPING_LABEL: Record<string, string> = {
-  도움요청: "🤝",
-  스스로진정: "🌿",
-  회피: "🙈",
-  직면: "💪",
+export function Segmented<T extends string | number>({
+  value,
+  onChange,
+  options,
+  label,
+}: {
+  value: T;
+  onChange: (v: T) => void;
+  options: { value: T; label: string }[];
+  label: string;
+}) {
+  return (
+    <div role="radiogroup" aria-label={label} className="inline-flex gap-1 rounded-xl bg-sunk p-1">
+      {options.map((o) => {
+        const on = o.value === value;
+        return (
+          <button
+            key={String(o.value)}
+            type="button"
+            role="radio"
+            aria-checked={on}
+            onClick={() => onChange(o.value)}
+            className={`calm h-10 min-w-10 rounded-lg px-3 text-[15px] ${
+              on ? "bg-surface font-medium text-ink shadow-[0_1px_2px_rgba(59,47,37,0.08)]" : "text-ink-2 hover:text-ink"
+            }`}
+          >
+            {o.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+// 부모 카드와 서재에서만 보여주는 대처 유형 이름 (아이 화면에는 보이지 않는다)
+export const COPING_NAME: Record<string, string> = {
+  도움요청: "도움 요청하기",
+  스스로진정: "스스로 진정하기",
+  회피: "피하기",
+  직면: "맞서기",
 };
