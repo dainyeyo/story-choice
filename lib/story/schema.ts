@@ -34,6 +34,7 @@ export interface StoryRequest {
   durationMin: 3 | 5;
   protagonist?: string; // 주인공 묘사. 예: "파란 토끼" (이름·개인정보 금지)
   previousMemo?: string; // 이전 동화에서 부모가 남긴 메모
+  recentContext?: string; // 최근 7일의 감정·선택·메모 요약 (개인화 참고용)
 }
 
 // Gemini 구조화 출력용 JSON Schema

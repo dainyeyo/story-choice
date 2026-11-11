@@ -76,6 +76,13 @@ export function buildStartPrompt(req: StoryRequest): string {
       `  → 메모가 두려움이라면 이야기 중간에 그것을 다르게 바라볼 수 있는 계기(예: 무서운 소리를 노래나 놀이로 바꿔보기)가 선택지로 나오게 하라. 정답을 정해주지는 않는다.`,
     );
   }
+  if (req.recentContext?.trim()) {
+    lines.push(
+      `- 최근 7일의 참고 기록:\n${req.recentContext.trim()}`,
+      `  → 기록을 그대로 설명하거나 아이의 성격을 단정하지 않는다. 최근에 덜 다뤘던 새로운 사건과 주변 인물을 고른다.`,
+      `  → 최근 선택에서 드러난 대처 방식과 다른 방식도 자연스럽게 시도할 수 있게 하되, 어느 선택도 정답으로 강요하지 않는다.`,
+    );
+  }
   lines.push(
     ``,
     `[이번 출력]`,

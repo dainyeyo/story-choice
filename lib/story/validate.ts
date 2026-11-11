@@ -48,7 +48,12 @@ export function parseStoryRequest(raw: unknown): StoryRequest | string {
   const durationMin = Number(b.durationMin);
   if (durationMin !== 3 && durationMin !== 5) return "durationMin은 3 또는 5여야 합니다.";
 
-  return { ...common, durationMin, previousMemo: str(b.previousMemo, 200) || undefined };
+  return {
+    ...common,
+    durationMin,
+    previousMemo: str(b.previousMemo, 200) || undefined,
+    recentContext: str(b.recentContext, 600) || undefined,
+  };
 }
 
 export function parseContinueRequest(raw: unknown): ContinueRequest | string {

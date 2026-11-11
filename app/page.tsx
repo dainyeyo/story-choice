@@ -212,6 +212,15 @@ function LoggedInHome() {
         </div>
       </section>
 
+      <Link href="/insights" className="calm mt-6 flex items-center justify-between gap-5 rounded-2xl border border-line bg-surface p-5 hover:bg-sunk/60 md:p-6">
+        <span>
+          <span className="text-sm font-medium text-accent-text">AI 부모 인사이트</span>
+          <span className="story mt-1 block text-xl text-ink">최근 7일의 마음을 오늘의 행동으로</span>
+          <span className="mt-1 block text-sm leading-6 text-ink-2">주간 마음 리포트와 다음 동화 방향을 함께 확인해요.</span>
+        </span>
+        <Icon name="right" className="shrink-0 text-ink-3" />
+      </Link>
+
       <div className="mt-8 grid gap-6 md:grid-cols-2 md:gap-8">
         <Link
           href="/pet"

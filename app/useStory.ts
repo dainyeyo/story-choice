@@ -123,6 +123,7 @@ export function useStory(user = "guest") {
         durationMin: input.durationMin,
         protagonist: input.protagonist?.trim() || undefined,
         previousMemo: (previousMemo ?? savedMemo).trim() || undefined,
+        recentContext: input.recentContext?.trim() || undefined,
       });
     },
     [begin, savedMemo],

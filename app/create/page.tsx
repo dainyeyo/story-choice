@@ -3,18 +3,20 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useStored, writeRaw } from "@/lib/localStore";
+import { buildRecentStoryContext, cachedStoryGuidance } from "@/lib/parentInsights";
 import { PRESETS } from "@/lib/story/presets";
 import { useApp } from "../providers";
 import Icon from "../components/Icon";
 import { btnPrimary, chipCls, errorCls, inputCls, Label, noteCls, PageHeader, Segmented } from "../components/ui";
 
 export default function CreatePage() {
-  const { s, user } = useApp();
+  const { s, user, library, pet } = useApp();
   const router = useRouter();
 
   // 직접 추가한 고민 상황은 칩으로 남겨 두고, 이 기기에서 다시 고를 수 있게 한다
   const customKey = `story-choice:situations:${user}`;
   const customRaw = useStored(customKey);
+  const insightRaw = useStored(`story-choice:insight:${user}`);
   const custom = useMemo<string[]>(() => {
     try {
       const v = JSON.parse(customRaw || "[]");
@@ -56,7 +58,17 @@ export default function CreatePage() {
       return;
     }
     setLocalError("");
-    void s.start({ age, situation, durationMin, protagonist }); // 로딩은 /read 화면에서 보여준다
+    const recentContext = [buildRecentStoryContext(library, pet.state.moods), cachedStoryGuidance(insightRaw)]
+      .filter(Boolean)
+      .join("\n")
+      .slice(0, 600);
+    void s.start({
+      age,
+      situation,
+      durationMin,
+      protagonist,
+      recentContext,
+    }); // 로딩은 /read 화면에서 보여준다
     router.push("/read");
   };
 

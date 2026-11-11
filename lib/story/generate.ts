@@ -1,5 +1,6 @@
 import { GoogleGenAI, ThinkingLevel } from "@google/genai";
 import { SYSTEM_PROMPT } from "./prompts";
+import { isParentInsight, parentInsightJsonSchema, type ParentInsight } from "@/lib/parentInsights";
 import {
   isParentCard,
   isStorySegment,
@@ -71,4 +72,8 @@ export function generateParentCard(systemPrompt: string, userPrompt: string): Pr
     guard: isParentCard,
     temperature: 0.7,
   });
+}
+
+export function generateParentInsight(systemPrompt: string, userPrompt: string): Promise<ParentInsight> {
+  return generateJson({ system: systemPrompt, user: userPrompt, schema: parentInsightJsonSchema, guard: isParentInsight, temperature: 0.6 });
 }
