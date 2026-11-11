@@ -31,8 +31,9 @@ function dateKey(year: number, month: number, day: number) {
 export default function PetPage() {
   const { pet } = useApp();
   const [action, setAction] = useState<"fed" | "petted" | undefined>();
-  const today = localDateKey();
-  const todayDate = new Date();
+  const [testOpen, setTestOpen] = useState(false);
+  const today = pet.today;
+  const todayDate = new Date(`${today}T12:00:00`);
   const [shownMonth, setShownMonth] = useState({ year: todayDate.getFullYear(), month: todayDate.getMonth() });
   const careDays = pet.state.careDates.length;
   const stage = petStage(careDays);
@@ -54,9 +55,58 @@ export default function PetPage() {
     setShownMonth({ year: moved.getFullYear(), month: moved.getMonth() });
   };
 
+  const showDate = (date: string) => {
+    const shown = new Date(`${date}T12:00:00`);
+    setShownMonth({ year: shown.getFullYear(), month: shown.getMonth() });
+  };
+
+  const changeTestDate = (date: string) => {
+    pet.setTestDate(date);
+    showDate(date);
+  };
+
+  const advanceTestDate = (days: number) => {
+    const advanced = new Date(`${today}T12:00:00`);
+    advanced.setDate(advanced.getDate() + days);
+    const nextDate = localDateKey(advanced.getTime());
+    pet.advanceTestDate(days);
+    showDate(nextDate);
+  };
+
+  const resetTest = () => {
+    pet.resetTest();
+    showDate(localDateKey());
+  };
+
   return (
     <main className="page-turn mx-auto w-full max-w-md px-4 py-8 md:max-w-4xl md:px-8 md:py-12">
       <PageHeader title="나의 마음 친구" sub="동화를 읽고 마음을 나눌수록 천천히 자라요" />
+
+      <div className="mt-4 flex justify-end">
+        <button type="button" onClick={() => setTestOpen((open) => !open)} className="calm rounded-lg border border-dashed border-line bg-surface px-3 py-2 text-sm text-ink-2 hover:bg-sunk">
+          {testOpen ? "테스트 닫기" : "날짜 테스트"}
+        </button>
+      </div>
+
+      {testOpen && (
+        <section className="mt-3 rounded-2xl border border-accent/40 bg-[#fdf0d2] p-4" aria-label="펫 성장 날짜 테스트">
+          <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+            <div>
+              <h2 className="font-medium text-ink">임시 날짜 테스트</h2>
+              <p className="mt-1 text-sm text-ink-2">날짜를 앞으로 옮기면 그동안 매일 돌본 것으로 채워져 몽이의 성장을 바로 볼 수 있어요.</p>
+            </div>
+            <label className="flex shrink-0 items-center gap-2 text-sm text-ink-2">
+              테스트 날짜
+              <input type="date" value={today} onChange={(event) => changeTestDate(event.target.value)} className="rounded-lg border border-line bg-surface px-3 py-2 text-ink" />
+            </label>
+          </div>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {[1, 14, 60, 180].map((days) => <button key={days} type="button" onClick={() => advanceTestDate(days)} className="calm rounded-lg border border-line bg-surface px-3 py-2 text-sm text-ink hover:bg-paper">+{days}일</button>)}
+            <button type="button" onClick={resetTest} className="calm ml-auto rounded-lg px-3 py-2 text-sm text-ink-2 underline hover:text-ink">실제 오늘로 초기화</button>
+          </div>
+        </section>
+      )}
+
       <div className="mt-8 grid gap-6 md:grid-cols-[3fr_2fr] md:gap-10">
         <section className="overflow-hidden rounded-[28px] border border-line bg-[#fff1d8]">
           <div className="relative min-h-[390px] px-5 pt-5 text-center">
@@ -75,9 +125,15 @@ export default function PetPage() {
         </section>
         <aside className="space-y-6">
           <section className="rounded-2xl border border-line bg-surface p-5">
-            <div className="flex items-baseline justify-between gap-3"><h2 className="story text-xl text-ink">{stage.name}</h2><span className="text-sm text-ink-3">{Math.round(progress)}%</span></div>
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="story text-xl text-ink">{stage.name}</h2>
+              <span className="rounded-full bg-[#fdf0d2] px-3 py-1 text-sm font-medium text-accent-text">✦ 마음별 {pet.state.points}</span>
+            </div>
             <p className="mt-1 text-[15px] leading-6 text-ink-2">{stage.message}</p>
-            <div className="mt-4 h-2 overflow-hidden rounded-full bg-sunk" aria-label="다음 성장까지 진행도"><div className="h-full rounded-full bg-accent transition-[width]" style={{ width: `${progress}%` }} /></div>
+            <div className="mt-4 flex items-center gap-3">
+              <div className="h-2 flex-1 overflow-hidden rounded-full bg-sunk" aria-label="다음 성장까지 진행도"><div className="h-full rounded-full bg-accent transition-[width]" style={{ width: `${progress}%` }} /></div>
+              <span className="text-sm text-ink-3">{Math.round(progress)}%</span>
+            </div>
             <p className="mt-2 text-sm text-ink-3">{next ? `다음에는 ${next.name}으로 자라요` : "모든 성장 단계를 만났어요"}</p>
           </section>
           <section className="rounded-2xl border border-line bg-surface p-5">
@@ -88,7 +144,7 @@ export default function PetPage() {
             </div>
             {mood && <p className="mt-3 text-center text-sm text-ink-2">오늘은 “{mood}” 마음을 기록했어요</p>}
           </section>
-          <p className="rounded-xl bg-sunk px-4 py-3 text-sm leading-6 text-ink-2">동화를 끝까지 읽거나 대화 메모를 남겨도 오늘의 돌봄이 채워져요.</p>
+          <p className="rounded-xl bg-sunk px-4 py-3 text-sm leading-6 text-ink-2">동화 완독 +10, 대화 메모 +5, 마음 기록·밥 주기·쓰다듬기에는 각각 마음별 +1을 받아요.</p>
         </aside>
       </div>
 

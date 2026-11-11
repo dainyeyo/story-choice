@@ -3,10 +3,13 @@ export type PetMood = "기쁨" | "평온" | "속상" | "용기" | "두근";
 export interface PetState {
   name: string;
   bornAt: number;
+  stars: number;
   careDates: string[];
+  testCareDates: string[];
   fedDates: string[];
   pettedDates: string[];
   moods: Record<string, PetMood>;
+  testDate?: string;
 }
 
 export const PET_STAGES = [
@@ -26,7 +29,7 @@ export function localDateKey(time = Date.now()) {
 }
 
 export function defaultPet(): PetState {
-  return { name: "몽이", bornAt: Date.now(), careDates: [], fedDates: [], pettedDates: [], moods: {} };
+  return { name: "몽이", bornAt: Date.now(), stars: 0, careDates: [], testCareDates: [], fedDates: [], pettedDates: [], moods: {} };
 }
 
 export function parsePet(raw: string | null): PetState {
@@ -36,10 +39,13 @@ export function parsePet(raw: string | null): PetState {
     return {
       name: typeof value.name === "string" && value.name.trim() ? value.name.slice(0, 10) : "몽이",
       bornAt: typeof value.bornAt === "number" ? value.bornAt : Date.now(),
+      stars: typeof value.stars === "number" && value.stars >= 0 ? Math.floor(value.stars) : 0,
       careDates: Array.isArray(value.careDates) ? value.careDates.filter((x): x is string => typeof x === "string") : [],
+      testCareDates: Array.isArray(value.testCareDates) ? value.testCareDates.filter((x): x is string => typeof x === "string") : [],
       fedDates: Array.isArray(value.fedDates) ? value.fedDates.filter((x): x is string => typeof x === "string") : [],
       pettedDates: Array.isArray(value.pettedDates) ? value.pettedDates.filter((x): x is string => typeof x === "string") : [],
       moods: value.moods && typeof value.moods === "object" ? value.moods as Record<string, PetMood> : {},
+      testDate: typeof value.testDate === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value.testDate) ? value.testDate : undefined,
     };
   } catch {
     return defaultPet();
