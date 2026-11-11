@@ -31,7 +31,7 @@ export function LogoFull({ height = 80, className = "" }: { height?: number; cla
 export default function Logo() {
   return (
     <span className="flex items-center">
-      <LogoFull height={88} className="h-[72px] w-auto md:h-[88px]" />
+      <LogoFull height={70} className="h-[58px] w-auto md:h-[70px]" />
       <span className="sr-only">Pictory, 아이의 그림이 하나의 이야기가 됩니다</span>
     </span>
   );
