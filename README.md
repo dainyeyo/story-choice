@@ -49,9 +49,9 @@ lib/story/
 
 | 순서 | 호출 | 받는 것 |
 |---|---|---|
-| 1 | `POST /api/story` | 장면 1~2개 + 첫 번째 선택 |
-| 2 | 아이가 선택 → `POST /api/story/continue` (`choices` 1개) | 장면 1개 + 두 번째 선택 |
-| 3 | 아이가 선택 → `POST /api/story/continue` (`choices` 2개) | 결말 장면 (`isEnding: true`, `choice: null`) |
+| 1 | `POST /api/story` | 장면 2~3개(3분 2개, 5분 3개) + 첫 번째 선택 |
+| 2 | 아이가 선택 → `POST /api/story/continue` (`choices` 1개) | 장면 2~3개 + 두 번째 선택 |
+| 3 | 아이가 선택 → `POST /api/story/continue` (`choices` 2개) | 결말 장면 2~3개 (`isEnding: true`, `choice: null`) |
 | 4 | `POST /api/story/parent-card` | 부모 카드 |
 | 5 | 부모가 메모 저장 → 다음 동화는 1번에 `previousMemo`를 넣어 호출 | 메모를 이어받은 새 동화 |
 

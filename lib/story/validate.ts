@@ -59,8 +59,8 @@ export function parseContinueRequest(raw: unknown): ContinueRequest | string {
   const title = str(b.title, 100);
   if (!title) return "title이 필요합니다.";
 
-  if (!Array.isArray(b.scenesSoFar) || b.scenesSoFar.length === 0 || b.scenesSoFar.length > 6)
-    return "scenesSoFar는 1~6개의 문자열이어야 합니다.";
+  if (!Array.isArray(b.scenesSoFar) || b.scenesSoFar.length === 0 || b.scenesSoFar.length > 12)
+    return "scenesSoFar는 1~12개의 문자열이어야 합니다.";
   const scenesSoFar = b.scenesSoFar.map((s) => str(s, 600));
   if (scenesSoFar.some((s) => !s)) return "scenesSoFar에 빈 장면이 있습니다.";
 

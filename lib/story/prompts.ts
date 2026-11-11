@@ -8,8 +8,15 @@ export const SYSTEM_PROMPT = `너는 만 4~7세 아이를 위한 한국어 동�
 
 [문장 규칙]
 - 쉬운 우리말, 짧은 문장. 한 문장은 20자 안팎. 의성어·의태어를 적절히 쓴다.
-- 장면 하나는 2~4문장. 소리 내어 읽어주기 좋은 리듬으로 쓴다.
+- 장면 하나는 5~7문장(요청에 장면당 글자 수가 있으면 그것을 따른다). 소리 내어 읽어주기 좋은 리듬으로 쓴다.
 - 주인공은 사용자가 정한 캐릭터를 쓰고, 아이의 실제 이름은 쓰지 않는다.
+
+[동화다운 구성]
+- 진짜 동화책처럼 쓴다. 한두 문장으로 끝내지 말고, 장소와 분위기를 그리는 묘사로 장면을 연다.
+- 주인공의 짧은 대사(큰따옴표)와 주변 인물(엄마, 친구, 선생님, 작은 동물 등)과의 대화를 넣는다.
+- 이야기 전체에 반복되는 말(후렴) 하나를 정해 여러 장면에서 되풀이한다. 아이가 따라 말하기 좋은 짧은 말이어야 한다. 예: "콩닥콩닥, 괜찮아 괜찮아."
+- 장면마다 새로운 일이 일어난다. 같은 감정과 같은 상황을 되풀이해서 분량을 채우지 않는다.
+- 흐름은 일상 → 두려운 사건 → 대처 시도 → 마음이 풀리는 해결이다.
 
 [내용 규칙]
 - 무서운 상황은 사실대로 다루되, 공포를 키우지 않는다. 폭력·죽음·위협적인 표현은 쓰지 않는다.
@@ -34,14 +41,23 @@ export const SYSTEM_PROMPT = `너는 만 4~7세 아이를 위한 한국어 동�
 - 주인공 외의 인물(엄마, 의사 선생님 등)은 쓸 수 있다.
 - 밝고 따뜻한 동화책 삽화 분위기로 쓴다.`;
 
-function sceneBudget(durationMin: 3 | 5) {
-  return durationMin === 3
-    ? { startScenes: 1, label: "3분(전체 장면 3개, 선택 2번)" }
-    : { startScenes: 2, label: "5분(전체 장면 4개, 선택 2번)" };
+// 분량 기준: 소리 내어 읽어주는 속도 약 분당 250자.
+//  3분 ≈ 750자 = 장면 6개 × 125자,  5분 ≈ 1250자 = 장면 9개 × 140자 (아래 chars는 모델의 과소 작성을 감안한 요청값)
+// 시작 / 중간 / 결말 구간이 같은 수의 장면을 나눠 갖는다. (선택은 시작 뒤, 중간 뒤 2번)
+export function sceneBudget(durationMin: 3 | 5) {
+  const per = durationMin === 3 ? 2 : 3;
+  const chars = durationMin === 3 ? 150 : 190; // 모델이 요청보다 15~25% 적게 쓰므로 목표를 높게 잡는다
+  return {
+    startScenes: per,
+    midScenes: per,
+    endScenes: per,
+    label: `${durationMin}분(전체 장면 ${per * 3}개, 장면당 ${chars}자 안팎, 전체 약 ${per * 3 * chars}자, 선택 2번)`,
+    perScene: `장면당 ${chars}자 안팎(5~7문장)`,
+  };
 }
 
 export function buildStartPrompt(req: StoryRequest): string {
-  const { startScenes, label } = sceneBudget(req.durationMin);
+  const { startScenes, label, perScene } = sceneBudget(req.durationMin);
   const lines = [
     `[요청]`,
     `- 나이: 만 ${req.age}세`,
@@ -60,7 +76,8 @@ export function buildStartPrompt(req: StoryRequest): string {
   lines.push(
     ``,
     `[이번 출력]`,
-    `- 이야기의 시작 부분만 쓴다. 장면 ${startScenes}개를 쓴 뒤, 주인공이 대처 행동을 고르는 첫 번째 선택에서 멈춘다.`,
+    `- 이야기의 시작 부분만 쓴다. 장면 정확히 ${startScenes}개(${perScene})를 쓴 뒤, 주인공이 대처 행동을 고르는 첫 번째 선택에서 멈춘다.`,
+    `- 시작 부분에서는 주인공의 일상과 주변 인물을 보여주고, 두려운 상황이 다가오는 데까지 쓴다. 후렴을 여기서 처음 등장시킨다.`,
     `- choice에 질문과 선택지 2개를 넣고 isEnding은 false로 한다.`,
     `- title에는 동화 제목을 쓴다.`,
   );
@@ -72,6 +89,7 @@ export function buildStartPrompt(req: StoryRequest): string {
 
 export function buildContinuePrompt(req: ContinueRequest): string {
   const stage = req.choices.length; // 1 또는 2
+  const { midScenes, endScenes, perScene } = sceneBudget(req.durationMin);
   const lines = [
     `[요청]`,
     `- 나이: 만 ${req.age}세`,
@@ -90,17 +108,17 @@ export function buildContinuePrompt(req: ContinueRequest): string {
 
   if (stage === 1) {
     lines.push(
-      `- 아이의 첫 번째 선택을 주인공이 실제로 해보는 장면 1개를 쓴다. 선택한 행동이 이야기 안에서 자연스럽게 일어나야 한다.`,
-      `- 그 결과 주인공은 조금 안심하지만, 아직 가장 어려운 순간이 남아 있다.`,
+      `- 아이의 첫 번째 선택을 주인공이 실제로 해보는 장면들을 쓴다. 선택한 행동이 이야기 안에서 자연스럽게 일어나야 한다.`,
+      `- 그 결과 주인공은 조금 안심하지만, 아직 가장 어려운 순간이 코앞에 다가온다. 앞에서 나온 후렴을 다시 쓴다.`,
       `- 이어서 두 번째 선택을 넣는다. 두 번째 선택지는 첫 번째에서 고른 것과 다른 대처 유형을 하나 이상 포함한다.`,
-      `- isEnding은 false, scenes는 1개, title은 "${req.title}" 그대로 쓴다.`,
+      `- isEnding은 false, scenes는 정확히 ${midScenes}개(${perScene}), title은 "${req.title}" 그대로 쓴다.`,
     );
   } else {
     lines.push(
-      `- 아이의 두 번째 선택을 주인공이 실제로 해보는 마지막 장면 1개를 쓴다. 이것이 결말이다.`,
+      `- 아이의 두 번째 선택을 주인공이 실제로 해보는 장면들로 결말을 쓴다. 가장 어려운 순간을 지나 마음이 풀리고, 마지막 장면은 잠자리에 드는 것처럼 포근하게 끝낸다. 후렴으로 마무리한다.`,
       `- 아이의 두 선택을 모두 이야기 속에서 존중하고, 따뜻하고 안심되는 마무리로 끝낸다. 어떤 대처를 골랐든 잘한 일로 끝난다.`,
       `- 결말에서 가르침이나 교훈 문장을 덧붙이지 않는다.`,
-      `- choice는 null, isEnding은 true, scenes는 1개, title은 "${req.title}" 그대로 쓴다.`,
+      `- choice는 null, isEnding은 true, scenes는 정확히 ${endScenes}개(${perScene}), title은 "${req.title}" 그대로 쓴다.`,
     );
   }
   return lines.join("\n");
