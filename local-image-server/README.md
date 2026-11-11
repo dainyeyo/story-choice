@@ -1,20 +1,18 @@
 # Local image generation
 
-The server uses the community NF4 quantization of the FLUX.2 Klein 4B image
-transformer and quantizes the official Qwen text encoder to NF4 when loading.
-The community repository currently omits that encoder's weights. The first
-startup downloads both repositories from Hugging Face. On this RTX 5060 Laptop,
-the pipeline used about 6 GB of VRAM during generation.
+The server uses the community NF4 quantization of FLUX.2 Klein 4B. The model
+weights and Qwen text encoder together use about 5.1 GB; leave additional VRAM
+for image generation. First startup downloads the model from Hugging Face.
 
 ## Windows setup
 
-Install `uv` and a current NVIDIA driver, then from this directory run:
+Install a current NVIDIA driver and Python 3.11, then from this directory run:
 
 ```powershell
-uv python install 3.11 --install-dir .python
-uv venv --python .python\cpython-3.11-windows-x86_64-none\python.exe .venv
-uv pip install --python .venv\Scripts\python.exe torch --index-url https://download.pytorch.org/whl/cu128
-uv pip install --python .venv\Scripts\python.exe -r requirements.txt
+py -3.11 -m venv .venv
+.venv\Scripts\python -m pip install --upgrade pip
+.venv\Scripts\python -m pip install torch --index-url https://download.pytorch.org/whl/cu128
+.venv\Scripts\python -m pip install -r requirements.txt
 .venv\Scripts\python -m uvicorn server:app --host 127.0.0.1 --port 7860
 ```
 
@@ -27,6 +25,5 @@ The first model download is several gigabytes. Keep other GPU-heavy apps closed
 on an 8 GB card. The initial diffusion pipeline API supports the app's prompt,
 512 px dimensions, four-step generation, and up to four reference images.
 
-Image transformer: <https://huggingface.co/cukrus/FLUX.2-klein-4B-bnb-nf4>.
-Official text encoder: <https://huggingface.co/black-forest-labs/FLUX.2-klein-4B>.
-Both are Apache 2.0.
+Model: <https://huggingface.co/cukrus/FLUX.2-klein-4B-bnb-nf4>. This community
+NF4 conversion is Apache 2.0 and includes both the transformer and text encoder.
