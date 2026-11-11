@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ageLabel } from "@/lib/story/schema";
 import { useApp } from "../providers";
-import { btnPrimary, COPING_NAME, PageHeader } from "../components/ui";
+import { btnPrimary, COPING_NAME } from "../components/ui";
 
 // 책등 색: 서재 느낌이 나도록 차분한 책 색을 쓴다. 글씨는 모두 크림색이라 대비가 충분한 어두운 색만 둔다.
 const SPINES = ["#b45309", "#9a3412", "#4d6b3a", "#1f5f7a", "#7c3a5b", "#7a5a2b", "#3f4f7a"];
@@ -44,9 +44,10 @@ export default function LibraryPage() {
 
   return (
     <main className="page-turn mx-auto w-full max-w-md px-4 py-8 md:max-w-4xl md:px-8 md:py-12">
-      <PageHeader title="내 서재" sub="읽고 싶은 책을 골라 꺼내 보세요" />
+      <h1 className="sr-only">내 서재</h1>
+      <p className="story text-center text-lg text-sky-ink-2 md:text-xl">읽고 싶은 책을 골라 꺼내 보세요</p>
 
-      <div className="mt-8 space-y-6 rounded-2xl bg-[#ead9b8] p-3 shadow-[inset_0_2px_10px_rgb(59_47_37/0.18)] md:p-5">
+      <div className="mt-10 space-y-10 md:mt-14">
         {shelves.map((row, s) => (
           <div key={s}>
             <ul className="flex min-h-[200px] items-end gap-1.5 px-2 md:gap-2 md:px-4">
@@ -78,11 +79,11 @@ export default function LibraryPage() {
                 );
               })}
               {row.length === 0 && (
-                <li className="pb-6 text-[15px] text-[#65574a]">아직 꽂힌 책이 없어요. 동화를 끝까지 읽으면 여기에 꽂혀요.</li>
+                <li className="pb-6 text-[15px] text-sky-ink-2">아직 꽂힌 책이 없어요. 동화를 끝까지 읽으면 여기에 꽂혀요.</li>
               )}
             </ul>
             {/* 책이 놓인 선반 */}
-            <div className="h-3.5 rounded-sm bg-gradient-to-b from-[#b98a5a] to-[#8f6540] shadow-[0_4px_6px_rgb(59_47_37/0.25)]" />
+            <div className="h-4 rounded-sm bg-gradient-to-b from-[#b98a5a] to-[#8f6540] shadow-[0_6px_10px_rgb(0_0_0/0.35)]" />
           </div>
         ))}
       </div>
