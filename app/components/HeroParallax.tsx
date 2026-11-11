@@ -2,7 +2,7 @@
 
 // 첫 화면에서 잠깐 멈춰 있다가, 스크롤(휠·터치·키보드)을 한 번 하면
 // 아래 영역(targetId)으로 빠르게 쑥 내려간다. 올라갈 때도 첫 화면으로 쑥 돌아온다.
-// 움직임을 줄이는 설정이면 평소처럼 스크롤된다.
+// 움직임을 줄이는 설정이면 애니메이션 없이 바로 이동한다.
 
 import { useEffect, useRef, type ReactNode } from "react";
 
@@ -14,8 +14,7 @@ export default function HeroParallax({ children, targetId }: { children: ReactNo
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let animating = false;
     const targetY = () => {
       const t = document.getElementById(targetId);
@@ -23,6 +22,11 @@ export default function HeroParallax({ children, targetId }: { children: ReactNo
     };
 
     const go = (to: number) => {
+      if (reduceMotion) {
+        window.scrollTo({ top: to, behavior: "auto" });
+        return;
+      }
+
       animating = true;
       const from = window.scrollY;
       const start = performance.now();
