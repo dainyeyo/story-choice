@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createHash, randomUUID } from "node:crypto";
-import { fetchCloudflareImage, fetchLocalImage, ImageUpstreamError } from "@/lib/image/image-upstream";
+import { fetchCloudflareImage, ImageUpstreamError } from "@/lib/image/image-upstream";
 import { DEFAULT_IMAGE_MODEL, isImageModel } from "@/lib/image/image-models";
 import { composeDrawing, drawingReference, prepareDrawing } from "@/lib/image/compose-drawing";
 import { fallbackBackground } from "@/lib/image/fallback-background";
@@ -14,14 +14,13 @@ export const maxDuration = 120;
 export async function POST(request: Request) {
   const startedAt = performance.now();
   const requestId = randomUUID();
-  const localImageUrl = process.env.LOCAL_IMAGE_API_URL;
   const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
   const apiToken = process.env.CLOUDFLARE_API_TOKEN;
   try {
     const incoming = await request.formData();
     const selectedModel = String(incoming.get("model") || DEFAULT_IMAGE_MODEL);
     if (!isImageModel(selectedModel)) return NextResponse.json({ error: "지원하지 않는 이미지 모델입니다.", errorCode: "IMAGE_MODEL_INVALID" }, { status: 400 });
-    if (!localImageUrl && (!accountId || !apiToken))
+    if (!accountId || !apiToken)
       return NextResponse.json({ error: "Cloudflare 계정과 API 토큰 설정을 확인해 주세요.", errorCode: "CLOUDFLARE_CREDENTIALS_MISSING" }, { status: 503 });
     const prompt = String(incoming.get("prompt") || "").trim();
     const mode = String(incoming.get("mode") || "text");
@@ -82,10 +81,8 @@ export async function POST(request: Request) {
         }
       }
     }
-    const endpoint = localImageUrl || `https://api.cloudflare.com/client/v4/accounts/${encodeURIComponent(accountId!)}/ai/run/${encodeURI(selectedModel)}`;
-    const generate = (body: FormData) => localImageUrl
-      ? fetchLocalImage(endpoint, body, request.signal)
-      : fetchCloudflareImage(endpoint, apiToken!, body, request.signal);
+    const endpoint = `https://api.cloudflare.com/client/v4/accounts/${encodeURIComponent(accountId!)}/ai/run/${encodeURI(selectedModel)}`;
+    const generate = (body: FormData) => fetchCloudflareImage(endpoint, apiToken!, body, request.signal);
     let result: { bytes: Buffer; mime: string; attempts: number; rayId?: string };
     let backgroundSource = "generated";
     let fallbackReason = "";
@@ -148,7 +145,7 @@ export async function POST(request: Request) {
     return new NextResponse(payload, { headers: {
       "Content-Type": mime,
       "Cache-Control": "no-store",
-      "x-image-model": localImageUrl ? "FLUX.2 Klein 4B NF4 (local)" : selectedModel,
+      "x-image-model": selectedModel,
       "x-image-request-id": requestId,
       "x-image-attempts": String(result.attempts),
       // Distinguish a local composition source from a model's visual reference.
