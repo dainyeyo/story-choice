@@ -3,15 +3,16 @@
 /* 제본과 종이는 캔버스 바깥에 두어 저장되는 그림에 포함되지 않는다. */
 .sketchbook {
   position: relative;
-  padding: 32px 12px 14px;
-  border: 1px solid #d9c7a8;
-  border-radius: 10px 10px 8px 8px;
-  background: #eadcc2;
-  box-shadow: 0 5px 0 #d7c5a7, 0 8px 0 #f6ebd6, 0 13px 18px rgb(80 60 35 / 0.16);
+  padding: 27px 7px 9px;
+  background: linear-gradient(90deg, #c4b8a5, #eee9dd 3%, #f6f3ec 97%, #b9ac99);
+  border: 1px solid #b7aa96;
+  border-radius: 2px;
+  box-shadow: 0 3px 0 #e5ded1, 0 5px 0 #bfb3a1, 0 12px 20px rgb(49 37 24 / 0.24);
 }
 .sketchbook-binding {
   position: absolute;
-  inset: 8px 5% auto;
+  z-index: 1;
+  inset: 7px 3% auto;
   display: flex;
   justify-content: space-between;
   pointer-events: none;
@@ -19,23 +20,35 @@
 .sketchbook-binding span {
   position: relative;
   width: 10px;
-  height: 15px;
-  border: 2px solid #796858;
-  border-radius: 7px;
-  background: linear-gradient(90deg, #8d7a67, #e4d9c9 48%, #8d7a67);
-  box-shadow: 0 2px 2px rgb(75 53 35 / 0.25);
+  height: 23px;
+  border: 2px solid #393a38;
+  border-top: 3px solid #272825;
+  border-radius: 5px 5px 4px 4px;
+  background: linear-gradient(90deg, #62615b 0%, #dfdfd8 25%, #77766e 45%, #343532 75%);
+  box-shadow: 1px 2px 2px rgb(20 20 18 / 0.4), inset 1px 0 rgb(255 255 255 / 0.5);
+}
+.sketchbook-binding span::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  left: -3px;
+  right: -3px;
+  bottom: -4px;
+  height: 5px;
+  border-radius: 50%;
+  background: #858279;
+  box-shadow: 0 1px 1px rgb(255 255 255 / 0.8);
 }
 .sketchbook-paper {
-  border: 1px solid #e9e0d1;
-  border-radius: 2px 2px 4px 4px;
-  background: #fffefa;
-  box-shadow: 0 2px 4px rgb(89 69 45 / 0.12);
+  border: 1px solid #dededb;
+  background: linear-gradient(105deg, #f7f7f5, #fff 18%, #fdfdfc 82%, #f3f3f1);
+  box-shadow: 0 2px 4px rgb(50 45 38 / 0.16);
   cursor: crosshair;
 }
 @media (max-width: 480px) {
-  .sketchbook { padding: 27px 7px 9px; }
+  .sketchbook { padding: 23px 5px 7px; }
   .sketchbook-binding { top: 6px; }
-  .sketchbook-binding span { width: 8px; height: 13px; }
+  .sketchbook-binding span { width: 7px; height: 19px; border-width: 2px; }
 }
 
 /* 픽토리 디자인 토큰
