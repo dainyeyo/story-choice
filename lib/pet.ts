@@ -4,6 +4,8 @@ export interface PetState {
   name: string;
   bornAt: number;
   stars: number;
+  spentStars: number;
+  growthBoostDays: number;
   careDates: string[];
   testCareDates: string[];
   fedDates: string[];
@@ -29,7 +31,7 @@ export function localDateKey(time = Date.now()) {
 }
 
 export function defaultPet(): PetState {
-  return { name: "몽이", bornAt: Date.now(), stars: 0, careDates: [], testCareDates: [], fedDates: [], pettedDates: [], moods: {} };
+  return { name: "몽이", bornAt: Date.now(), stars: 0, spentStars: 0, growthBoostDays: 0, careDates: [], testCareDates: [], fedDates: [], pettedDates: [], moods: {} };
 }
 
 export function parsePet(raw: string | null): PetState {
@@ -40,6 +42,8 @@ export function parsePet(raw: string | null): PetState {
       name: typeof value.name === "string" && value.name.trim() ? value.name.slice(0, 10) : "몽이",
       bornAt: typeof value.bornAt === "number" ? value.bornAt : Date.now(),
       stars: typeof value.stars === "number" && value.stars >= 0 ? Math.floor(value.stars) : 0,
+      spentStars: typeof value.spentStars === "number" && value.spentStars >= 0 ? Math.floor(value.spentStars) : 0,
+      growthBoostDays: typeof value.growthBoostDays === "number" && value.growthBoostDays >= 0 ? Math.floor(value.growthBoostDays) : 0,
       careDates: Array.isArray(value.careDates) ? value.careDates.filter((x): x is string => typeof x === "string") : [],
       testCareDates: Array.isArray(value.testCareDates) ? value.testCareDates.filter((x): x is string => typeof x === "string") : [],
       fedDates: Array.isArray(value.fedDates) ? value.fedDates.filter((x): x is string => typeof x === "string") : [],
@@ -52,14 +56,20 @@ export function parsePet(raw: string | null): PetState {
   }
 }
 
-export function petStage(careDays: number) {
+export function petStage(growthDays: number) {
   let index = 0;
   for (let i = 1; i < PET_STAGES.length; i += 1) {
-    if (careDays >= PET_STAGES[i].days) index = i;
+    if (growthDays >= PET_STAGES[i].days) index = i;
   }
   return { index, ...PET_STAGES[index] };
 }
 
-export function nextPetStage(careDays: number) {
-  return PET_STAGES.find((stage) => stage.days > careDays) ?? null;
+export function nextPetStage(growthDays: number) {
+  return PET_STAGES.find((stage) => stage.days > growthDays) ?? null;
+}
+
+export function petGrowthDays(pet: PetState, today = localDateKey()) {
+  const birthDate = localDateKey(pet.bornAt);
+  const elapsed = Math.max(0, Math.floor((Date.parse(`${today}T12:00:00`) - Date.parse(`${birthDate}T12:00:00`)) / 86_400_000));
+  return elapsed + pet.growthBoostDays;
 }

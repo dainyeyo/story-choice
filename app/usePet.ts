@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useMemo } from "react";
-import { localDateKey, parsePet, type PetMood, type PetState } from "@/lib/pet";
+import { localDateKey, parsePet, petGrowthDays, type PetMood, type PetState } from "@/lib/pet";
 import { readRaw, useStored, writeRaw } from "@/lib/localStore";
 import type { SavedStory } from "@/lib/library";
 
@@ -33,8 +33,13 @@ export function usePet(user: string, library: SavedStory[]) {
   const storyDates = useMemo(() => library.map((story) => localDateKey(story.createdAt)), [library]);
   const careDates = useMemo(() => [...new Set([...saved.careDates, ...saved.testCareDates, ...storyDates])].sort(), [saved.careDates, saved.testCareDates, storyDates]);
   const storyStars = useMemo(() => library.reduce((total, story) => total + 10 + (story.memo ? 5 : 0), 0), [library]);
-  const state = useMemo(() => ({ ...saved, careDates, points: saved.stars + storyStars }), [saved, careDates, storyStars]);
   const today = saved.testDate ?? localDateKey();
+  const state = useMemo(() => ({
+    ...saved,
+    careDates,
+    growthDays: petGrowthDays(saved, today),
+    points: Math.max(0, saved.stars + storyStars - saved.spentStars),
+  }), [saved, careDates, storyStars, today]);
 
   const update = useCallback((change: (current: PetState) => PetState) => {
     writeRaw(key, JSON.stringify(change(parsePet(readRaw(key)))));
@@ -68,6 +73,14 @@ export function usePet(user: string, library: SavedStory[]) {
     }));
   }, [today, update]);
 
+  const nurture = useCallback((starCost: number, growthDays: number) => {
+    if (!Number.isInteger(starCost) || starCost <= 0 || !Number.isInteger(growthDays) || growthDays <= 0) return false;
+    const available = Math.max(0, saved.stars + storyStars - saved.spentStars);
+    if (available < starCost) return false;
+    update((current) => ({ ...current, spentStars: current.spentStars + starCost, growthBoostDays: current.growthBoostDays + growthDays }));
+    return true;
+  }, [saved.stars, saved.spentStars, storyStars, update]);
+
   const setTestDate = useCallback((date: string) => {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return;
     update((current) => {
@@ -97,5 +110,5 @@ export function usePet(user: string, library: SavedStory[]) {
     if (next) update((current) => ({ ...current, name: next }));
   }, [update]);
 
-  return { state, today, markCare, feed, pet, setMood, rename, setTestDate, advanceTestDate, resetTest };
+  return { state, today, markCare, feed, pet, setMood, rename, nurture, setTestDate, advanceTestDate, resetTest };
 }

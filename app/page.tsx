@@ -167,7 +167,7 @@ function LoggedInHome() {
   const recent = library.slice(0, 4);
   const fmt = (t: number) => new Date(t).toLocaleDateString("ko-KR", { month: "long", day: "numeric" });
   const careDays = pet.state.careDates.length;
-  const stage = petStage(careDays);
+  const stage = petStage(pet.state.growthDays);
   const reading = s.step === "story";
 
   // 상황에 맞는 한 줄 인사

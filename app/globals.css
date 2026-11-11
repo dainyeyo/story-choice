@@ -113,6 +113,28 @@ body {
   outline-offset: 2px;
 }
 
+.pet-sprite-frame {
+  background-image: url("/pet-sprites.png");
+  background-repeat: no-repeat;
+  background-size: 500% 200%;
+  animation: pet-breathe 2.4s ease-in-out infinite alternate;
+}
+
+.pet-sprite-blink {
+  opacity: 0;
+  animation: pet-blink 3.8s steps(1, end) infinite;
+}
+
+@keyframes pet-breathe {
+  from { transform: translateY(2px); }
+  to { transform: translateY(-2px); }
+}
+
+@keyframes pet-blink {
+  0%, 93%, 100% { opacity: 0; }
+  94%, 97% { opacity: 1; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
