@@ -61,6 +61,7 @@ test('큰 글씨의 쪽 수, 크기 변경, 장면 이동과 모바일 전환을
     render();
     let reading = render();
     assert.ok(observed);
+    assert.equal(reading.ready, true);
     assert.equal(reading.count, 3);
     reading.turn(1);
     reading = render();

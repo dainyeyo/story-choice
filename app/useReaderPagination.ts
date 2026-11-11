@@ -51,5 +51,5 @@ export function useReaderPagination(text: string, fontSize: FontSize, scene: num
     index: Math.max(0, Math.min(previous.index + direction, previous.count - 1)),
   }));
 
-  return { textRef, index: current.index, count: current.count, turn };
+  return { textRef, index: current.index, count: current.count, ready: position.key === contentKey, turn };
 }

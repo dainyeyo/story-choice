@@ -32,6 +32,7 @@ export default function ReadPage() {
   const atLast = cur === last;
   const reading = useReaderPagination(s.scenes[cur] ?? "", settings.fontSize, cur, enterAtEnd, s.step === "story");
   const atSceneEnd = reading.index === reading.count - 1;
+  const showChoice = reading.ready && atSceneEnd;
 
   // 사용자가 버튼을 누른 순간에 읽기를 시작해야 브라우저가 소리를 허용한다.
   const go = (to: number, fromEnd = false) => {
@@ -162,13 +163,18 @@ export default function ReadPage() {
               </button>
             </div>
 
-            {atLast && atSceneEnd && s.choice && !s.isEnding && (
-              <section className="space-y-2.5" aria-label="이야기 선택">
+            {atLast && s.choice && !s.isEnding && (
+              <section
+                className={`space-y-2.5 ${showChoice ? "" : "invisible pointer-events-none select-none"}`}
+                aria-label="이야기 선택"
+                aria-hidden={!showChoice}
+              >
                 <p className="story text-center text-base text-ink md:text-lg">{s.choice.prompt}</p>
                 <div className="grid gap-2 sm:grid-cols-2">
                   {s.choice.options.map((o) => (
                     <button
                       key={o.id}
+                      disabled={!showChoice}
                       onClick={() => {
                         n.stop();
                         setPage(s.scenes.length); // 새 장면의 첫 쪽으로
@@ -196,12 +202,13 @@ export default function ReadPage() {
                   <input
                     value={custom}
                     onChange={(e) => setCustom(e.target.value)}
+                    disabled={!showChoice}
                     maxLength={60}
                     aria-label="직접 입력"
                     placeholder="내가 생각한 방법을 직접 써 볼래요"
                     className={`${inputCls} min-w-0 flex-1 py-2`}
                   />
-                  <button type="submit" disabled={!custom.trim()} className={`${btnSecondary} h-11 shrink-0 px-3 text-sm disabled:opacity-40`}>
+                  <button type="submit" disabled={!showChoice || !custom.trim()} className={`${btnSecondary} h-11 shrink-0 px-3 text-sm disabled:opacity-40`}>
                     이렇게 할래요
                   </button>
                 </form>
@@ -212,7 +219,7 @@ export default function ReadPage() {
       </article>
       </div>
 
-      {atLast && atSceneEnd && s.isEnding && (
+      {atLast && reading.ready && atSceneEnd && s.isEnding && (
         <section className="page-turn book-page mx-auto w-full max-w-xl rounded-2xl border px-6 py-10 text-center">
           <svg viewBox="0 0 200 24" className="mx-auto h-5 w-44 text-accent" aria-hidden>
             <path d="M6 12h74M120 12h74" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" opacity="0.5" />
