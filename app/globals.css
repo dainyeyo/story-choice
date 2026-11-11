@@ -1,5 +1,43 @@
 @import "tailwindcss";
 
+/* 제본과 종이는 캔버스 바깥에 두어 저장되는 그림에 포함되지 않는다. */
+.sketchbook {
+  position: relative;
+  padding: 32px 12px 14px;
+  border: 1px solid #d9c7a8;
+  border-radius: 10px 10px 8px 8px;
+  background: #eadcc2;
+  box-shadow: 0 5px 0 #d7c5a7, 0 8px 0 #f6ebd6, 0 13px 18px rgb(80 60 35 / 0.16);
+}
+.sketchbook-binding {
+  position: absolute;
+  inset: 8px 5% auto;
+  display: flex;
+  justify-content: space-between;
+  pointer-events: none;
+}
+.sketchbook-binding span {
+  position: relative;
+  width: 10px;
+  height: 15px;
+  border: 2px solid #796858;
+  border-radius: 7px;
+  background: linear-gradient(90deg, #8d7a67, #e4d9c9 48%, #8d7a67);
+  box-shadow: 0 2px 2px rgb(75 53 35 / 0.25);
+}
+.sketchbook-paper {
+  border: 1px solid #e9e0d1;
+  border-radius: 2px 2px 4px 4px;
+  background: #fffefa;
+  box-shadow: 0 2px 4px rgb(89 69 45 / 0.12);
+  cursor: crosshair;
+}
+@media (max-width: 480px) {
+  .sketchbook { padding: 27px 7px 9px; }
+  .sketchbook-binding { top: 6px; }
+  .sketchbook-binding span { width: 8px; height: 13px; }
+}
+
 /* 픽토리 디자인 토큰
    방향: 취침 전 그림책. 종이와 램프 불빛. 바탕과 표면은 조용하게 두고, 색은 삽화와 주요 버튼에만 쓴다. */
 

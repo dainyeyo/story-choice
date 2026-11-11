@@ -20,7 +20,6 @@ const MORE_EXAMPLES = [
   "엄마랑 떨어지기 싫어",
   "화가 나면 소리 질러",
   "장난감 나누기 싫어",
-  "이사를 가요",
 ] as const;
 const EXAMPLES: readonly string[] = [...PRESETS, ...MORE_EXAMPLES];
 
@@ -52,8 +51,13 @@ export default function CreatePage() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const drawingPointer = useRef<number | null>(null);
+  const history = useRef<ImageData[]>([]);
+  const historyIndex = useRef(-1);
+  const [historyPosition, setHistoryPosition] = useState({ index: -1, length: 0 });
   const [hasSketch, setHasSketch] = useState(false);
   const [color, setColor] = useState("#47372f");
+  const [eraser, setEraser] = useState(false);
+  const [brushSize, setBrushSize] = useState(12);
   const [submitting, setSubmitting] = useState(false);
   const [localError, setLocalError] = useState("");
 
@@ -66,22 +70,29 @@ export default function CreatePage() {
     if (drawingPointer.current !== null || (e.pointerType === "mouse" && e.button !== 0)) return;
     const ctx = e.currentTarget.getContext("2d");
     if (!ctx) return;
+    if (historyIndex.current < 0) {
+      history.current = [ctx.getImageData(0, 0, e.currentTarget.width, e.currentTarget.height)];
+      historyIndex.current = 0;
+    }
     e.currentTarget.setPointerCapture(e.pointerId);
     drawingPointer.current = e.pointerId;
     const { x, y } = point(e);
+    ctx.globalCompositeOperation = eraser ? "destination-out" : "source-over";
     ctx.strokeStyle = color;
     ctx.fillStyle = color;
-    ctx.lineWidth = 12;
+    ctx.lineWidth = brushSize;
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
     ctx.beginPath();
-    ctx.arc(x, y, 6, 0, Math.PI * 2);
+    ctx.arc(x, y, brushSize / 2, 0, Math.PI * 2);
     ctx.fill();
     ctx.beginPath();
     ctx.moveTo(x, y);
-    setHasSketch(true);
-    setDrawing(null);
-    if (fileRef.current) fileRef.current.value = "";
+    if (!eraser) {
+      setHasSketch(true);
+      setDrawing(null);
+      if (fileRef.current) fileRef.current.value = "";
+    }
     setLocalError("");
   };
 
@@ -94,11 +105,48 @@ export default function CreatePage() {
     ctx.stroke();
   };
 
+  const saveHistory = (ctx: CanvasRenderingContext2D) => {
+    const snapshot = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
+    const previous = history.current[historyIndex.current];
+    if (previous && !snapshot.data.some((value, index) => value !== previous.data[index])) return;
+    const next = history.current.slice(0, historyIndex.current + 1);
+    next.push(snapshot);
+    if (next.length > 21) next.shift();
+    history.current = next;
+    historyIndex.current = next.length - 1;
+    setHistoryPosition({ index: historyIndex.current, length: next.length });
+    setHasSketch(snapshot.data.some((value, index) => index % 4 === 3 && value > 0));
+  };
+
   const clearSketch = () => {
     const canvas = canvasRef.current;
-    canvas?.getContext("2d")?.clearRect(0, 0, canvas.width, canvas.height);
+    const ctx = canvas?.getContext("2d");
+    if (canvas && ctx) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      saveHistory(ctx);
+    }
     drawingPointer.current = null;
     setHasSketch(false);
+  };
+
+  const restoreHistory = (offset: number) => {
+    const nextIndex = historyIndex.current + offset;
+    const snapshot = history.current[nextIndex];
+    const ctx = canvasRef.current?.getContext("2d");
+    if (!snapshot || !ctx || drawingPointer.current !== null) return;
+    ctx.putImageData(snapshot, 0, 0);
+    historyIndex.current = nextIndex;
+    setHistoryPosition({ index: nextIndex, length: history.current.length });
+    setHasSketch(snapshot.data.some((value, index) => index % 4 === 3 && value > 0));
+    setDrawing(null);
+    if (fileRef.current) fileRef.current.value = "";
+  };
+
+  const endStroke = (pointerId: number) => {
+    if (drawingPointer.current !== pointerId) return;
+    drawingPointer.current = null;
+    const ctx = canvasRef.current?.getContext("2d");
+    if (ctx) saveHistory(ctx);
   };
 
   const saveCustom = (list: string[]) => writeRaw(customKey, JSON.stringify(list));
@@ -259,7 +307,7 @@ export default function CreatePage() {
 
           <div className="space-y-2">
             <Label>길이</Label>
-            <div>
+            <div className="flex items-center gap-2">
               <Segmented
                 label="동화 길이"
                 value={lengthMode}
@@ -269,10 +317,9 @@ export default function CreatePage() {
                   { value: "custom" as const, label: "직접 정하기" },
                 ]}
               />
-            </div>
-            {lengthMode === "custom" ? (
-              <label className="flex items-center gap-2 pt-1">
-                <span className="w-20 shrink-0">
+              {lengthMode === "custom" && (
+                <label className="flex shrink-0 items-center gap-1">
+                  <span className="w-16">
                   <input
                     type="text"
                     inputMode="numeric"
@@ -281,12 +328,13 @@ export default function CreatePage() {
                     aria-label="동화 길이(분)"
                     className={`${inputCls} text-center tabular-nums`}
                   />
-                </span>
-                <span className="text-[15px] text-ink">분</span>
-                <span className="text-[13px] text-ink-3">
-                  {MIN_DURATION}~{MAX_DURATION}분 사이로 적어 주세요
-                </span>
-              </label>
+                  </span>
+                  <span className="text-[15px] text-ink">분</span>
+                </label>
+              )}
+            </div>
+            {lengthMode === "custom" ? (
+              <p className="text-[13px] text-ink-3">{MIN_DURATION}~{MAX_DURATION}분 사이로 적어 주세요</p>
             ) : (
               <p className="text-[13px] text-ink-3">
                 AI가 이야기에 맞춰 길이를 정해요. 최대 {MAX_DURATION}분까지 걸릴 수 있어요.
@@ -315,17 +363,32 @@ export default function CreatePage() {
             </div>
             <div className="flex flex-wrap items-center gap-2" role="group" aria-label="그림 색상">
               {[["#47372f", "갈색"], ["#e66558", "빨강"], ["#f5a623", "주황"], ["#e7c53b", "노랑"], ["#63a873", "초록"], ["#5c8ec7", "파랑"], ["#a47bc0", "보라"]].map(([value, name]) => (
-                <button key={value} type="button" aria-label={name} aria-pressed={color === value} onClick={() => setColor(value)}
-                  className={`size-8 rounded-full border-2 ${color === value ? "border-ink ring-2 ring-accent ring-offset-2" : "border-white"}`}
+                <button key={value} type="button" aria-label={name} aria-pressed={!eraser && color === value} onClick={() => { setColor(value); setEraser(false); }}
+                  className={`size-8 rounded-full border-2 ${!eraser && color === value ? "border-ink ring-2 ring-accent ring-offset-2" : "border-white"}`}
                   style={{ backgroundColor: value }} />
               ))}
+              <button type="button" aria-pressed={eraser} onClick={() => setEraser(true)} className={`rounded-lg border px-3 py-1 text-sm ${eraser ? "border-accent bg-[#fdf0d2] text-ink" : "border-line bg-surface text-ink-2"}`}>지우개</button>
               <button type="button" onClick={clearSketch} disabled={!hasSketch} className="ml-auto text-sm text-ink-2 underline underline-offset-4 disabled:opacity-40">다시 그리기</button>
             </div>
+            <label className="flex max-w-xs items-center gap-3 text-sm text-ink-2">
+              <span className="shrink-0">선 굵기</span>
+              <input type="range" min="4" max="40" step="2" value={brushSize} onChange={(e) => setBrushSize(Number(e.target.value))} className="min-w-0 flex-1 accent-amber-600" />
+              <span className="w-6 text-right tabular-nums">{brushSize}</span>
+            </label>
+            <div className="flex flex-wrap gap-2" aria-label="그림 작업 기록">
+              <button type="button" onClick={() => restoreHistory(-1)} disabled={historyPosition.index <= 0} className="rounded-lg border border-line bg-surface px-3 py-1.5 text-sm text-ink-2 disabled:opacity-40">↶ 되돌리기</button>
+              <button type="button" onClick={() => restoreHistory(1)} disabled={historyPosition.index < 0 || historyPosition.index >= historyPosition.length - 1} className="rounded-lg border border-line bg-surface px-3 py-1.5 text-sm text-ink-2 disabled:opacity-40">↷ 다시 실행</button>
+            </div>
+            <div className="sketchbook">
+              <div className="sketchbook-binding" aria-hidden="true">
+                {Array.from({ length: 12 }, (_, i) => <span key={i} />)}
+              </div>
             <canvas ref={canvasRef} width={1200} height={800} aria-label="주인공 그림판" onPointerDown={startStroke} onPointerMove={moveStroke}
-              onPointerUp={(e) => { if (drawingPointer.current === e.pointerId) drawingPointer.current = null; }}
-              onPointerCancel={(e) => { if (drawingPointer.current === e.pointerId) drawingPointer.current = null; }}
-              onLostPointerCapture={() => { drawingPointer.current = null; }}
-              className="block aspect-[3/2] w-full touch-none rounded-xl border border-dashed border-ink-3/50 bg-white shadow-[0_4px_12px_rgba(80,60,35,0.08)]" />
+              onPointerUp={(e) => endStroke(e.pointerId)}
+              onPointerCancel={(e) => endStroke(e.pointerId)}
+              onLostPointerCapture={(e) => endStroke(e.pointerId)}
+              className="sketchbook-paper block aspect-[3/2] w-full touch-none" />
+            </div>
             <label className="block space-y-2">
             <span className="block text-sm text-ink-2">또는 그린 그림을 올려 주세요</span>
             <input ref={fileRef} type="file" accept="image/png,image/jpeg" className={inputCls}
