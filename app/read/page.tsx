@@ -8,6 +8,7 @@ import { useApp } from "../providers";
 import Icon from "../components/Icon";
 import SceneArt from "../components/SceneArt";
 import StoryText from "../components/StoryText";
+import { useReaderPagination } from "../useReaderPagination";
 import { DrawingAnimation, WritingAnimation } from "../components/LoadingAnimation";
 import { btnIcon, btnPrimary, btnSecondary, errorCls, inputCls, noteCls, Segmented } from "../components/ui";
 
@@ -17,6 +18,7 @@ export default function ReadPage() {
   const [page, setPage] = useState<number | null>(null);
   const { step, resumeDraft, resumePage } = s;
   const [custom, setCustom] = useState("");
+  const [enterAtEnd, setEnterAtEnd] = useState(false);
 
   // 이 화면에 맞지 않는 단계면 알맞은 화면으로 보낸다
   useEffect(() => {
@@ -27,9 +29,12 @@ export default function ReadPage() {
   const last = Math.max(s.scenes.length - 1, 0);
   const cur = Math.min(page ?? resumePage ?? 0, last);
   const atLast = cur === last;
+  const reading = useReaderPagination(s.scenes[cur] ?? "", settings.fontSize, cur, enterAtEnd, s.step === "story");
+  const atSceneEnd = reading.index === reading.count - 1;
 
   // 사용자가 버튼을 누른 순간에 읽기를 시작해야 브라우저가 소리를 허용한다.
-  const go = (to: number) => {
+  const go = (to: number, fromEnd = false) => {
+    setEnterAtEnd(fromEnd);
     setPage(to);
     if (n.speaking) void n.speak(s.scenes[to], settings.ttsVoice);
   };
@@ -60,7 +65,8 @@ export default function ReadPage() {
   if (s.step !== "story") return null;
 
   return (
-    <main className="page-turn mx-auto w-full max-w-md space-y-6 px-4 py-6 md:max-w-5xl md:space-y-8 md:px-8 md:py-10">
+    <main className="page-turn mx-auto w-full max-w-md space-y-6 px-4 py-6 md:max-w-7xl md:px-8 md:py-4">
+      <div className="reader-stage space-y-6">
       {s.error && (
         <p role="alert" className={errorCls}>
           {s.error}
@@ -84,40 +90,41 @@ export default function ReadPage() {
         </button>
       </div>
 
-      <article className="relative grid gap-6 book-page rounded-2xl border p-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] md:items-start md:gap-10 md:p-5">
+      <article className="reader-book relative grid gap-6 book-page overflow-hidden rounded-2xl border p-4 md:grid-cols-2 md:gap-8 md:p-5">
         {/* 책갈피: 이 서비스의 표시. 읽는 카드에서만 쓴다 */}
         <span
           aria-hidden
           className="absolute -top-px right-6 h-8 w-5 bg-accent [clip-path:polygon(0_0,100%_0,100%_100%,50%_72%,0_100%)]"
         />
 
-        <div className="w-full md:self-start">
+        <div className="reader-art w-full md:self-stretch">
           {s.images[cur]?.loading ? (
-            <DrawingAnimation />
+            <DrawingAnimation fill />
           ) : (
-            <SceneArt index={cur} imageUrl={s.images[cur]?.url} title={s.title} />
+            <SceneArt fill index={cur} imageUrl={s.images[cur]?.url} title={s.title} />
           )}
           {s.images[cur]?.error && <p role="alert" className={`${errorCls} mt-2`}>그림을 만들지 못했어요. {s.images[cur].error}</p>}
           {s.images[cur]?.backgroundSource === "local-fallback" && <p className="mt-2 text-sm text-ink-3">그림 생성 서비스가 바빠 기본 배경을 사용했어요.</p>}
         </div>
 
-        <div className="flex min-w-0 flex-col gap-8 px-1 py-2 md:px-0 md:py-4 md:pr-3">
-          <StoryText text={s.scenes[cur]} fontSize={settings.fontSize} />
+        <div className="reader-content flex min-w-0 flex-col gap-4 px-1 py-2 md:px-0 md:py-2 md:pr-3">
+          <StoryText text={s.scenes[cur]} fontSize={settings.fontSize} textRef={reading.textRef} />
 
-          <div className="space-y-4">
+          <div className="reader-controls shrink-0 space-y-3">
             <div className="flex items-center gap-3">
               <div className="flex flex-1 gap-1" aria-hidden>
                 {s.scenes.map((_, i) => (
                   <span key={i} className={`h-1 flex-1 rounded-full ${i <= cur ? "bg-accent" : "bg-line"}`} />
                 ))}
               </div>
-              <span className="text-sm tabular-nums text-ink-3">
+              <span aria-live="polite" className="shrink-0 text-sm tabular-nums text-ink-3">
                 {cur + 1} / {s.scenes.length}
+                {reading.count > 1 && <span className="ml-2">({reading.index + 1} / {reading.count}쪽)</span>}
               </span>
             </div>
 
             <div className="flex items-center justify-between gap-2">
-              <button onClick={() => go(cur - 1)} disabled={cur === 0} aria-label="이전 쪽" className={btnIcon}>
+              <button onClick={() => reading.index > 0 ? reading.turn(-1) : go(cur - 1, true)} disabled={cur === 0 && reading.index === 0} aria-label="이전 쪽" className={btnIcon}>
                 <Icon name="left" />
               </button>
 
@@ -137,7 +144,7 @@ export default function ReadPage() {
                 <span className="flex-1 text-center text-sm text-ink-3">이 기기에서는 낭독을 쓸 수 없어요</span>
               )}
 
-              <button onClick={() => go(cur + 1)} disabled={atLast} aria-label="다음 쪽" className={btnIcon}>
+              <button onClick={() => !atSceneEnd ? reading.turn(1) : go(cur + 1)} disabled={atLast && atSceneEnd} aria-label="다음 쪽" className={btnIcon}>
                 <Icon name="right" />
               </button>
             </div>
@@ -177,8 +184,9 @@ export default function ReadPage() {
           </div>
         </div>
       </article>
+      </div>
 
-      {atLast && s.choice && !s.isEnding && (
+      {atLast && atSceneEnd && s.choice && !s.isEnding && (
         <section className="mx-auto w-full max-w-3xl space-y-4">
           <p className="story text-center text-xl text-sky-ink md:text-2xl">{s.choice.prompt}</p>
           <div className="grid gap-3 md:grid-cols-2">
@@ -224,7 +232,7 @@ export default function ReadPage() {
         </section>
       )}
 
-      {atLast && s.isEnding && (
+      {atLast && atSceneEnd && s.isEnding && (
         <section className="page-turn book-page mx-auto w-full max-w-xl rounded-2xl border px-6 py-10 text-center">
           <svg viewBox="0 0 200 24" className="mx-auto h-5 w-44 text-accent" aria-hidden>
             <path d="M6 12h74M120 12h74" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" opacity="0.5" />
@@ -245,7 +253,9 @@ export default function ReadPage() {
             <button
               onClick={() => {
                 n.stop();
+                setEnterAtEnd(false);
                 setPage(0);
+                reading.turn(-reading.index);
                 window.scrollTo({ top: 0, behavior: "smooth" });
               }}
               className="text-sm text-ink-2 underline underline-offset-4"

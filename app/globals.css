@@ -38,6 +38,49 @@
   }
 }
 
+/* 큰 글씨도 화면 안에서 쪽을 넘겨 읽는다. 낮은 창과 휴대폰은 세로 흐름을 유지한다. */
+@media (min-width: 768px) and (min-height: 600px) {
+  .reader-stage {
+    height: calc(100dvh - 81px - 2rem);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .reader-stage > * {
+    margin-block: 0;
+    flex-shrink: 0;
+  }
+  .reader-stage > .reader-book {
+    flex: 1;
+    min-height: 0;
+    grid-template-rows: minmax(0, 1fr);
+  }
+  .reader-art,
+  .reader-content {
+    min-height: 0;
+  }
+  .reader-art {
+    display: flex;
+    flex-direction: column;
+  }
+  .reader-art > :first-child {
+    flex: 1;
+    min-height: 0;
+    height: 0;
+  }
+  .reader-text {
+    min-height: 0;
+    overflow: hidden;
+    column-count: 1;
+    column-gap: 2rem;
+    column-fill: auto;
+  }
+  .reader-text > p {
+    orphans: 2;
+    widows: 2;
+  }
+}
+
 /* 픽토리 디자인 토큰
    방향: 취침 전 그림책. 종이와 램프 불빛. 바탕과 표면은 조용하게 두고, 색은 삽화와 주요 버튼에만 쓴다. */
 

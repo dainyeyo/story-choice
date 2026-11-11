@@ -97,7 +97,7 @@ export default function Shell({ children }: { children: ReactNode }) {
         </div>
       </header>
 
-      <div className={`flex-1 ${user ? "pb-20 md:pb-12" : "pb-12"}`}>
+      <div className={`flex-1 ${user ? `pb-20 ${pathname === "/read" ? "md:pb-0" : "md:pb-12"}` : "pb-12"}`}>
         {!ready || blocked ? (
           <p className="mt-24 text-center text-sky-ink-2">불러오는 중</p>
         ) : (
