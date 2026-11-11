@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../providers";
-import { LogoFull } from "../components/Logo";
 import { btnPrimary, errorCls, inputCls, Label, Segmented } from "../components/ui";
 
 export default function LoginPage() {
@@ -23,9 +22,8 @@ export default function LoginPage() {
 
   return (
     <main className="rise mx-auto w-full max-w-sm px-4 py-12 md:py-20">
-      <LogoFull height={72} className="mb-6 h-auto w-48" />
-      <h1 className="story text-3xl text-ink md:text-4xl">{mode === "login" ? "로그인" : "가입하기"}</h1>
-      <p className="mt-2 text-[15px] text-ink-2">
+      <h1 className="story text-center text-3xl font-bold text-ink md:text-4xl">{mode === "login" ? "로그인" : "가입하기"}</h1>
+      <p className="mt-2 text-center text-[15px] text-ink-2">
         {mode === "login" ? "지난 동화와 메모를 이어서 봅니다" : "닉네임과 숫자 4자리면 충분해요"}
       </p>
 
