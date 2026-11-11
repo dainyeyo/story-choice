@@ -25,10 +25,12 @@ function LoggedInHome() {
       : "아이의 마음에서 시작되는 이야기를 만들어 볼까요?";
 
   return (
-    <main className="page-turn mx-auto w-full max-w-md px-4 py-8 md:max-w-5xl md:px-8 md:py-12">
-      <section className="rounded-3xl bg-[#fff1d8] px-6 py-8 text-center md:px-10 md:py-12">
-        <p className="text-[15px] text-ink-2">{user} 보호자님</p>
-        <h1 className="story mt-2 text-3xl leading-snug text-ink md:text-4xl">
+    <main className="page-turn mx-auto w-full max-w-md px-4 pb-8 md:max-w-5xl md:px-8 md:pb-12">
+      {/* 첫 화면: 인사 + 집. 나머지는 스크롤을 내려야 보인다 */}
+      <div className="flex min-h-[calc(100dvh-72px)] flex-col items-center justify-center gap-8 pb-16 pt-8 md:min-h-[calc(100dvh-80px)] md:gap-10 md:pt-12">
+      <section className="px-2 text-center md:px-10">
+        <p className="text-base text-sky-ink-2 md:text-lg">{user} 보호자님</p>
+        <h1 className="story mt-3 text-4xl leading-snug text-sky-ink md:text-5xl">
           오늘의 동화는
           <br />
           {message}
@@ -46,7 +48,7 @@ function LoggedInHome() {
               이어서 읽기
             </Link>
           )}
-          <Link href="/create" className={reading ? "calm text-[15px] text-ink-2 underline hover:text-ink" : btnPrimary}>
+          <Link href="/create" className={reading ? "calm text-[15px] text-sky-ink-2 underline hover:text-sky-ink" : btnPrimary}>
             {reading ? (
               "새 동화 만들기"
             ) : (
@@ -59,29 +61,39 @@ function LoggedInHome() {
         </div>
       </section>
 
-      <Link href="/insights" className="calm mt-6 flex items-center justify-between gap-5 rounded-2xl border border-line bg-surface p-5 hover:bg-sunk/60 md:p-6">
-        <span>
-          <span className="text-sm font-medium text-accent-text">AI 부모 인사이트</span>
-          <span className="story mt-1 block text-xl text-ink">최근 7일의 마음을 오늘의 행동으로</span>
-          <span className="mt-1 block text-sm leading-6 text-ink-2">주간 마음 리포트와 다음 동화 방향을 함께 확인해요.</span>
-        </span>
-        <Icon name="right" className="shrink-0 text-ink-3" />
-      </Link>
-
-      <div className="mt-8 grid gap-6 md:grid-cols-2 md:gap-8">
         <Link
           href="/pet"
-          className="calm flex flex-col rounded-2xl border border-line bg-surface p-5 hover:bg-sunk/60 md:p-6"
+          aria-label="나의 마음 친구 만나러 가기"
+          className="calm flex flex-col items-center justify-center"
         >
-          <span className="story text-xl text-ink">나의 마음 친구</span>
-          <span className="flex flex-1 flex-col items-center justify-center gap-2 py-4">
-            <PetAvatar stage={stage.index} mood={pet.state.moods[localDateKey()]} className="w-40" />
-            <span className="story text-xl text-ink">{pet.state.name}</span>
-            <span className="text-sm text-ink-2">{stage.name} · 함께한 지 {careDays}일</span>
+          {/* 집 모양: 지붕 + 몸체 + 둥근 문 안에 친구가 들어가 있다 */}
+          <span className="flex w-full max-w-[380px] flex-col items-center">
+            <svg viewBox="0 0 300 96" className="relative z-10 -mb-1 w-full" aria-hidden>
+              <polygon points="150,6 294,90 6,90" fill="#a8622f" />
+              <polygon points="150,22 262,86 38,86" fill="#c27a3f" />
+              <rect x="0" y="86" width="300" height="10" rx="4" fill="#8a4f25" />
+            </svg>
+            <span className="flex h-[270px] w-[88%] items-end justify-center rounded-b-xl bg-[#e9bd86] px-6">
+              <span className="flex h-[226px] w-[216px] items-end justify-center overflow-hidden rounded-t-full bg-[#5b3a22] shadow-[inset_0_6px_14px_rgba(0,0,0,0.35)]">
+                <PetAvatar stage={stage.index} mood={pet.state.moods[localDateKey()]} className="mb-3 w-[170px]" />
+              </span>
+            </span>
+            <span className="h-4 w-[94%] rounded-b-md bg-[#8a4f25]" />
           </span>
-          <span className="inline-flex items-center justify-center gap-1 text-[15px] text-ink-2">
-            만나러 가기 <Icon name="right" size={16} />
+          <span className="story mt-5 text-2xl text-sky-ink">{pet.state.name}</span>
+          <span className="text-base text-sky-ink-2">{stage.name} · 함께한 지 {careDays}일</span>
+        </Link>
+      </div>
+
+      {/* 스크롤을 내리면 보이는 영역 */}
+      <div className="mt-6 grid gap-6 md:gap-8">
+        <Link href="/insights" className="calm flex items-center justify-between gap-5 rounded-2xl border border-line bg-surface p-5 hover:bg-sunk/60 md:p-6">
+          <span>
+            <span className="text-sm font-medium text-accent-text">AI 부모 인사이트</span>
+            <span className="story mt-1 block text-xl text-ink">최근 7일의 마음을 오늘의 행동으로</span>
+            <span className="mt-1 block text-sm leading-6 text-ink-2">주간 마음 리포트와 다음 동화 방향을 함께 확인해요.</span>
           </span>
+          <Icon name="right" className="shrink-0 text-ink-3" />
         </Link>
 
         <section className="flex flex-col rounded-2xl border border-line bg-surface p-5 md:p-6">

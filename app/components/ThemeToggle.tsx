@@ -25,6 +25,9 @@ function setTheme(t: Theme) {
   root.classList.add("theme-fade");
   window.clearTimeout(fadeTimer);
   fadeTimer = window.setTimeout(() => root.classList.remove("theme-fade"), 1900);
+  // 해와 달이 늘 같은 방향으로만 돌도록 회전 횟수를 계속 늘린다 (globals.css의 --sky-spin)
+  const spin = Number(root.style.getPropertyValue("--sky-spin")) || (root.dataset.theme === "light" ? 1 : 0);
+  root.style.setProperty("--sky-spin", String(spin + 1));
   root.dataset.theme = t;
   try {
     localStorage.setItem(THEME_KEY, t);
