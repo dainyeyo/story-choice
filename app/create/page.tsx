@@ -71,11 +71,11 @@ export default function CreatePage() {
     const { x, y } = point(e);
     ctx.strokeStyle = color;
     ctx.fillStyle = color;
-    ctx.lineWidth = 8;
+    ctx.lineWidth = 12;
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
     ctx.beginPath();
-    ctx.arc(x, y, 4, 0, Math.PI * 2);
+    ctx.arc(x, y, 6, 0, Math.PI * 2);
     ctx.fill();
     ctx.beginPath();
     ctx.moveTo(x, y);
@@ -166,8 +166,9 @@ export default function CreatePage() {
         </p>
       )}
 
-      <form onSubmit={submit} className="mt-8 grid gap-6 md:grid-cols-2">
-        <section className="space-y-4 rounded-2xl border border-line bg-[#fbf2de] p-5 shadow-[0_6px_20px_rgba(20,15,40,0.28)] md:p-7">
+      <form onSubmit={submit} className="mt-8 space-y-6">
+        <div className="grid gap-8 rounded-2xl border border-line bg-[#fbf2de] p-5 shadow-[0_6px_20px_rgba(20,15,40,0.28)] md:grid-cols-2 md:gap-10 md:p-7">
+        <section className="space-y-4">
           <h2 className="story text-xl text-ink">요즘 아이의 마음은</h2>
           <div className="flex flex-wrap gap-2">
             {EXAMPLES.map((p) => (
@@ -238,7 +239,7 @@ export default function CreatePage() {
           )}
         </section>
 
-        <section className="space-y-6 rounded-2xl border border-line bg-[#fbf2de] p-5 shadow-[0_6px_20px_rgba(20,15,40,0.28)] md:p-7">
+        <section className="space-y-6">
           <h2 className="story text-xl text-ink">동화 설정</h2>
 
           <div className="space-y-2">
@@ -293,8 +294,12 @@ export default function CreatePage() {
             )}
           </div>
 
+        </section>
+        </div>
+
+        <section className="space-y-5 rounded-2xl border border-line bg-[#fbf2de] p-5 shadow-[0_6px_20px_rgba(20,15,40,0.28)] md:p-7">
           <label className="block space-y-2">
-            <Label>주인공</Label>
+            <Label>주인공 이름</Label>
             <input
               value={protagonist}
               onChange={(e) => setProtagonist(e.target.value)}
@@ -316,11 +321,11 @@ export default function CreatePage() {
               ))}
               <button type="button" onClick={clearSketch} disabled={!hasSketch} className="ml-auto text-sm text-ink-2 underline underline-offset-4 disabled:opacity-40">다시 그리기</button>
             </div>
-            <canvas ref={canvasRef} width={600} height={400} aria-label="주인공 그림판" onPointerDown={startStroke} onPointerMove={moveStroke}
+            <canvas ref={canvasRef} width={1200} height={800} aria-label="주인공 그림판" onPointerDown={startStroke} onPointerMove={moveStroke}
               onPointerUp={(e) => { if (drawingPointer.current === e.pointerId) drawingPointer.current = null; }}
               onPointerCancel={(e) => { if (drawingPointer.current === e.pointerId) drawingPointer.current = null; }}
               onLostPointerCapture={() => { drawingPointer.current = null; }}
-              className="block aspect-[3/2] w-full touch-none rounded-xl border border-dashed border-ink-3/50 bg-white" />
+              className="block aspect-[3/2] w-full touch-none rounded-xl border border-dashed border-ink-3/50 bg-white shadow-[0_4px_12px_rgba(80,60,35,0.08)]" />
             <label className="block space-y-2">
             <span className="block text-sm text-ink-2">또는 그린 그림을 올려 주세요</span>
             <input ref={fileRef} type="file" accept="image/png,image/jpeg" className={inputCls}
@@ -342,13 +347,13 @@ export default function CreatePage() {
         </section>
 
         {s.savedMemo && (
-          <p className={`${noteCls} md:col-span-2`}>
+          <p className={`${noteCls}`}>
             지난 동화의 메모가 이번 동화에 이어져요
             <span className="mt-1 block text-ink">“{s.savedMemo}”</span>
           </p>
         )}
 
-        <div className="md:col-span-2 md:flex md:justify-center">
+        <div className="md:flex md:justify-center">
           <button type="submit" disabled={submitting} className={`${btnPrimary} md:w-64 disabled:opacity-50`}>
             동화 만들기
           </button>
