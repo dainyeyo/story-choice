@@ -2,12 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { FONT_CLASS } from "@/lib/settings";
 import { CUSTOM_COPING } from "@/lib/story/schema";
 import { TTS_VOICES } from "@/lib/tts";
 import { useApp } from "../providers";
 import Icon from "../components/Icon";
 import SceneArt from "../components/SceneArt";
+import StoryText from "../components/StoryText";
 import { DrawingAnimation, WritingAnimation } from "../components/LoadingAnimation";
 import { btnIcon, btnPrimary, btnSecondary, errorCls, inputCls, noteCls, Segmented } from "../components/ui";
 
@@ -101,8 +101,8 @@ export default function ReadPage() {
           {s.images[cur]?.backgroundSource === "local-fallback" && <p className="mt-2 text-sm text-ink-3">그림 생성 서비스가 바빠 기본 배경을 사용했어요.</p>}
         </div>
 
-        <div className="flex flex-col gap-6 md:py-3 md:pr-3">
-          <p className={`story flex-1 text-ink ${FONT_CLASS[settings.fontSize]}`}>{s.scenes[cur]}</p>
+        <div className="flex min-w-0 flex-col gap-8 px-1 py-2 md:px-0 md:py-4 md:pr-3">
+          <StoryText text={s.scenes[cur]} fontSize={settings.fontSize} />
 
           <div className="space-y-4">
             <div className="flex items-center gap-3">
