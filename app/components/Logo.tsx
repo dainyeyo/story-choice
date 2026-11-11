@@ -1,27 +1,37 @@
-// 픽토리 로고: 그림(Picture)이 이야기(Story)가 된다.
-// 마크는 그림 액자(산과 해) 위에 책갈피가 걸린 모양이다. 책갈피는 읽는 화면의 책갈피와 같은 표시다.
+// 픽토리 로고: 책 위에 잠든 달. 그림(Picture)이 이야기(Story)가 되어 잠자리에서 읽힌다.
+// 마크 이미지는 public/pictory-mark.png, 전체 로고(워드마크 포함)는 public/pictory-logo.png.
 
+/* eslint-disable @next/next/no-img-element */
 export function LogoMark({ size = 24, className = "" }: { size?: number; className?: string }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden className={`shrink-0 ${className}`}>
-      <rect x="3" y="6" width="16" height="14" rx="3" stroke="currentColor" strokeWidth="1.5" />
-      <path
-        d="m3 17 4.5-4.5 3.5 3.5 2.5-2.5L19 17"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <circle cx="8" cy="10.5" r="1.2" fill="currentColor" />
-      <path d="M16.5 2.5h4.5v8l-2.25-1.8L16.5 10.5z" fill="#f59e0b" />
-    </svg>
+    <img
+      src="/pictory-mark.png"
+      alt=""
+      aria-hidden
+      width={size}
+      height={Math.round((size * 383) / 416)}
+      className={`shrink-0 ${className}`}
+    />
+  );
+}
+
+// 마크와 워드마크가 함께 있는 전체 로고 (로그인, 소개 화면 등 큰 자리용)
+export function LogoFull({ height = 80, className = "" }: { height?: number; className?: string }) {
+  return (
+    <img
+      src="/pictory-logo.png"
+      alt="Pictory 픽토리"
+      height={height}
+      width={Math.round((height * 1272) / 472)}
+      className={className}
+    />
   );
 }
 
 export default function Logo() {
   return (
     <span className="flex items-center gap-2 text-ink">
-      <LogoMark size={26} className="text-ink" />
+      <LogoMark size={34} />
       <span className="story text-xl tracking-wide">픽토리</span>
       <span className="sr-only">Pictory, 아이의 그림이 하나의 이야기가 됩니다</span>
     </span>

@@ -33,6 +33,7 @@ export const instant = false;
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  themeColor: "#f59e0b",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
