@@ -4,13 +4,14 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, type MouseEvent, type ReactNode } from "react";
 import { useAuth } from "../providers";
 import Icon, { type IconName } from "./Icon";
 import Logo from "./Logo";
 import ThemeToggle from "./ThemeToggle";
 
 const PUBLIC = ["/", "/login"];
+const CREATE_RETURN_KEY = "story-choice:return-to-create";
 
 const MENU: { href: string; label: string; icon: IconName }[] = [
   { href: "/", label: "홈", icon: "home" },
@@ -32,6 +33,25 @@ export default function Shell({ children }: { children: ReactNode }) {
     if (blocked) router.replace("/login");
     if (ready && user && pathname === "/login") router.replace("/");
   }, [blocked, ready, user, pathname, router]);
+
+  useEffect(() => {
+    if (pathname !== "/settings") sessionStorage.removeItem(CREATE_RETURN_KEY);
+  }, [pathname]);
+
+  const menuHref = (href: string) => href === "/create/new" ? "/create/new?reset=1" : href;
+
+  const handleMenuClick = (event: MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (href === "/settings" && pathname.startsWith("/create")) {
+      sessionStorage.setItem(CREATE_RETURN_KEY, pathname);
+      return;
+    }
+    if (href !== "/create/new" || pathname !== "/settings") return;
+    const returnPath = sessionStorage.getItem(CREATE_RETURN_KEY);
+    if (!returnPath?.startsWith("/create")) return;
+    event.preventDefault();
+    sessionStorage.removeItem(CREATE_RETURN_KEY);
+    router.push(returnPath);
+  };
 
   const active = (href: string) => {
     const route = href === "/create/new" ? "/create" : href;
@@ -62,7 +82,8 @@ export default function Shell({ children }: { children: ReactNode }) {
                 {MENU.map((m) => (
                   <Link
                     key={m.href}
-                    href={m.href}
+                    href={menuHref(m.href)}
+                    onClick={(event) => handleMenuClick(event, m.href)}
                     aria-current={isMenuActive(m.href) ? "page" : undefined}
                     className={`calm inline-flex h-9 items-center whitespace-nowrap rounded-lg px-3 text-[15px] ${
                       isMenuActive(m.href)
@@ -117,7 +138,8 @@ export default function Shell({ children }: { children: ReactNode }) {
             return (
               <Link
                 key={m.href}
-                href={m.href}
+                href={menuHref(m.href)}
+                onClick={(event) => handleMenuClick(event, m.href)}
                 aria-current={on ? "page" : undefined}
                 className={`calm flex h-14 flex-col items-center justify-center gap-1 text-xs ${
                   on ? "font-medium text-nav-on" : "text-sky-ink-2"

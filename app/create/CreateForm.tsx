@@ -68,10 +68,11 @@ export function CreateForm({ fresh = false }: { fresh?: boolean }) {
   useEffect(() => {
     if (!fresh) return;
     removeKey(formKey);
+    router.replace("/create/new");
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext("2d");
     if (canvas && ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
-  }, [fresh, formKey]);
+  }, [fresh, formKey, router]);
 
   useEffect(() => {
     const source = form.sketchDataUrl;

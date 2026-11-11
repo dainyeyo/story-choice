@@ -93,7 +93,7 @@ export default function LibraryPage() {
 
       {library.length === 0 && (
         <div className="mt-8">
-          <Link href="/create/new" className={`${btnPrimary} md:w-56`}>
+          <Link href="/create/new?reset=1" className={`${btnPrimary} md:w-56`}>
             첫 동화 만들기
           </Link>
         </div>
