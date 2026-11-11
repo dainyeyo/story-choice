@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useApp } from "../providers";
 import Icon from "../components/Icon";
 import PetAvatar from "../components/PetAvatar";
@@ -29,11 +29,12 @@ function dateKey(year: number, month: number, day: number) {
 }
 
 export default function PetPage() {
-  const { pet } = useApp();
+  const { pet, library } = useApp();
   const [action, setAction] = useState<"fed" | "petted" | undefined>();
   const [testOpen, setTestOpen] = useState(false);
   const [renaming, setRenaming] = useState(false);
   const [nameDraft, setNameDraft] = useState(pet.state.name);
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const today = pet.today;
   const todayDate = new Date(`${today}T12:00:00`);
   const [shownMonth, setShownMonth] = useState({ year: todayDate.getFullYear(), month: todayDate.getMonth() });
@@ -46,6 +47,19 @@ export default function PetPage() {
   const mood = pet.state.moods[today];
   const progress = next ? Math.min(100, ((growthDays - stage.days) / (next.days - stage.days)) * 100) : 100;
   const cells = monthCells(shownMonth.year, shownMonth.month);
+  const selectedMood = selectedDate ? pet.state.moods[selectedDate] : undefined;
+  const selectedStories = selectedDate
+    ? library.filter((story) => localDateKey(story.createdAt) === selectedDate)
+    : [];
+
+  useEffect(() => {
+    if (!selectedDate) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setSelectedDate(null);
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [selectedDate]);
 
   const react = (nextAction: "fed" | "petted") => {
     const succeeded = nextAction === "fed" ? pet.feed() : pet.pet();
@@ -195,10 +209,10 @@ export default function PetPage() {
             const isToday = key === today;
             return (
               <div key={key} className="flex aspect-square items-center justify-center p-0.5">
-                <span className={`relative flex size-full max-h-12 max-w-12 flex-col items-center justify-center rounded-xl ${isToday ? "bg-[#fdf0d2] ring-1 ring-accent" : recordedMood ? "bg-paper" : ""}`}>
+                <button type="button" onClick={() => setSelectedDate(key)} aria-label={`${day}일${recordedMood ? `, ${recordedMood} 마음` : ""}, 기록 보기`} className={`relative flex size-full max-h-12 max-w-12 flex-col items-center justify-center rounded-xl transition hover:bg-sunk focus-visible:outline-2 focus-visible:outline-accent ${isToday ? "bg-[#fdf0d2] ring-1 ring-accent" : recordedMood ? "bg-paper" : ""}`}>
                   <span className={`text-[11px] leading-none ${isToday ? "font-medium text-accent-text" : "text-ink-3"}`}>{day}</span>
-                  <span className="mt-0.5 min-h-4 text-base leading-none" aria-label={recordedMood}>{recordedMood ? MOOD_EMOJI[recordedMood] : ""}</span>
-                </span>
+                  <span className="mt-0.5 min-h-4 text-base leading-none" aria-hidden>{recordedMood ? MOOD_EMOJI[recordedMood] : ""}</span>
+                </button>
               </div>
             );
           })}
@@ -207,6 +221,59 @@ export default function PetPage() {
           {MOODS.map((item) => <span key={item.value}>{item.emoji} {item.value}</span>)}
         </div>
       </section>
+
+      {selectedDate && (
+        <div
+          className="fixed inset-0 z-50 grid place-items-center bg-ink/45 p-4"
+          role="presentation"
+          onMouseDown={(event) => { if (event.target === event.currentTarget) setSelectedDate(null); }}
+        >
+          <section role="dialog" aria-modal="true" aria-labelledby="calendar-detail-title" className="relative max-h-[85dvh] w-full max-w-xl overflow-y-auto rounded-3xl border border-line bg-surface p-5 shadow-xl sm:p-7">
+            <button type="button" onClick={() => setSelectedDate(null)} aria-label="닫기" className="absolute right-4 top-4 flex size-9 items-center justify-center rounded-full text-xl text-ink-3 hover:bg-sunk">×</button>
+            <h2 id="calendar-detail-title" className="story pr-10 text-2xl text-ink">
+              {new Date(`${selectedDate}T12:00:00`).toLocaleDateString("ko-KR", { year: "numeric", month: "long", day: "numeric", weekday: "long" })}
+            </h2>
+
+            <section className="mt-6 rounded-2xl bg-[#fff7e9] p-4">
+              <h3 className="text-sm font-medium text-ink-2">이날의 마음</h3>
+              {selectedMood ? (
+                <p className="mt-2 flex items-center gap-2 text-lg text-ink"><span aria-hidden>{MOOD_EMOJI[selectedMood]}</span>{selectedMood}</p>
+              ) : <p className="mt-2 text-sm text-ink-3">이날은 마음 스티커를 남기지 않았어요.</p>}
+            </section>
+
+            <section className="mt-5">
+              <h3 className="story text-xl text-ink">그날 만든 동화</h3>
+              {selectedStories.length ? (
+                <div className="mt-3 space-y-3">
+                  {selectedStories.map((story) => {
+                    const keywords = Array.from(new Set(story.choices.map((choice) => choice.copingType)));
+                    return (
+                      <article key={story.id} className="rounded-2xl border border-line p-4">
+                        <h4 className="font-medium text-ink">{story.title}</h4>
+                        <p className="mt-2 text-sm leading-6 text-ink-2">상황 · {story.situation}</p>
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          {keywords.length ? keywords.map((keyword) => <span key={keyword} className="rounded-full bg-[#fdf0d2] px-3 py-1 text-xs text-accent-text">{keyword}</span>) : <span className="rounded-full bg-sunk px-3 py-1 text-xs text-ink-2">함께 읽기</span>}
+                        </div>
+                        {story.choices.length > 0 && <p className="mt-3 text-sm leading-6 text-ink-2">아이가 고른 마음 · {story.choices.map((choice) => `“${choice.text}”`).join(" · ")}</p>}
+                        <details className="mt-4 rounded-xl bg-paper px-3 py-2">
+                          <summary className="cursor-pointer text-sm font-medium text-ink-2">동화 내용 보기</summary>
+                          <ol className="mt-3 list-decimal space-y-3 pl-5 text-sm leading-6 text-ink-2">
+                            {story.scenes.map((scene, index) => <li key={`${story.id}-scene-${index}`}>{scene}</li>)}
+                          </ol>
+                        </details>
+                        {story.card?.summary && <p className="mt-3 text-sm leading-6 text-ink-2">마음 살펴보기 · {story.card.summary}</p>}
+                        {story.memo && <p className="mt-3 rounded-xl bg-[#f5f0e6] p-3 text-sm leading-6 text-ink-2">부모 메모 · {story.memo}</p>}
+                      </article>
+                    );
+                  })}
+                </div>
+              ) : (
+                <p className="mt-2 rounded-2xl bg-paper p-4 text-sm leading-6 text-ink-3">이날 완성한 동화가 아직 없어요.</p>
+              )}
+            </section>
+          </section>
+        </div>
+      )}
 
     </main>
   );
